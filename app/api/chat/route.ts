@@ -1,58 +1,57 @@
-import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const message = body?.message?.trim();
+  const { message, chatId } = await req.json();
 
-    if (!message) {
-      return NextResponse.json(
-        { ok: false, error: "Mensagem vazia." },
-        { status: 400 }
-      );
-    }
+  let chat;
 
-    const ollamaRes = await fetch("http://127.0.0.1:11434/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "qwen2.5:3b",
-        stream: false,
-        messages: [
-          {
-            role: "system",
-            content:
-              "Você é a IA do Luma OS. Responda em português, de forma clara, elegante e útil para empreendedoras e negócios digitais.",
-          },
-          {
-            role: "user",
-            content: message,
-          },
-        ],
-      }),
+  // cria ou pega chat
+  if (!chatId) {
+    chat = await prisma.chat.create({ data: {} });
+  } else {
+    chat = await prisma.chat.findUnique({
+      where: { id: chatId },
     });
-
-    if (!ollamaRes.ok) {
-      const errorText = await ollamaRes.text();
-      return NextResponse.json(
-        { ok: false, error: `Erro do Ollama: ${errorText}` },
-        { status: 500 }
-      );
-    }
-
-    const data = await ollamaRes.json();
-
-    return NextResponse.json({
-      ok: true,
-      reply: data?.message?.content || "Não consegui responder agora.",
-    });
-  } catch {
-    return NextResponse.json(
-      { ok: false, error: "Erro ao conectar com o Ollama." },
-      { status: 500 }
-    );
   }
-}
 
+  // salva mensagem do usuário
+  await prisma.message.create({
+    data: {
+      content: message,
+      role: "user",
+      chatId: chat!.id,
+    },
+  });
+
+  // 🔥 CHAMADA REAL DO OLLAMA
+  const ollamaRes = await fetch("http://localhost:11434/api/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "luma-brain",
+      prompt: message,
+      stream: false,
+    }),
+  });
+
+  const ollamaData = await ollamaRes.json();
+  const resposta = ollamaData.response;
+
+  // salva resposta da IA
+  await prisma.message.create({
+    data: {
+      content: resposta,
+      role: "assistant",
+      chatId: chat!.id,
+    },
+  });
+
+  return Response.json({
+    reply: resposta,
+    chatId: chat!.id,
+  });
+}
