@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 const stats = [
   {
@@ -68,14 +70,20 @@ const activityBars = [
   { day: "Dom", height: "h-10" },
 ];
 
-export default function AutomationsPage() {
+export default async function AutomationsPage() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    redirect("/sign-in");
+  }
+
   return (
     <main className="min-h-screen bg-[#050507] text-white">
       <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 pb-16 pt-5 md:px-6">
         <header className="mb-8 flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
             <Link
-              href="/"
+              href="/member-user"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/80"
             >
               ←
@@ -102,7 +110,7 @@ export default function AutomationsPage() {
 
         <section className="mb-8">
           <div className="mb-4 inline-flex rounded-full border border-[#7A00FF]/25 bg-[#7A00FF]/10 px-3 py-1 text-xs text-[#d7b8ff] shadow-[0_0_18px_rgba(122,0,255,0.12)]">
-            Painel operacional
+            Painel operacional privado
           </div>
 
           <h1 className="max-w-4xl text-4xl font-semibold leading-tight md:text-6xl">

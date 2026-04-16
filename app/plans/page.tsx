@@ -3,16 +3,19 @@ import Link from "next/link";
 const plans = [
   {
     name: "Teste grátis",
-    price: "7 dias",
+    price: "30 dias",
     highlight: false,
-    description: "Para conhecer a plataforma e testar a experiência.",
+    description:
+      "Teste completo da plataforma por 30 dias para validar a experiência real no seu negócio.",
     features: [
-      "Acesso ao chat público",
-      "Explorar interface da plataforma",
-      "Visualizar áreas principais",
-      "Teste inicial limitado",
+      "Teste por 30 dias",
+      "Cadastro com cartão para ativação",
+      "Cancelamento a qualquer momento",
+      "Acesso inicial à experiência da plataforma",
+      "Validação prática antes de assinar",
     ],
-    cta: "Começar teste",
+    cta: "Começar teste de 30 dias",
+    note: "Você pode cancelar antes do fim do período de teste.",
   },
   {
     name: "Básico",
@@ -26,6 +29,7 @@ const plans = [
       "1 área de serviço ativa",
     ],
     cta: "Assinar Básico",
+    note: "Plano inicial para pequenos testes operacionais.",
   },
   {
     name: "Prime",
@@ -40,6 +44,7 @@ const plans = [
       "Prioridade média no suporte",
     ],
     cta: "Assinar Prime",
+    note: "Melhor equilíbrio entre estrutura, automação e custo.",
   },
   {
     name: "Premium",
@@ -54,6 +59,7 @@ const plans = [
       "Prioridade alta no suporte",
     ],
     cta: "Assinar Premium",
+    note: "Ideal para empresas em fase de expansão.",
   },
   {
     name: "Pro",
@@ -68,6 +74,7 @@ const plans = [
       "Suporte prioritário",
     ],
     cta: "Assinar Pro",
+    note: "Pensado para estruturas mais completas e profissionais.",
   },
 ];
 
@@ -85,10 +92,20 @@ export default function PlansPage() {
           </h1>
 
           <p className="mx-auto mt-4 max-w-3xl text-sm leading-7 text-white/55 md:text-base">
-            Comece testando a plataforma e evolua conforme sua operação cresce.
-            Cada plano libera novas áreas, recursos, agentes e automações.
+            Comece com um teste de 30 dias, valide a plataforma com calma e,
+            depois disso, escolha o plano que mais combina com a fase da sua operação.
           </p>
         </header>
+
+        <section className="mb-8 rounded-[30px] border border-[#00F0FF]/20 bg-[#00F0FF]/10 p-5 text-center">
+          <p className="text-sm font-semibold text-[#00F0FF]">
+            Teste grátis de 30 dias com cartão para ativação
+          </p>
+          <p className="mt-2 text-sm leading-6 text-white/70">
+            Você poderá cancelar quando quiser durante o período de teste.
+            Depois a gente conecta tudo isso ao Stripe para a cobrança e a gestão automática.
+          </p>
+        </section>
 
         <section className="grid grid-cols-1 gap-5 xl:grid-cols-5">
           {plans.map((plan) => (
@@ -118,15 +135,18 @@ export default function PlansPage() {
                 ))}
               </ul>
 
-              <button
-                className={`mt-8 w-full rounded-2xl px-4 py-3 text-sm font-semibold ${
+              <p className="mt-6 text-xs leading-5 text-white/40">{plan.note}</p>
+
+              <Link
+                href="/auth"
+                className={`mt-8 inline-flex w-full items-center justify-center rounded-2xl px-4 py-3 text-sm font-semibold ${
                   plan.highlight
                     ? "bg-[#7A00FF] text-white"
                     : "border border-white/10 bg-white/[0.05] text-white/85"
                 }`}
               >
                 {plan.cta}
-              </button>
+              </Link>
             </article>
           ))}
         </section>
