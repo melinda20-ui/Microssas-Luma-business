@@ -3,12 +3,17 @@
 import { useState } from "react";
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState([
+    {
+      role: "assistant",
+      content: "Olá, Luma. Bem-vinda ao seu centro de comando.",
+    },
+  ]);
+
   const [input, setInput] = useState("");
-  const [chatId, setChatId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function sendMessage() {
+  const sendMessage = async () => {
     if (!input.trim()) return;
 
     const userMessage = input;
@@ -27,73 +32,70 @@ export default function ChatPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          message: userMessage,
-          chatId,
-        }),
+        body: JSON.stringify({ message: userMessage }),
       });
 
       const data = await res.json();
 
-      setChatId(data.chatId);
+      if (!data.ok) {
+        throw new Error(data.error || "Erro na API");
+      }
 
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: data.reply },
+        {
+          role: "assistant",
+          content: data.reply,
+        },
       ]);
-    } catch {
+    } catch (error) {
+      console.error(error);
+
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Erro ao conectar." },
+        {
+          role: "assistant",
+          content: "Erro ao conectar com a IA.",
+        },
       ]);
     }
 
     setLoading(false);
-  }
+  };
 
   return (
-    <main className="flex flex-col h-screen bg-black text-white">
-      {/* HEADER */}
-      <div className="p-4 border-b border-white/10">
-        <h1 className="text-lg font-bold">Luma Chat</h1>
-      </div>
-
-      {/* MENSAGENS */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex flex-col h-screen bg-black text-white p-4">
+      <div className="flex-1 overflow-y-auto space-y-4">
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`max-w-[70%] p-3 rounded-xl ${
+            className={`max-w-[80%] p-3 rounded-xl ${
               msg.role === "user"
-                ? "bg-purple-600 ml-auto"
-                : "bg-zinc-800"
+                ? "bg-purple-600 self-end ml-auto"
+                : "bg-gray-800"
             }`}
           >
             {msg.content}
           </div>
         ))}
-
-        {loading && (
-          <div className="text-sm opacity-50">Pensando...</div>
-        )}
       </div>
 
-      {/* INPUT */}
-      <div className="p-4 border-t border-white/10 flex gap-2">
+      <div className="flex gap-2 mt-4">
         <input
-          className="flex-1 p-3 rounded-xl bg-zinc-900 outline-none"
-          placeholder="Digite sua mensagem..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          placeholder="Digite uma mensagem..."
+          className="flex-1 p-3 rounded-lg bg-gray-900"
         />
 
         <button
           onClick={sendMessage}
-          className="px-4 py-2 bg-purple-600 rounded-xl"
+          className="bg-purple-600 px-4 rounded-lg"
         >
           Enviar
         </button>
       </div>
-    </main>
+    </div>
   );
 }
+
