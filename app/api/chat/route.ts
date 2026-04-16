@@ -1,6 +1,20 @@
 export async function POST(req: Request) {
   try {
-    const { message } = await req.json();
+    const { message, attachments = [] } = await req.json();
+
+    const attachmentText =
+      attachments.length > 0
+        ? `\n\nArquivos enviados:\n${attachments
+            .map(
+              (file: any) =>
+                `- ${file.name} (${file.type || "tipo desconhecido"}, ${file.size} bytes)`
+            )
+            .join("\n")}`
+        : "";
+
+    const prompt = `${message}${attachmentText}
+
+Se houver arquivos, reconheça que eles foram enviados. Se você ainda não puder ler o conteúdo completo deles, diga isso com clareza e diga o que já consegue identificar pelos nomes e tipos.`;
 
     const ollamaRes = await fetch("http://127.0.0.1:11434/api/generate", {
       method: "POST",
@@ -9,7 +23,7 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         model: "luma-brain",
-        prompt: message,
+        prompt,
         stream: false,
       }),
     });
