@@ -26,8 +26,11 @@ export async function POST(req: Request) {
       "formulario",
       "google sheets",
       "planilha",
-      "email",
-      "e-mail",
+      "excel",
+      "notion",
+      "whatsapp",
+      "crm",
+      "lead",
     ];
 
     const isAutomation = automationHints.some((hint) =>
@@ -35,125 +38,96 @@ export async function POST(req: Request) {
     );
 
     if (isAutomation) {
-      let workflowName = "Workflow Personalizado";
-      let description = "Fluxo automatizado criado com base no pedido do usuário.";
-      let steps: string[] = [];
-      let nodes: { type: string; name: string }[] = [];
+      const automationSystemPrompt = `
+Você é uma arquiteta especialista em automações n8n.
 
-      const wantsPopup = prompt.includes("popup");
-      const wantsEmail =
-        prompt.includes("email") || prompt.includes("e-mail");
-      const wantsSheets =
-        prompt.includes("google sheets") ||
-        prompt.includes("planilha") ||
-        prompt.includes("excel");
-      const wantsLeadCapture =
-        prompt.includes("lead") || prompt.includes("captar");
+Sua tarefa é analisar o pedido do usuário e gerar uma resposta em JSON válido.
 
-      if (wantsPopup && wantsEmail && wantsSheets) {
-        workflowName = "Captura de e-mail em popup + Google Sheets";
-        description =
-          "Captura o e-mail digitado no popup, valida os dados e salva automaticamente em uma planilha do Google Sheets.";
+REGRAS:
+- Responda APENAS com JSON válido.
+- Não use markdown.
+- Não explique fora do JSON.
+- Pense como alguém que cria fluxos n8n reais.
+- Os nodes devem ser coerentes com o pedido do usuário.
+- Se o pedido envolver WhatsApp, Notion, Google Sheets, formulário, popup, CRM ou webhook, reflita isso nos nodes e steps.
 
-        steps = [
-          "Exibir popup com campo de e-mail",
-          "Receber o e-mail enviado pelo usuário",
-          "Validar se o e-mail foi preenchido corretamente",
-          "Enviar os dados para o workflow",
-          "Salvar o e-mail em uma planilha do Google Sheets",
-          "Retornar confirmação de cadastro",
-        ];
+Formato obrigatório:
+{
+  "name": "Nome da automação",
+  "description": "Descrição curta",
+  "sourcePrompt": "pedido original do usuário",
+  "steps": [
+    "etapa 1",
+    "etapa 2"
+  ],
+  "nodes": [
+    {
+      "type": "tipo_do_node",
+      "name": "Nome do node"
+    }
+  ]
+}
+`;
 
-        nodes = [
-          {
-            type: "trigger",
-            name: "Receber envio do popup",
-          },
-          {
-            type: "validation",
-            name: "Validar e-mail",
-          },
-          {
-            type: "google_sheets",
-            name: "Salvar na planilha",
-          },
-          {
-            type: "response",
-            name: "Confirmar cadastro",
-          },
-        ];
-      } else if (wantsLeadCapture) {
-        workflowName = "Lead Capture Workflow";
-        description =
-          "Fluxo para captar leads e iniciar contato automático.";
+      const automationResponse = await fetch("http://127.0.0.1:11434/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama3.2:3b",
+          prompt: `${automationSystemPrompt}\n\nPedido do usuário:\n${originalPrompt}`,
+          stream: false,
+        }),
+      });
 
-        steps = [
-          "Receber lead por formulário ou webhook",
-          "Validar dados obrigatórios",
-          "Salvar no CRM ou banco de dados",
-          "Enviar mensagem inicial",
-          "Notificar equipe comercial",
-          "Agendar follow-up",
-        ];
+      if (!automationResponse.ok) {
+        const errorText = await automationResponse.text();
+        throw new Error("Erro no Ollama (automação): " + errorText);
+      }
 
-        nodes = [
-          {
-            type: "webhook",
-            name: "Receber Lead",
-          },
-          {
-            type: "validation",
-            name: "Validar Dados",
-          },
-          {
-            type: "database",
-            name: "Salvar Lead",
-          },
-          {
-            type: "notification",
-            name: "Avisar Comercial",
-          },
-        ];
-      } else {
-        workflowName = "Automação personalizada";
-        description =
-          "Fluxo criado com base na solicitação enviada pelo usuário.";
+      const automationData = await automationResponse.json();
+      const rawText = automationData.response?.trim() || "";
 
-        steps = [
-          "Interpretar o pedido do usuário",
-          "Estruturar a automação",
-          "Organizar as etapas principais",
-          "Preparar para importação no n8n",
-        ];
+      let parsedJson: any = null;
 
-        nodes = [
-          {
-            type: "trigger",
-            name: "Entrada inicial",
-          },
-          {
-            type: "logic",
-            name: "Processamento",
-          },
-          {
-            type: "output",
-            name: "Saída final",
-          },
-        ];
+      try {
+        parsedJson = JSON.parse(rawText);
+      } catch {
+        parsedJson = {
+          name: "Automação gerada com fallback",
+          description: "O modelo respondeu fora do JSON ideal, então foi aplicado fallback.",
+          sourcePrompt: originalPrompt,
+          steps: [
+            "Interpretar o pedido do usuário",
+            "Estruturar a automação",
+            "Organizar as etapas principais",
+            "Preparar para importação no n8n",
+          ],
+          nodes: [
+            {
+              type: "trigger",
+              name: "Entrada inicial",
+            },
+            {
+              type: "logic",
+              name: "Processamento",
+            },
+            {
+              type: "output",
+              name: "Saída final",
+            },
+          ],
+          rawModelResponse: rawText,
+        };
       }
 
       return Response.json({
         ok: true,
         mode: "automation",
-        reply: "Automação estruturada com base no seu pedido.",
+        reply: "Automação estruturada com o Ollama.",
         askToImport: true,
-        json: {
-          name: workflowName,
-          description,
-          sourcePrompt: originalPrompt,
-          steps,
-          nodes,
-        },
+        json: parsedJson,
       });
     }
 
