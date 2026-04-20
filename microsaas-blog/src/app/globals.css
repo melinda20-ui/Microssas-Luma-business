@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-dark: #04040f;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --accent-purple: #7c3aed;
+  --accent-cyan: #06b6d4;
+  --text-main: #e8e8ed;
+  --text-muted: #a1a1aa;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Outfit', sans-serif;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* Efeito Glow nos Títulos */
+.glow-title {
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+/* Card Estilo Vidro Premium */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  transition: all 0.3s ease-wrap;
+}
+
+.glass-card:hover {
+  border-color: rgba(124, 58, 237, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Grid de Fundo Futurista */
+.future-grid {
+  background-image: 
+    linear-gradient(rgba(124, 58, 237, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 58, 237, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.orb-purple { background: radial-gradient(circle, rgba(124, 58, 237, 0.15), transparent 70%); top: -10%; left: -10%; width: 40%; height: 40%; }
+.orb-cyan { background: radial-gradient(circle, rgba(6, 182, 212, 0.1), transparent 70%); bottom: -10%; right: -10%; width: 30%; height: 30%; }
+
+/* Estilo para conteúdo de Artigo (Markdown-like) */
+.article-content p {
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+  color: #d1d1d6;
+}
+
+.article-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+.article-content blockquote {
+  border-left: 4px solid var(--accent-purple);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+  color: #a78bfa;
+}

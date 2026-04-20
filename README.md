@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧬 Sualuma Online: Ecossistema de MicroSaaS & Blog IA
 
-## Getting Started
+Este repositório contém o ecossistema completo da **Sualuma Online**, composto por uma plataforma de automação futurista, um cérebro de agentes de IA e um sistema de blog automatizado.
 
-First, run the development server:
+---
 
+## 📂 Estrutura do Projeto (Monorepo)
+
+- **`agents-api/`** 🧠: Backend em Node.js que gerencia os 5 Agentes de IA (Gemini/Ollama).
+- **`microsaas-core/`** ⚡: Front-end Next.js Premium com a interface de chat e dashboard.
+- **`microsaas-blog/`** ✍️: Sistema de Blog Next.js para SEO e autoridade de marca.
+- **`v1-original-luma/`** 📁: Código legado original preservado.
+
+---
+
+## 🚀 Como fazer o Deploy na VPS (Manual Rápido)
+
+### 1. Clonar o Repositório
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/melinda20-ui/Microssas-Luma-business.git
+cd Microssas-Luma-business
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Instalar Dependências
+Você deve rodar o `npm install` em cada uma das pastas principais:
+```bash
+cd agents-api && npm install && cd ..
+cd microsaas-core && npm install && cd ..
+cd microsaas-blog && npm install && cd ..
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Configurar Variáveis de Ambiente
+Crie os arquivos `.env` em cada pasta baseando-se nos exemplos fornecidos.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Rodar com PM2
+Para manter o sistema ligado 24/7 na Hostinger:
+```bash
+pm2 start agents-api/ecosystem.config.js
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Tecnologias Utilizadas
+- **Frontend**: Next.js 15, TailwindCSS (v4/v3), Lucide React.
+- **Backend**: Node.js, Express, Gemini API, Ollama.
+- **Banco de Dados**: SQLite (para v2) e Prisma (v1).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Desenvolvido com Antigravity AI para a Sualuma Online.*
