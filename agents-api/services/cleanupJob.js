@@ -43,6 +43,15 @@ const runCleanupJob = () => {
         
         db.prepare('UPDATE video_vault SET alert_sent = 1 WHERE id = ?').run(video.id);
         console.log(`[Cleanup Job] Alerta enviado para o vídeo: ${video.id}`);
+    // 3. Reset de Créditos à Meia-Noite (Plano Free)
+    // Buscamos usuários que não foram resetados hoje
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const usersToReset = db.prepare("SELECT * FROM users WHERE plan = 'free' AND last_reset < ?").all(today);
+
+    usersToReset.forEach(user => {
+        db.prepare("UPDATE users SET credits = 20, last_reset = CURRENT_TIMESTAMP WHERE clerk_id = ?")
+          .run(user.clerk_id);
+        console.log(`[Cleanup Job] Créditos resetados para: ${user.clerk_id}`);
     });
 
     console.log('[Cleanup Job] Verificação concluída.');

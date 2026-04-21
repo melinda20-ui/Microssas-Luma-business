@@ -88,34 +88,33 @@ app.get('/api/status', async (req, res) => {
 // ROTAS DOS AGENTES
 // ========================
 
-// 🏗️ Website Builder — Gemini Pro (pesado)
-app.post('/api/agents/website', heavyLimiter, websiteBuilderAgent);
+const creditMiddleware = require('./middleware/creditMiddleware');
 
-// ✍️ Content Creator — Gemini Flash
-app.post('/api/agents/content', contentCreatorAgent);
-
-// ⚙️ Automation Builder — Gemini Pro (pesado)
-app.post('/api/agents/automation', heavyLimiter, automationBuilderAgent);
-
-// 📊 Business Intelligence — Gemini Flash
-app.post('/api/agents/analytics', businessIntelligenceAgent);
-
-// 💬 Customer Support — Ollama (local)
-app.post('/api/agents/support', customerSupportAgent);
-app.delete('/api/agents/support/session/:sessionId', clearSession);
-
-const videoAutomationAgent = require('./agents/videoAutomationAgent');
-const multer = require('multer');
-const upload = multer({ dest: 'storage/temp/' });
-
-// Rota para buscar notificações
-app.get('/api/notifications', (req, res) => {
-    const list = db.prepare('SELECT * FROM notifications ORDER BY created_at DESC LIMIT 20').all();
-    res.json(list);
+// 🏢 Buscar Perfil/Créditos do Usuário
+app.get('/api/user/:clerkId', (req, res) => {
+    const user = db.prepare('SELECT credits, plan, last_reset FROM users WHERE clerk_id = ?').get(req.params.clerkId);
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+    res.json(user);
 });
 
-// 🎬 Video Factory — Gemini Pro + FFmpeg
-app.post('/api/agents/video', upload.single('video'), videoAutomationAgent);
+// 🏗️ Website Builder — Gemini Pro (5 Créditos)
+app.post('/api/agents/website', heavyLimiter, creditMiddleware(5), websiteBuilderAgent);
+
+// ✍️ Content Creator — Gemini Flash (2 Créditos)
+app.post('/api/agents/content', creditMiddleware(2), contentCreatorAgent);
+
+// ⚙️ Automation Builder — Gemini Pro (5 Créditos)
+app.post('/api/agents/automation', heavyLimiter, creditMiddleware(5), automationBuilderAgent);
+
+// 📊 Business Intelligence — Gemini Flash (2 Créditos)
+app.post('/api/agents/analytics', creditMiddleware(2), businessIntelligenceAgent);
+
+// 💬 Customer Support — Ollama/Gemini (1 Crédito)
+app.post('/api/agents/support', creditMiddleware(1), customerSupportAgent);
+app.delete('/api/agents/support/session/:sessionId', clearSession);
+
+// 🎬 Video Factory — Gemini Pro + FFmpeg (5 Créditos)
+app.post('/api/agents/video', upload.single('video'), creditMiddleware(5), videoAutomationAgent);
 
 // Servir arquivos de vídeo estáticos
 app.use('/api/videos', express.static(path.join(__dirname, 'storage/videos')));

@@ -54,7 +54,19 @@ const initDb = () => {
         )
     `).run();
 
-    console.log('✅ Banco de Dados SQLite Inicializado (Blog + Video + Notifications)');
+    // Tabela de Usuários (Nova - Monetização)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS users (
+            clerk_id TEXT PRIMARY KEY,
+            email TEXT NOT NULL,
+            credits INTEGER DEFAULT 20,
+            plan TEXT DEFAULT 'free',
+            last_reset DATETIME DEFAULT CURRENT_TIMESTAMP,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    console.log('✅ Banco de Dados SQLite Inicializado (Blog + Video + Users)');
 };
 
 module.exports = {

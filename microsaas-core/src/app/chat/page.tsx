@@ -21,7 +21,10 @@ interface Message {
 
 const API_URL = process.env.NEXT_PUBLIC_AGENT_API_URL || "http://localhost:3001";
 
+import { useUser } from "@clerk/nextjs";
+
 function ChatContent() {
+  const { user } = useUser();
   const searchParams = useSearchParams();
   const initialAgent = searchParams.get("agent") || "support";
 
@@ -56,7 +59,7 @@ function ChatContent() {
   };
 
   const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || !user) return;
 
     const userMsg: Message = {
       role: "user",
@@ -77,9 +80,27 @@ function ChatContent() {
 
       const res = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-user-id": user.id,
+          "x-user-email": user.primaryEmailAddress?.emailAddress || ""
+        },
         body: JSON.stringify(getPayload(activeAgent, currentInput)),
       });
+
+      if (res.status === 402) {
+        const errorData = await res.json();
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "agent",
+            content: `🚫 **Créditos Insuficientes**\n\n${errorData.message}\n\n[Clique aqui para recarregar](/dashboard/billing)`,
+            agent: activeAgent,
+            ts: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+          },
+        ]);
+        return;
+      }
 
       const data = await res.json();
 
