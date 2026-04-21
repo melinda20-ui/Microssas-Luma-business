@@ -116,6 +116,10 @@ app.delete('/api/agents/support/session/:sessionId', clearSession);
 // 🎬 Video Factory — Gemini Pro + FFmpeg (5 Créditos)
 app.post('/api/agents/video', upload.single('video'), creditMiddleware(5), videoAutomationAgent);
 
+// 💳 Billing & Stripe
+const billingRoutes = require('./routes/billing');
+app.use('/api/billing', billingRoutes);
+
 // Servir arquivos de vídeo estáticos
 app.use('/api/videos', express.static(path.join(__dirname, 'storage/videos')));
 
