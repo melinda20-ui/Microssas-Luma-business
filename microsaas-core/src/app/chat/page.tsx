@@ -7,6 +7,9 @@ import Link from "next/link";
 const AGENTS = [
   { id: "support",    label: "💬 Mia (Suporte)",       color: "orange", desc: "Tire dúvidas sobre a plataforma" },
   { id: "content",   label: "✍️ Content Creator",      color: "cyan",   desc: "Gere posts, blog e e-mails" },
+  { id: "tiktok",    label: "📱 TikTok Shop Agent",    color: "pink",   desc: "Roteiros e ganchos virais" },
+  { id: "shopify",   label: "🛍️ Shopify Expert",      color: "green",  desc: "Copy de vendas e SEO e-commerce" },
+  { id: "pinterest", label: "📌 Pinterest Growth",     color: "red",    desc: "Estratégia de tráfego visual" },
   { id: "website",   label: "🏗️ Website Builder",      color: "purple", desc: "Crie sites completos com IA" },
   { id: "automation",label: "⚙️ Automation Builder",   color: "pink",   desc: "Crie workflows n8n" },
   { id: "analytics", label: "📊 Business Intelligence", color: "green",  desc: "Analise seus dados" },
@@ -22,6 +25,7 @@ interface Message {
 const API_URL = process.env.NEXT_PUBLIC_AGENT_API_URL || "http://localhost:3001";
 
 import { useUser } from "@clerk/nextjs";
+import { Mic, Volume2, VolumeX, Square } from "lucide-react";
 
 function ChatContent() {
   const { user } = useUser();
@@ -39,6 +43,9 @@ function ChatContent() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [useAudio, setUseAudio] = useState(false);
   const [sessionId] = useState(() => `session_${Date.now()}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -51,11 +58,51 @@ function ChatContent() {
     switch (agent) {
       case "support":    return { ...base, message: text };
       case "content":    return { ...base, contentType: "instagram", topic: text, businessName: "Meu Negócio", quantity: 3 };
+      case "tiktok":     return { ...base, topic: text, target: "Público Geral" };
+      case "shopify":    return { ...base, productName: text, features: "Qualidade Premium" };
+      case "pinterest":  return { ...base, topic: text, nitch: "Trending" };
       case "website":    return { ...base, businessType: "negócio", businessName: text, description: text };
       case "automation": return { ...base, description: text };
       case "analytics":  return { ...base, businessName: "Meu Negócio", period: "último mês", metrics: { visitors: text } };
       default:           return { ...base, message: text };
     }
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Seu navegador não suporta reconhecimento de voz.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "pt-BR";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(transcript);
+    };
+
+    recognition.start();
+  };
+
+  const speak = (text: string) => {
+    if (!useAudio) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "pt-BR";
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
   };
 
   const sendMessage = async () => {
@@ -76,7 +123,9 @@ function ChatContent() {
         ? `${API_URL}/api/agents/support`
         : activeAgent === "analytics"
         ? `${API_URL}/api/agents/analytics`
-        : `${API_URL}/api/agents/${activeAgent}`;
+        : activeAgent === "tiktok" || activeAgent === "shopify" || activeAgent === "pinterest"
+        ? `${API_URL}/api/agents/${activeAgent}`
+        : `${API_URL}/api/agents/chat`; // Fallback
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -109,9 +158,6 @@ function ChatContent() {
       else if (data.content)  responseText = data.content;
       else if (data.report)   responseText = data.report;
       else if (data.message)  responseText = data.message;
-      else if (data.html)     responseText = `✅ Site gerado com sucesso!\n\n**${data.businessName}**\n\nO código HTML foi gerado. Você pode baixar ou visualizar no dashboard.`;
-      else if (data.workflow)  responseText = `✅ Workflow n8n criado!\n\n${data.instructions?.join("\n") || "Importe no seu n8n para ativar."}`;
-      else if (data.error)    responseText = `❌ Erro: ${data.error}`;
       else                    responseText = JSON.stringify(data, null, 2);
 
       setMessages((prev) => [
@@ -123,12 +169,15 @@ function ChatContent() {
           ts: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
+      
+      if (useAudio) speak(responseText);
+
     } catch {
       setMessages((prev) => [
         ...prev,
         {
           role: "agent",
-          content: "⚠️ Não consegui conectar com a API de agentes. Certifique-se de que o servidor está rodando na porta 3001.",
+          content: "⚠️ Não consegui conectar com a API de agentes.",
           agent: activeAgent,
           ts: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
         },
@@ -215,12 +264,7 @@ function ChatContent() {
                   {s}
                 </button>
               ))}
-              {activeAgent === "content" && ["Posts de Instagram para restaurante", "Blog post sobre marketing digital", "Script para vídeo de vendas"].map((s) => (
-                <button key={s} className="btn btn-ghost btn-sm" style={{ fontSize: 12 }} onClick={() => setInput(s)}>
-                  {s}
-                </button>
-              ))}
-              {activeAgent === "website" && ["Barbearia Moderna", "Loja de Roupas Femininas", "Consultório de Psicologia"].map((s) => (
+              {activeAgent === "tiktok" && ["Roteiro de unboxing viral", "3 ganchos para cosméticos", "Hashtags trending agora"].map((s) => (
                 <button key={s} className="btn btn-ghost btn-sm" style={{ fontSize: 12 }} onClick={() => setInput(s)}>
                   {s}
                 </button>
@@ -228,27 +272,51 @@ function ChatContent() {
             </div>
 
             {/* Input */}
-            <div className="chat-input-area">
+            <div className="chat-input-area" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button 
+                className={`p-3 rounded-full transition-all ${isListening ? 'bg-red-500 animate-pulse' : 'bg-white/5 hover:bg-white/10 text-gray-400'}`}
+                onClick={toggleListening}
+                title="Falar com a IA"
+              >
+                {isListening ? <Square size={18} fill="white" /> : <Mic size={18} />}
+              </button>
+
+              <button 
+                className={`p-3 rounded-full transition-all ${useAudio ? 'bg-blue-600 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-400'}`}
+                onClick={() => setUseAudio(!useAudio)}
+                title={useAudio ? "Áudio Ativado" : "Ativar Áudio"}
+              >
+                {useAudio ? <Volume2 size={18} /> : <VolumeX size={18} />}
+              </button>
+
               <input
                 id="chat-input"
                 className="chat-input"
+                style={{ flex: 1 }}
                 type="text"
-                placeholder={`Mensagem para ${currentAgent.label}...`}
+                placeholder={`Fale com ${currentAgent.label}...`}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
                 disabled={loading}
               />
+              
               <button
                 id="chat-send"
                 className="btn btn-primary"
                 onClick={sendMessage}
                 disabled={loading || !input.trim()}
-                style={{ borderRadius: "50%", width: 48, height: 48, padding: 0, flexShrink: 0 }}
+                style={{ borderRadius: "50%", width: 44, height: 44, padding: 0, flexShrink: 0 }}
               >
                 {loading ? "⏳" : "→"}
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
           </div>
         </div>
       </div>

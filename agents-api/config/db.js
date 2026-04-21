@@ -66,7 +66,42 @@ const initDb = () => {
         )
     `).run();
 
-    console.log('✅ Banco de Dados SQLite Inicializado (Blog + Video + Users)');
+    // Tabela de Pedidos do Marketplace (Sprint 4)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS orders (
+            id TEXT PRIMARY KEY,
+            clerk_id TEXT NOT NULL,
+            service_name TEXT NOT NULL,
+            status TEXT DEFAULT 'active',
+            price REAL DEFAULT 0,
+            provider TEXT DEFAULT 'IA Agent',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    // Tabela de Tarefas / Kanban (Sprint 4)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            status TEXT DEFAULT 'todo',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    // Tabela de Mensagens do Pedido (Sprint 4)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS order_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id TEXT NOT NULL,
+            sender_id TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace)');
 };
 
 module.exports = {

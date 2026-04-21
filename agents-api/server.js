@@ -13,6 +13,9 @@ const { customerSupportAgent, clearSession } = require('./agents/customerSupport
 const { initDb } = require('./config/db');
 const { startJob } = require('./services/cleanupJob');
 const blogManager = require('./agents/blogManager');
+const tiktokShopAgent = require('./agents/tiktokShopAgent');
+const shopifyAgent = require('./agents/shopifyAgent');
+const pinterestAgent = require('./agents/pinterestAgent');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -116,9 +119,15 @@ app.delete('/api/agents/support/session/:sessionId', clearSession);
 // 🎬 Video Factory — Gemini Pro + FFmpeg (5 Créditos)
 app.post('/api/agents/video', upload.single('video'), creditMiddleware(5), videoAutomationAgent);
 
+// 🛒 Sales Agents (2 Créditos cada)
+app.post('/api/agents/tiktok', creditMiddleware(2), tiktokShopAgent);
+app.post('/api/agents/shopify', creditMiddleware(2), shopifyAgent);
+app.post('/api/agents/pinterest', creditMiddleware(2), pinterestAgent);
+
 // 💳 Billing & Stripe
-const billingRoutes = require('./routes/billing');
+const marketplaceRoutes = require('./routes/marketplace');
 app.use('/api/billing', billingRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
 
 // Servir arquivos de vídeo estáticos
 app.use('/api/videos', express.static(path.join(__dirname, 'storage/videos')));
@@ -139,7 +148,10 @@ app.post('/api/chat', async (req, res) => {
     'content': contentCreatorAgent,
     'automation': automationBuilderAgent,
     'analytics': businessIntelligenceAgent,
-    'support': customerSupportAgent
+    'support': customerSupportAgent,
+    'tiktok': tiktokShopAgent,
+    'shopify': shopifyAgent,
+    'pinterest': pinterestAgent
   };
 
   const handler = agentMap[agent];
