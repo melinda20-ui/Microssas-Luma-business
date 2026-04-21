@@ -10,10 +10,16 @@ const contentCreatorAgent = require('./agents/contentCreator');
 const automationBuilderAgent = require('./agents/automationBuilder');
 const businessIntelligenceAgent = require('./agents/businessIntelligence');
 const { customerSupportAgent, clearSession } = require('./agents/customerSupport');
+const { initDb } = require('./config/db');
+const { startJob } = require('./services/cleanupJob');
 const blogManager = require('./agents/blogManager');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Inicializa Banco de Dados e Serviços
+initDb();
+startJob(); // Inicia o vigilante de 15 dias
 
 // ========================
 // MIDDLEWARES
@@ -97,6 +103,22 @@ app.post('/api/agents/analytics', businessIntelligenceAgent);
 // 💬 Customer Support — Ollama (local)
 app.post('/api/agents/support', customerSupportAgent);
 app.delete('/api/agents/support/session/:sessionId', clearSession);
+
+const videoAutomationAgent = require('./agents/videoAutomationAgent');
+const multer = require('multer');
+const upload = multer({ dest: 'storage/temp/' });
+
+// Rota para buscar notificações
+app.get('/api/notifications', (req, res) => {
+    const list = db.prepare('SELECT * FROM notifications ORDER BY created_at DESC LIMIT 20').all();
+    res.json(list);
+});
+
+// 🎬 Video Factory — Gemini Pro + FFmpeg
+app.post('/api/agents/video', upload.single('video'), videoAutomationAgent);
+
+// Servir arquivos de vídeo estáticos
+app.use('/api/videos', express.static(path.join(__dirname, 'storage/videos')));
 
 // ✍️ Blog Manager — Internal CMS
 app.get('/api/blog', blogManager.getAll);

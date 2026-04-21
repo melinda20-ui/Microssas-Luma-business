@@ -1,0 +1,11 @@
+{
+  "name": "sualuma-ecosystem",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install-all": "cd agents-api && npm install && cd ../microsaas-core && npm install && cd ../microsaas-blog && npm install",
+    "start-api": "cd agents-api && npm start",
+    "start-core": "cd microsaas-core && npm start",
+    "start-blog": "cd microsaas-blog && npm start"
+  }
+}
