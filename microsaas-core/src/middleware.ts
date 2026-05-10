@@ -3,6 +3,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 // Define quais rotas são protegidas (precisam de login)
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
+  '/portal(.*)',
   '/chat(.*)',
   '/video-factory(.*)',
 ]);

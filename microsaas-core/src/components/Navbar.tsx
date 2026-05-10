@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { useUser, SignInButton, UserButton, SignOutButton } from "@clerk/nextjs";
 import CreditBalance from "./auth/CreditBalance";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { isSignedIn } = useUser();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -23,17 +24,17 @@ export default function Navbar() {
           <Link href="/#agentes" className="nav-link text-sm opacity-70 hover:opacity-100 transition-all">Agentes</Link>
           <Link href="/chat" className="nav-link text-sm opacity-70 hover:opacity-100 transition-all">Chat IA</Link>
           
-          <SignedIn>
-            <CreditBalance />
-            <Link href="/dashboard" className="text-sm font-medium hover:text-blue-400 transition-all">Dashboard</Link>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-
-          <SignedOut>
+          {isSignedIn ? (
+            <>
+              <CreditBalance />
+              <Link href="/dashboard" className="text-sm font-medium hover:text-blue-400 transition-all">Dashboard</Link>
+              <UserButton afterSignOutUrl="/" />
+            </>
+          ) : (
             <SignInButton mode="modal">
               <button className="btn btn-primary btn-sm px-6 rounded-2xl font-bold">Começar Agora</button>
             </SignInButton>
-          </SignedOut>
+          )}
         </div>
 
         {/* Mobile Toggle (Simple) */}
