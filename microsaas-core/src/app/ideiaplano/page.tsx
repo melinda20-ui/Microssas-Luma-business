@@ -1,20 +1,8 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getDashboardAccess, getDashboardUrl } from "@/lib/auth/dashboard-access";
 
 export const dynamic = "force-dynamic";
 
-export default async function PortalPage() {
-  const access = await getDashboardAccess();
-
-  if (!access.authenticated) {
-    redirect("/login?next=/portal");
-  }
-
-  if (access.target !== "choice") {
-    redirect(getDashboardUrl(access.target));
-  }
-
+export default function IdeiaPlanoPage() {
   return (
     <main className="portal-shell">
       <section className="portal-card">

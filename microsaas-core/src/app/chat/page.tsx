@@ -317,12 +317,6 @@ function ChatContent() {
     </>
   );
 }
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
 
 export default function ChatPage() {
   return (
