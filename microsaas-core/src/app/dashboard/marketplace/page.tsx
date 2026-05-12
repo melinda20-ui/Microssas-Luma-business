@@ -101,7 +101,7 @@ export default function MarketplacePage() {
                             </ul>
 
                             <button
-                                onClick={() => handleUpgrade(service.id)}
+                                onClick={() => handleContract(service.id)}
                                 disabled={contractingId !== null}
                                 className="w-full py-4 bg-white/5 hover:bg-blue-600 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 border border-white/10 hover:border-blue-500 group-hover:shadow-[0_0_20px_rgba(37,99,235,0.2)]"
                             >

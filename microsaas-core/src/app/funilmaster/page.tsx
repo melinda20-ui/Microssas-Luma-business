@@ -380,7 +380,6 @@ export default function FunilMaster() {
                 key={s.id}
                 onClick={() => setActiveStage(s.id)}
                 style={{
-                  background: "none",
                   border: "none",
                   cursor: "pointer",
                   textAlign: "center",
@@ -390,7 +389,7 @@ export default function FunilMaster() {
                   background:
                     activeStage === s.id
                       ? `${s.color}10`
-                      : "transparent",
+                      : "none",
                   flex: 1,
                   maxWidth: 180,
                 }}

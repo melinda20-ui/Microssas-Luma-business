@@ -28,7 +28,7 @@ export default function Navbar() {
             <>
               <CreditBalance />
               <Link href="/dashboard" className="text-sm font-medium hover:text-blue-400 transition-all">Dashboard</Link>
-              <UserButton afterSignOutUrl="/" />
+              <UserButton />
             </>
           ) : (
             <SignInButton mode="modal">
