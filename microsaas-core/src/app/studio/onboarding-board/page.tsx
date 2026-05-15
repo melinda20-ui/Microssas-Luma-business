@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "@/contexts/SessionContext";
 import Link from "next/link";
+import API_BASE from "@/lib/api";
 
-const API_URL = "http://localhost:3001";
+const API_URL = API_BASE;
 
 type OnboardingStep = {
   id: string;
@@ -23,51 +24,46 @@ type OnboardingProgress = {
   daysSinceStart: number;
 };
 
-const SAMPLE_ONBOARDING: OnboardingProgress = {
-  totalSteps: 6,
-  completedSteps: 3,
-  currentStep: "Configurar automações",
-  daysSinceStart: 5,
-  startedAt: "10/05/2026",
-  steps: [
-    { id: "s1", label: "Criar conta", description: "Cadastro e verificação de e-mail", status: "completed", icon: "✅" },
-    { id: "s2", label: "Definir plano", description: "Escolha do plano ideal (Lite, Premium, Pro)", status: "completed", icon: "✅" },
-    { id: "s3", label: "Primeiro site", description: "Criação do primeiro site com IA", status: "completed", icon: "✅" },
-    { id: "s4", label: "Configurar automações", description: "Conectar n8n e criar workflows", status: "current", icon: "⏳" },
-    { id: "s5", label: "Conteúdo inicial", description: "Gerar primeiros posts e blog", status: "pending", icon: "📝" },
-    { id: "s6", label: "Análises", description: "Configurar dashboard e métricas", status: "blocked", icon: "🔒" },
-  ],
-};
-
 export default function OnboardingBoard() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useSession();
 
-  const [onboarding] = useState<OnboardingProgress>(SAMPLE_ONBOARDING);
-  const [loading, setLoading] = useState(false);
+  const [onboarding, setOnboarding] = useState<OnboardingProgress | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [agentLoading, setAgentLoading] = useState(false);
   const [analysis, setAnalysis] = useState("");
   const [suggestion, setSuggestion] = useState("");
   const [explanationInput, setExplanationInput] = useState("");
   const [explanationOutput, setExplanationOutput] = useState("");
   const [explainLoading, setExplainLoading] = useState(false);
 
-  const progressPct = Math.round((onboarding.completedSteps / onboarding.totalSteps) * 100);
-
-  const callUxAgent = useCallback(async (action: string, msg?: string) => {
+  const fetchProgress = useCallback(async () => {
     if (!user) return;
     setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/onboarding/progress`, {
+        headers: { "x-user-id": user.id },
+      });
+      if (res.ok) setOnboarding(await res.json());
+    } catch {}
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    if (isLoaded && user) fetchProgress();
+  }, [isLoaded, user, fetchProgress]);
+
+  const callUxAgent = useCallback(async (action: string, msg?: string) => {
+    if (!user || !onboarding) return;
+    setAgentLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/agents/ux`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-user-id": user.id,
-          "x-user-email": user.primaryEmailAddress?.emailAddress || "",
+          "x-user-email": user.email || "",
         },
-        body: JSON.stringify({
-          action,
-          onboardingData: onboarding,
-          message: msg || "",
-        }),
+        body: JSON.stringify({ action, onboardingData: onboarding, message: msg || "" }),
       });
       const data = await res.json();
       if (data.success) {
@@ -78,15 +74,13 @@ export default function OnboardingBoard() {
     } catch (err) {
       console.error("[UX Agent] Erro:", err);
     } finally {
-      setLoading(false);
+      setAgentLoading(false);
     }
   }, [user, onboarding]);
 
   useEffect(() => {
-    if (isLoaded && user) {
-      callUxAgent("analyze");
-    }
-  }, [isLoaded, user, callUxAgent]);
+    if (!loading && onboarding) callUxAgent("analyze");
+  }, [loading]);
 
   const handleExplain = async () => {
     if (!explanationInput.trim() || explainLoading || !user) return;
@@ -98,13 +92,9 @@ export default function OnboardingBoard() {
         headers: {
           "Content-Type": "application/json",
           "x-user-id": user.id,
-          "x-user-email": user.primaryEmailAddress?.emailAddress || "",
+          "x-user-email": user.email || "",
         },
-        body: JSON.stringify({
-          action: "explain",
-          onboardingData: onboarding,
-          message: explanationInput,
-        }),
+        body: JSON.stringify({ action: "explain", onboardingData: onboarding, message: explanationInput }),
       });
       const data = await res.json();
       if (data.success) setExplanationOutput(data.response);
@@ -130,11 +120,34 @@ export default function OnboardingBoard() {
           <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
           <h2 style={{ marginBottom: 8 }}>Acesso Restrito</h2>
           <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 24 }}>Faça login para acessar.</p>
-          <Link href="/sign-in" className="btn btn-primary">Fazer Login</Link>
+          <Link href="/login" className="btn btn-primary">Fazer Login</Link>
         </div>
       </div>
     );
   }
+
+  if (loading) {
+    return (
+      <div className="bg-grid" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="shimmer" style={{ width: 400, height: 200, borderRadius: 12 }} />
+      </div>
+    );
+  }
+
+  if (!onboarding) {
+    return (
+      <div className="bg-grid" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="card" style={{ padding: 40, textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
+          <h2 style={{ marginBottom: 8 }}>Nenhum progresso encontrado</h2>
+          <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 24 }}>Complete seu cadastro para começar.</p>
+          <Link href="/studio/mia-brain" className="btn btn-primary">Ir para o Studio</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const progressPct = Math.round((onboarding.completedSteps / onboarding.totalSteps) * 100);
 
   return (
     <>
@@ -155,9 +168,14 @@ export default function OnboardingBoard() {
               Acompanhe o progresso do onboarding, detecte travas e receba sugestões do agente UX.
             </p>
           </div>
-          <Link href="/studio/mia-brain" className="btn btn-ghost btn-sm" style={{ fontSize: 11 }}>
-            🧠 Mia Brain
-          </Link>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn btn-ghost btn-sm" style={{ fontSize: 11 }} onClick={fetchProgress}>
+              🔄 Atualizar
+            </button>
+            <Link href="/studio/mia-brain" className="btn btn-ghost btn-sm" style={{ fontSize: 11 }}>
+              🧠 Mia Brain
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -186,7 +204,7 @@ export default function OnboardingBoard() {
           {/* Steps timeline */}
           <div className="card" style={{ padding: 16, marginBottom: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>📋 Etapas</div>
-            {onboarding.steps.map((step, idx) => (
+            {onboarding.steps.map((step) => (
               <div
                 key={step.id}
                 className="card"
@@ -245,7 +263,7 @@ export default function OnboardingBoard() {
                 className={`btn btn-sm ${analysis ? "btn-primary" : "btn-ghost"}`}
                 style={{ fontSize: 11 }}
                 onClick={() => callUxAgent("analyze")}
-                disabled={loading}
+                disabled={agentLoading}
               >
                 📊 Analisar
               </button>
@@ -253,13 +271,13 @@ export default function OnboardingBoard() {
                 className={`btn btn-sm ${suggestion ? "btn-primary" : "btn-ghost"}`}
                 style={{ fontSize: 11 }}
                 onClick={() => callUxAgent("suggest")}
-                disabled={loading}
+                disabled={agentLoading}
               >
                 💡 Sugerir
               </button>
             </div>
 
-            {loading && (
+            {agentLoading && (
               <div style={{ padding: 12 }}>
                 <div className="shimmer" style={{ height: 10, width: "85%", marginBottom: 6, borderRadius: 6 }} />
                 <div className="shimmer" style={{ height: 10, width: "60%", marginBottom: 6, borderRadius: 6 }} />
@@ -267,14 +285,14 @@ export default function OnboardingBoard() {
               </div>
             )}
 
-            {analysis && !loading && (
+            {analysis && !agentLoading && (
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 10, fontWeight: 600, color: "var(--faint)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>📊 Análise de Progresso</div>
                 <div style={{ fontSize: 12, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{analysis}</div>
               </div>
             )}
 
-            {suggestion && !loading && (
+            {suggestion && !agentLoading && (
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 10, fontWeight: 600, color: "var(--faint)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>💡 Sugestão de Melhoria</div>
                 <div style={{ fontSize: 12, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{suggestion}</div>

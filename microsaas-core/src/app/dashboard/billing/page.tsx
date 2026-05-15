@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from '@/contexts/SessionContext';
 import { Check, Zap, Rocket, Star, Loader2 } from 'lucide-react';
+import API_BASE from "@/lib/api";
 
 const PLANS = [
     {
@@ -49,7 +50,7 @@ const PLANS = [
 ];
 
 export default function BillingPage() {
-    const { user, isLoaded } = useUser();
+    const { user, isLoaded } = useSession();
     const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
     const handleUpgrade = async (planId: string) => {
@@ -57,7 +58,7 @@ export default function BillingPage() {
         setLoadingPlan(planId);
 
         try {
-            const res = await fetch('http://localhost:3001/api/billing/checkout', {
+            const res = await fetch(`${API_BASE}/api/billing/checkout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

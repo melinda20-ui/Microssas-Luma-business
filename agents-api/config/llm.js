@@ -9,7 +9,7 @@ const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.2';
 /**
  * Chama o Gemini — usado para tarefas complexas como geração de sites e automações
  */
-async function callGemini(prompt, model = 'gemini-1.5-flash', systemInstruction = null) {
+async function callGemini(prompt, model = 'gemini-2.5-flash-lite', systemInstruction = null) {
   try {
     const config = {};
     if (systemInstruction) config.systemInstruction = systemInstruction;

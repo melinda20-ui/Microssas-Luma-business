@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from '@/contexts/SessionContext';
 import { Zap, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import API_BASE from "@/lib/api";
 
 export default function CreditBalance() {
-    const { user, isLoaded } = useUser();
+    const { user, isLoaded } = useSession();
     const [credits, setCredits] = useState<number | null>(null);
     const [plan, setPlan] = useState<string>('free');
 
@@ -14,7 +15,7 @@ export default function CreditBalance() {
         if (isLoaded && user) {
             const fetchCredits = async () => {
                 try {
-                    const res = await fetch(`http://localhost:3001/api/user/${user.id}`);
+                    const res = await fetch(`${API_BASE}/api/user/${user.id}`);
                     if (res.ok) {
                         const data = await res.json();
                         setCredits(data.credits);

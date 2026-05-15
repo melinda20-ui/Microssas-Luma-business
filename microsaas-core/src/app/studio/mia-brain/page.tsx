@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "@/contexts/SessionContext";
 import Link from "next/link";
 import { readPageContext, formatContext, type PageContext } from "@/components/studio/domReader";
+import API_BASE from "@/lib/api";
 
-const API_URL = "http://localhost:3001";
+const API_URL = API_BASE;
 
 type TaskStatus = "PENDING" | "APPROVED" | "EXECUTING" | "COMPLETED" | "REJECTED";
 
@@ -62,7 +63,7 @@ function genSessionId() {
 }
 
 export default function MiaBrain() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useSession();
   const [sessionId] = useState(genSessionId);
   const [pageContext, setPageContext] = useState<PageContext | null>(null);
 
@@ -211,7 +212,7 @@ export default function MiaBrain() {
 
       if (agentId === "mia") {
         endpoint = `${API_URL}/api/agents/support`;
-        body = { message: text, sessionId, clientName: user.primaryEmailAddress?.emailAddress || "Admin", plan: "pro" };
+        body = { message: text, sessionId, clientName: user.email || "Admin", plan: "pro" };
       } else {
         body = { agent: agentId, ...body };
         const agentMap: Record<string, string> = {
@@ -232,7 +233,7 @@ export default function MiaBrain() {
         headers: {
           "Content-Type": "application/json",
           "x-user-id": user.id,
-          "x-user-email": user.primaryEmailAddress?.emailAddress || "",
+          "x-user-email": user.email || "",
         },
         body: JSON.stringify(body),
       });
@@ -352,7 +353,7 @@ export default function MiaBrain() {
           <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
           <h2 style={{ marginBottom: 8 }}>Acesso Restrito</h2>
           <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 24 }}>Faça login para acessar o Mia Brain.</p>
-          <Link href="/sign-in" className="btn btn-primary">Fazer Login</Link>
+          <Link href="/login" className="btn btn-primary">Fazer Login</Link>
         </div>
       </div>
     );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from '@/contexts/SessionContext';
 import { ShoppingBag, Briefcase, Zap, CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -13,7 +13,7 @@ interface Service {
 }
 
 export default function MarketplacePage() {
-    const { user } = useUser();
+    const { user } = useSession();
     const router = useRouter();
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);

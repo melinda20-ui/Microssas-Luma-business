@@ -22,13 +22,14 @@ interface Message {
   ts: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_AGENT_API_URL || "http://localhost:3001";
+import { useSession } from "@/contexts/SessionContext";
+import API_BASE from "@/lib/api";
 
-import { useUser } from "@clerk/nextjs";
+const API_URL = API_BASE;
 import { Mic, Volume2, VolumeX, Square } from "lucide-react";
 
 function ChatContent() {
-  const { user } = useUser();
+  const { user } = useSession();
   const searchParams = useSearchParams();
   const initialAgent = searchParams.get("agent") || "support";
 
@@ -132,7 +133,7 @@ function ChatContent() {
         headers: { 
           "Content-Type": "application/json",
           "x-user-id": user.id,
-          "x-user-email": user.primaryEmailAddress?.emailAddress || ""
+          "x-user-email": user.email || ""
         },
         body: JSON.stringify(getPayload(activeAgent, currentInput)),
       });

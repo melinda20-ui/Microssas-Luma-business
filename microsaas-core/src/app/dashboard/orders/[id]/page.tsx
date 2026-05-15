@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from '@/contexts/SessionContext';
 import { 
     LayoutDashboard, 
     MessageSquare, 
@@ -13,6 +13,7 @@ import {
     Loader2
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import API_BASE from "@/lib/api";
 
 interface Task {
     id: number;
@@ -29,7 +30,7 @@ interface Message {
 
 export default function OrderDetailsPage() {
     const { id } = useParams();
-    const { user } = useUser();
+    const { user } = useSession();
     const [order, setOrder] = useState<any>(null);
     const [tasks, setTasks] = useState<Task[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -39,7 +40,7 @@ export default function OrderDetailsPage() {
 
     const fetchData = async () => {
         try {
-            const res = await fetch(`http://localhost:3001/api/marketplace/order/${id}`);
+            const res = await fetch(`${API_BASE}/api/marketplace/order/${id}`);
             const data = await res.json();
             setOrder(data);
             setTasks(data.tasks);
@@ -62,7 +63,7 @@ export default function OrderDetailsPage() {
 
     const updateTaskStatus = async (taskId: number, newStatus: string) => {
         try {
-            await fetch(`http://localhost:3001/api/marketplace/order/${id}/tasks/${taskId}`, {
+            await fetch(`${API_BASE}/api/marketplace/order/${id}/tasks/${taskId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
@@ -76,7 +77,7 @@ export default function OrderDetailsPage() {
     const sendMessage = async () => {
         if (!newMessage.trim() || !user) return;
         try {
-            await fetch(`http://localhost:3001/api/marketplace/order/${id}/messages`, {
+            await fetch(`${API_BASE}/api/marketplace/order/${id}/messages`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: newMessage, senderId: user.id })

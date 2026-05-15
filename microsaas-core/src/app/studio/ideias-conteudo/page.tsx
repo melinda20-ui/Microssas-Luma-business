@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "@/contexts/SessionContext";
 import Link from "next/link";
+import API_BASE from "@/lib/api";
 
-const API_URL = "http://localhost:3001";
+const API_URL = API_BASE;
 
 type ContentIdea = {
   id: number;
@@ -41,7 +42,7 @@ const CATEGORIES = [
 const PLATFORMS = ["blog", "instagram", "linkedin", "email", "tiktok", "youtube"];
 
 export default function IdeiasConteudo() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useSession();
 
   const [ideas, setIdeas] = useState<ContentIdea[]>([]);
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
@@ -82,7 +83,7 @@ export default function IdeiasConteudo() {
       if (finData.success) {
         const contentRes = await fetch(`${API_URL}/api/agents/content`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", "x-user-id": user.id, "x-user-email": user.primaryEmailAddress?.emailAddress || "" },
+          headers: { "Content-Type": "application/json", "x-user-id": user.id, "x-user-email": user.email || "" },
           body: JSON.stringify({
             action: "blog",
             message: `Com base nas oportunidades abaixo, gere 5 ideias em JSON:\n\n${finData.response}\n\n[{"title":"","description":"","category":"","platform":""}]`,
@@ -188,7 +189,7 @@ export default function IdeiasConteudo() {
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
         <h2 style={{ marginBottom: 8 }}>Acesso Restrito</h2>
         <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 24 }}>Faça login para acessar.</p>
-        <Link href="/sign-in" className="btn btn-primary">Fazer Login</Link>
+        <Link href="/login" className="btn btn-primary">Fazer Login</Link>
       </div>
     </div>
   );

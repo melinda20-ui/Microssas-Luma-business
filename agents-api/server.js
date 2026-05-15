@@ -1,5 +1,11 @@
+// Load luma-os primary env first (canonical source), then project .env as overrides
+const lumaEnv = '/root/luma-os/.env.local';
+const lumaEnv2 = '/root/luma-os/.env';
+if (require('fs').existsSync(lumaEnv)) require('dotenv').config({ path: lumaEnv });
+if (require('fs').existsSync(lumaEnv2)) require('dotenv').config({ path: lumaEnv2 });
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { checkOllamaStatus } = require('./config/llm');
@@ -31,8 +37,12 @@ const { sendArticleForApproval, sendPublishConfirmation } = require('./services/
 const { sendForApproval, handleApprovalAction, sendWeeklySummary } = require('./services/discordControlCenter');
 const { cleanupCompletedTasks, getOperationHistory, getKanbanStats } = require('./services/kanbanCleanup');
 const { checkAlerts, getAlerts, clearAlerts } = require('./services/alertService');
+const { archive, recall, learn, getPreferences, getLearningStats, getStrategicMemory, detectPatterns } = require('./services/memoryService');
+const { runAllChecks, analyzeAnomalies, getSentinelHistory, getSentinelStats } = require('./services/sentinelService');
+const { analyzeTrends, discoverOpportunities, competitiveAnalysis, saveOpportunity, getOpportunities, getGrowthStats } = require('./services/growthService');
 const { saveVersion, listVersions, rollback } = require('./services/contentVersioning');
 const { getImageForSuggestion, getStats: getImageStats } = require('./services/imageCache');
+const videoAutomationAgent = require('./agents/videoAutomationAgent');
 const organicMarketingAgent = require('./agents/organicMarketingAgent');
 const paidMarketingAgent = require('./agents/paidMarketingAgent');
 const funnelCoordinator = require('./agents/funnelCoordinator');
@@ -112,7 +122,57 @@ app.get('/api/status', async (req, res) => {
 // ROTAS DOS AGENTES
 // ========================
 
+// Meta-dados dos agentes (catálogo)
+const AGENT_META = {
+  support:    { icon: "💬", label: "Mia (Suporte)",       color: "orange", desc: "Suporte 24/7 via Ollama + Gemini" },
+  content:   { icon: "✍️", label: "Content Creator",      color: "cyan",   desc: "Posts, blogs, e-mails e scripts" },
+  tiktok:    { icon: "📱", label: "TikTok Shop Agent",    color: "pink",   desc: "Roteiros e estrategia viral" },
+  shopify:   { icon: "🛍️", label: "Shopify Expert",       color: "green",  desc: "Copy de vendas e SEO" },
+  pinterest: { icon: "📌", label: "Pinterest Growth",     color: "orange", desc: "Trafico visual e pins" },
+  website:   { icon: "🏗️", label: "Website Builder",      color: "purple", desc: "Sites completos com Gemini Pro" },
+  automation:{ icon: "⚙️", label: "Automation Builder",   color: "pink",   desc: "Workflows n8n com IA" },
+  analytics: { icon: "📊", label: "Business Intelligence", color: "green",  desc: "Insights e analises de dados" },
+};
+
+app.get('/api/agents/meta', (req, res) => {
+  res.json(AGENT_META);
+});
+
+app.get('/api/agents/meta/:id', (req, res) => {
+  const meta = AGENT_META[req.params.id];
+  if (!meta) return res.status(404).json({ error: 'Agente nao encontrado' });
+  res.json(meta);
+});
+
+// 🪵 Log automático de agentes bem-sucedidos no operation_history
+function logAgentAction(agentId, handler) {
+  return async (req, res) => {
+    const originalJson = res.json.bind(res);
+    res.json = (body) => {
+      if (body && body.success) {
+        try {
+          const title = body.title || body.content || `Execucao: ${agentId}`;
+          const desc = body.description || (typeof body.content === 'string' ? body.content.slice(0, 100) : '');
+          db.prepare(`
+            INSERT INTO operation_history (source_table, title, description, status, metadata)
+            VALUES (?, ?, ?, 'COMPLETED', ?)
+          `).run(
+            `agent_${agentId}`,
+            typeof title === 'string' ? title.slice(0, 200) : `Agente ${agentId}`,
+            typeof desc === 'string' ? desc.slice(0, 300) : '',
+            JSON.stringify({ agentId, ...(body.metadata || {}) })
+          );
+        } catch (_) {}
+      }
+      return originalJson(body);
+    };
+    return handler(req, res);
+  };
+}
+
 const creditMiddleware = require('./middleware/creditMiddleware');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 // 🏢 Buscar Perfil/Créditos do Usuário
 app.get('/api/user/:clerkId', (req, res) => {
@@ -128,59 +188,63 @@ app.get('/api/user/:clerkId/super-admin', (req, res) => {
     res.json({ superAdmin: !!isSuperAdmin, role: user?.role || 'none' });
 });
 
+// 🛡️ Anti-Loop Guard para todos os agentes
+const antiLoopGuard = require('./middleware/antiLoopGuard');
+app.all('/api/agents/*', antiLoopGuard);
+
 // 🏗️ Website Builder — Gemini Pro (5 Créditos)
-app.post('/api/agents/website', heavyLimiter, creditMiddleware(5), websiteBuilderAgent);
+app.post('/api/agents/website', heavyLimiter, creditMiddleware(5), logAgentAction('website', websiteBuilderAgent));
 
 // ✍️ Content Creator — Gemini Flash (2 Créditos)
-app.post('/api/agents/content', creditMiddleware(2), contentCreatorAgent);
+app.post('/api/agents/content', creditMiddleware(2), logAgentAction('content', contentCreatorAgent));
 
 // ⚙️ Automation Builder — Gemini Pro (5 Créditos)
-app.post('/api/agents/automation', heavyLimiter, creditMiddleware(5), automationBuilderAgent);
+app.post('/api/agents/automation', heavyLimiter, creditMiddleware(5), logAgentAction('automation', automationBuilderAgent));
 
 // 📊 Business Intelligence — Gemini Flash (2 Créditos)
-app.post('/api/agents/analytics', creditMiddleware(2), businessIntelligenceAgent);
+app.post('/api/agents/analytics', creditMiddleware(2), logAgentAction('analytics', businessIntelligenceAgent));
 
 // 💬 Customer Support — Ollama/Gemini (1 Crédito)
-app.post('/api/agents/support', creditMiddleware(1), customerSupportAgent);
+app.post('/api/agents/support', creditMiddleware(1), logAgentAction('support', customerSupportAgent));
 app.delete('/api/agents/support/session/:sessionId', clearSession);
 
 // 🎬 Video Factory — Gemini Pro + FFmpeg (5 Créditos)
-app.post('/api/agents/video', upload.single('video'), creditMiddleware(5), videoAutomationAgent);
+app.post('/api/agents/video', upload.single('video'), creditMiddleware(5), logAgentAction('video', videoAutomationAgent));
 
 // 🛒 Sales Agents (2 Créditos cada)
-app.post('/api/agents/tiktok', creditMiddleware(2), tiktokShopAgent);
-app.post('/api/agents/shopify', creditMiddleware(2), shopifyAgent);
-app.post('/api/agents/pinterest', creditMiddleware(2), pinterestAgent);
+app.post('/api/agents/tiktok', creditMiddleware(2), logAgentAction('tiktok', tiktokShopAgent));
+app.post('/api/agents/shopify', creditMiddleware(2), logAgentAction('shopify', shopifyAgent));
+app.post('/api/agents/pinterest', creditMiddleware(2), logAgentAction('pinterest', pinterestAgent));
 
 // 🧠 TDAH Specialist — Organização cognitiva (1 crédito)
-app.post('/api/agents/tdah', creditMiddleware(1), tdahAgent);
+app.post('/api/agents/tdah', creditMiddleware(1), logAgentAction('tdah', tdahAgent));
 
 // 👁️ Supervisor Inteligente — Indicações (1 crédito)
-app.post('/api/agents/supervisor', creditMiddleware(1), supervisorAgent);
+app.post('/api/agents/supervisor', creditMiddleware(1), logAgentAction('supervisor', supervisorAgent));
 
 // 🎨 UX Specialist — Onboarding (1 crédito)
-app.post('/api/agents/ux', creditMiddleware(1), uxAgent);
+app.post('/api/agents/ux', creditMiddleware(1), logAgentAction('ux', uxAgent));
 
 // 💰 Financial Intelligence (2 créditos)
-app.post('/api/agents/financial', creditMiddleware(2), financialAgent);
+app.post('/api/agents/financial', creditMiddleware(2), logAgentAction('financial', financialAgent));
 
 // 📈 Google/Marketing Strategy (1 crédito)
-app.post('/api/agents/google', creditMiddleware(1), googleAgent);
+app.post('/api/agents/google', creditMiddleware(1), logAgentAction('google', googleAgent));
 
 // 🔍 Google SEO Intelligence (2 créditos)
-app.post('/api/agents/google-seo', creditMiddleware(2), googleSeoAgent);
+app.post('/api/agents/google-seo', creditMiddleware(2), logAgentAction('google-seo', googleSeoAgent));
 
 // 📱 Marketing Orgânico (1 crédito)
-app.post('/api/agents/organic-marketing', creditMiddleware(1), organicMarketingAgent);
+app.post('/api/agents/organic-marketing', creditMiddleware(1), logAgentAction('organic-marketing', organicMarketingAgent));
 
 // 💰 Marketing Pago (2 créditos)
-app.post('/api/agents/paid-marketing', creditMiddleware(2), paidMarketingAgent);
+app.post('/api/agents/paid-marketing', creditMiddleware(2), logAgentAction('paid-marketing', paidMarketingAgent));
 
 // 🔄 Funnel Coordinator — Orquestração multigentes (3 créditos)
-app.post('/api/agents/funnel', creditMiddleware(3), funnelCoordinator);
+app.post('/api/agents/funnel', creditMiddleware(3), logAgentAction('funnel', funnelCoordinator));
 
 // ✍️ Blog Agent — Geração e publicação (3 créditos)
-app.post('/api/agents/blog', creditMiddleware(3), blogAgent);
+app.post('/api/agents/blog', creditMiddleware(3), logAgentAction('blog', blogAgent));
 
 // 💳 Billing & Stripe
 const marketplaceRoutes = require('./routes/marketplace');
@@ -452,10 +516,10 @@ app.get('/api/blog/stats', getStats);
 // 🧲 LEAD MAGNET LAB (BLOCO 8)
 // ========================
 
-app.post('/api/agents/lead-magnet', leadMagnetAgent);
-app.post('/api/agents/lead-magnet-ux', leadMagnetUXAgent);
-app.post('/api/agents/lead-magnet-copy', leadMagnetCopyAgent);
-app.post('/api/agents/lead-magnet-tdah', leadMagnetTDAHAgent);
+app.post('/api/agents/lead-magnet', logAgentAction('lead-magnet', leadMagnetAgent));
+app.post('/api/agents/lead-magnet-ux', logAgentAction('lead-magnet-ux', leadMagnetUXAgent));
+app.post('/api/agents/lead-magnet-copy', logAgentAction('lead-magnet-copy', leadMagnetCopyAgent));
+app.post('/api/agents/lead-magnet-tdah', logAgentAction('lead-magnet-tdah', leadMagnetTDAHAgent));
 
 // Inventário CRUD
 app.get('/api/lead-magnets', (req, res) => {
@@ -994,6 +1058,231 @@ app.get('/api/audit/stats', (req, res) => {
 });
 
 // ========================
+// 🧠 BLOCO 10A — MEMÓRIA DE LONGO PRAZO
+// ========================
+
+// Arquivar memória
+app.post('/api/memory/archive', (req, res) => {
+  const { category, title, content, tags, score, source, metadata } = req.body;
+  if (!category || !title || !content) return res.status(400).json({ error: 'category, title, content obrigatórios' });
+  const entry = archive(category, title, content, tags, score, source, metadata);
+  res.json(entry);
+});
+
+// Recuperar memórias
+app.get('/api/memory/recall', (req, res) => {
+  const { category, search, limit } = req.query;
+  res.json(recall(category, search, parseInt(limit) || 20));
+});
+
+// Memória estratégica (top scored)
+app.get('/api/memory/strategic', (req, res) => {
+  res.json(getStrategicMemory(parseInt(req.query.limit) || 10));
+});
+
+// Padrões detectados
+app.get('/api/memory/patterns', (req, res) => {
+  const { category } = req.query;
+  res.json(detectPatterns(category || 'all'));
+});
+
+// ========================
+// 🤖 AGENT LEARNING
+// ========================
+
+// Registrar aprendizado
+app.post('/api/learning/record', (req, res) => {
+  const { agentId, feature, value, scoreDelta } = req.body;
+  if (!agentId || !feature || !value) return res.status(400).json({ error: 'agentId, feature, value obrigatórios' });
+  const result = learn(agentId, feature, value, scoreDelta);
+  res.json(result);
+});
+
+// Preferências do agente
+app.get('/api/learning/preferences', (req, res) => {
+  const { agentId, feature, minScore } = req.query;
+  if (!agentId) return res.status(400).json({ error: 'agentId obrigatório' });
+  res.json(getPreferences(agentId, feature, parseFloat(minScore) || 0));
+});
+
+// Estatísticas de aprendizado
+app.get('/api/learning/stats', (req, res) => {
+  res.json(getLearningStats());
+});
+
+// ========================
+// 🚨 BLOCO 10B — SENTINELA 24H
+// ========================
+
+// Executar todas as verificações
+app.post('/api/sentinel/check', async (req, res) => {
+  try {
+    const results = await runAllChecks();
+    res.json({ success: true, results });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Analisar anomalias com IA
+app.post('/api/sentinel/analyze', async (req, res) => {
+  try {
+    const analysis = await analyzeAnomalies();
+    res.json({ analysis });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Histórico do sentinel
+app.get('/api/sentinel/history', (req, res) => {
+  const { severity, checkType, limit } = req.query;
+  res.json(getSentinelHistory(severity, checkType, parseInt(limit) || 50));
+});
+
+// Estatísticas do sentinel
+app.get('/api/sentinel/stats', (req, res) => {
+  res.json(getSentinelStats());
+});
+
+// ========================
+// 📈 BLOCO 10C — GROWTH LOOP
+// ========================
+
+// Analisar tendências
+app.post('/api/growth/trends', async (req, res) => {
+  const { niche } = req.body;
+  try {
+    const trends = await analyzeTrends(niche);
+    res.json({ success: true, trends });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Descobrir oportunidades
+app.post('/api/growth/discover', async (req, res) => {
+  const { niche } = req.body;
+  try {
+    const opportunities = await discoverOpportunities(niche);
+    // Save each opportunity
+    const saved = [];
+    for (const opp of opportunities) {
+      const s = saveOpportunity(opp.type, opp.title, opp.description, opp.potentialScore, opp.category, 'gemini', opp);
+      saved.push(s);
+    }
+    res.json({ success: true, opportunities: saved });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Análise competitiva
+app.post('/api/growth/competitive', async (req, res) => {
+  try {
+    const analysis = await competitiveAnalysis();
+    res.json({ success: true, analysis });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Listar oportunidades
+app.get('/api/growth/opportunities', (req, res) => {
+  const { status, type, limit } = req.query;
+  res.json(getOpportunities(status, type, parseInt(limit) || 50));
+});
+
+// Salvar oportunidade manual
+app.post('/api/growth/opportunities', (req, res) => {
+  const { type, title, description, potentialScore, category, source, metadata } = req.body;
+  if (!type || !title) return res.status(400).json({ error: 'type, title obrigatórios' });
+  const opp = saveOpportunity(type, title, description, potentialScore, category, source, metadata);
+  res.json(opp);
+});
+
+// Estatísticas de growth
+app.get('/api/growth/stats', (req, res) => {
+  res.json(getGrowthStats());
+});
+
+// ========================
+// 🛡️ BLOCO 10D — GOVERNANÇA E CONTROLE
+// ========================
+
+// PAUSE ALL AGENTS (emergency stop)
+let agentsPaused = false;
+const agentQueue = [];
+
+app.post('/api/control/pause-all', (req, res) => {
+  agentsPaused = true;
+  const reason = req.body.reason || 'Comando manual';
+  console.log(`[CONTROL] 🛑 PAUSE ALL AGENTS: ${reason}`);
+  archive('governance', 'PAUSE ALL AGENTS', reason, 'emergency', 0, 'admin', { reason, timestamp: new Date().toISOString() });
+  res.json({ success: true, paused: true, reason, agentsPaused: true });
+});
+
+app.post('/api/control/resume-all', (req, res) => {
+  agentsPaused = false;
+  console.log('[CONTROL] ▶️ RESUME ALL AGENTS');
+  res.json({ success: true, paused: false });
+});
+
+app.get('/api/control/status', (req, res) => {
+  res.json({ agentsPaused, queuedActions: agentQueue.length });
+});
+
+// ========================
+// 🚀 ONBOARDING PROGRESS
+// ========================
+// Listar notificações (suporta ?seed=1 para incluir dados de demonstração)
+app.get('/api/notifications', (req, res) => {
+  const showSeed = req.query.seed === '1';
+  const notifs = showSeed
+    ? db.prepare("SELECT * FROM notifications ORDER BY created_at DESC LIMIT 20").all()
+    : db.prepare("SELECT * FROM notifications WHERE is_seed != 1 ORDER BY created_at DESC LIMIT 20").all();
+  res.json(notifs);
+});
+
+// Listar vault de vídeos
+app.get('/api/video-vault', (req, res) => {
+  const vault = db.prepare("SELECT * FROM video_vault ORDER BY created_at DESC LIMIT 20").all();
+  res.json(vault);
+});
+
+app.get('/api/onboarding/progress', (req, res) => {
+  const userId = req.query.userId || req.headers['x-user-id'];
+  if (!userId) return res.json({ error: 'userId required' }, 400);
+
+  const user = db.prepare("SELECT clerk_id, plan, created_at FROM users WHERE clerk_id = ?").get(userId) || {};
+  const contentCount = db.prepare("SELECT COUNT(*) as c FROM content_queue WHERE clerk_id = ?").get(userId);
+  const campaignCount = db.prepare("SELECT COUNT(*) as c FROM campaigns WHERE clerk_id = ?").get(userId);
+  const magnetCount = db.prepare("SELECT COUNT(*) as c FROM lead_magnets").get();
+  const taskCount = db.prepare("SELECT COUNT(*) as c FROM brain_tasks WHERE clerk_id = ? AND status = 'COMPLETED'").get(userId);
+
+  const steps = [
+    { id: "s1", label: "Criar conta", description: "Cadastro e verificação de e-mail", status: "completed", icon: "✅" },
+    { id: "s2", label: "Definir plano", description: "Escolha do plano ideal", status: user.plan && user.plan !== 'free' ? "completed" : (user.plan ? "current" : "pending"), icon: user.plan && user.plan !== 'free' ? "✅" : "⏳" },
+    { id: "s3", label: "Primeiro conteúdo", description: "Criação do primeiro artigo ou ideia", status: contentCount.c > 0 ? "completed" : "pending", icon: contentCount.c > 0 ? "✅" : "📝" },
+    { id: "s4", label: "Criar campanha", description: "Configurar primeira campanha de marketing", status: campaignCount.c > 0 ? "completed" : "pending", icon: campaignCount.c > 0 ? "✅" : "📢" },
+    { id: "s5", label: "Isca digital", description: "Publicar primeiro lead magnet", status: magnetCount.c > 0 ? "completed" : "pending", icon: magnetCount.c > 0 ? "✅" : "🧲" },
+    { id: "s6", label: "Automações", description: "Agentes executando tarefas", status: taskCount.c > 2 ? "completed" : "pending", icon: taskCount.c > 2 ? "✅" : "⚙️" },
+  ];
+
+  const completed = steps.filter(s => s.status === "completed").length;
+  const current = steps.find(s => s.status === "current" || s.status === "pending");
+
+  res.json({
+    totalSteps: steps.length,
+    completedSteps: completed,
+    currentStep: current?.label || "Completo",
+    steps,
+    startedAt: user.created_at || new Date().toISOString(),
+    daysSinceStart: user.created_at ? Math.floor((Date.now() - new Date(user.created_at).getTime()) / 86400000) : 0,
+  });
+});
+
+// ========================
 // ERRO 404
 // ========================
 app.use((req, res) => {
@@ -1019,6 +1308,13 @@ app.listen(PORT, () => {
   checkOllamaStatus().then(status => {
     console.log(`🦙 Ollama: ${status.online ? `✅ Online | Modelos: ${status.models.join(', ')}` : '⚠️ Offline (usando Gemini como fallback)'}`);
     console.log(`\n🚀 Agentes prontos para uso!\n`);
+  });
+
+  // Discord Bot — conversacional (usando luma-os env como fonte)
+  const { startBot } = require('./services/discordBot');
+  startBot().then(bot => {
+    if (bot) console.log(`💬 Discord Bot: ✅ Online e ouvindo mensagens`);
+    else console.log(`💬 Discord Bot: ⏸️ Desativado (sem token ou desabilitado)`);
   });
 });
 

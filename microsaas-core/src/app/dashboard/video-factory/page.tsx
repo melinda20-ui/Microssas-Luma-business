@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Video, Scissors, Type, Download, AlertTriangle, Play, CheckCircle, Loader2 } from 'lucide-react';
+import API_BASE from "@/lib/api";
 
 export default function VideoFactory() {
     const [file, setFile] = useState<File | null>(null);
@@ -10,10 +11,15 @@ export default function VideoFactory() {
     const [clips, setClips] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<any[]>([]);
 
-    // Simula a busca de notificações e clipes existentes
     useEffect(() => {
-        // Aqui conectaríamos com a API real
-        // fetch('/api/notifications').then(res => res.json()).then(setNotifications);
+        fetch(`${API_BASE}/api/notifications`)
+            .then(res => res.ok ? res.json() : [])
+            .then(data => setNotifications(data || []))
+            .catch(() => {});
+        fetch(`${API_BASE}/api/video-vault`)
+            .then(res => res.ok ? res.json() : [])
+            .then(data => setClips(data || []))
+            .catch(() => {});
     }, []);
 
     const handleUpload = async () => {
@@ -25,7 +31,7 @@ export default function VideoFactory() {
         formData.append('style', style);
 
         try {
-            const res = await fetch('http://localhost:3001/api/agents/video', {
+            const res = await fetch(`${API_BASE}/api/agents/video`, {
                 method: 'POST',
                 body: formData
             });
@@ -155,7 +161,7 @@ export default function VideoFactory() {
                                                     EXPIRA EM 14 DIAS
                                                 </span>
                                                 <a 
-                                                    href={`http://localhost:3001${clip.url}`} 
+                                                    href={`${API_BASE}${clip.url}`} 
                                                     download 
                                                     className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"
                                                 >

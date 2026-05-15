@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "@/contexts/SessionContext";
 import Link from "next/link";
 import { readPageContext, formatContext } from "./domReader";
+import API_BASE from "@/lib/api";
 
-const API_URL = "http://localhost:3001";
+const API_URL = API_BASE;
 
 export default function MiaWidget() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useSession();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: "user" | "mia"; content: string }[]>([
     { role: "mia", content: "🧠 Precisando de ajuda? Me pergunte algo sobre esta página!" },
@@ -37,7 +38,7 @@ export default function MiaWidget() {
         headers: {
           "Content-Type": "application/json",
           "x-user-id": user.id,
-          "x-user-email": user.primaryEmailAddress?.emailAddress || "",
+          "x-user-email": user.email || "",
         },
         body: JSON.stringify({ message: enriched, sessionId: `widget_${user.id}`, plan: "pro" }),
       });

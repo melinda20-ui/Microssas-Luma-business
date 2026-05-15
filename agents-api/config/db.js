@@ -275,6 +275,8 @@ const initDb = () => {
     `).run();
 
     try { db.prepare("ALTER TABLE content_queue ADD COLUMN campaign_id INTEGER DEFAULT NULL").run(); } catch (_) {}
+    try { db.prepare("ALTER TABLE content_queue ADD COLUMN approved_by TEXT DEFAULT NULL").run(); } catch (_) {}
+    try { db.prepare("ALTER TABLE content_queue ADD COLUMN approved_at DATETIME DEFAULT NULL").run(); } catch (_) {}
 
     // ========================
     // BLOCO 8 — LEAD MAGNET LAB
@@ -395,7 +397,82 @@ const initDb = () => {
         if (moved.changes > 0) console.log(`🗂️ ${moved.changes} tarefas migradas para histórico operacional`);
     } catch (_) {}
 
-    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas + Versões + Histórico + Email + Lead Magnet Lab + Auditoria + Faxina)');
+    // ========================
+    // BLOCO 10 — AUTONOMIA, MEMÓRIA E INTELIGÊNCIA PREDITIVA
+    // ========================
+
+    // Arquivo de Memória de Longo Prazo
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS memory_archive (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT NOT NULL,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            tags TEXT DEFAULT '',
+            score REAL DEFAULT 0,
+            source TEXT DEFAULT 'system',
+            metadata TEXT DEFAULT '{}',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    // Aprendizado de Agentes (preferências, padrões)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS agent_learning (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            agent_id TEXT NOT NULL,
+            feature TEXT NOT NULL,
+            value TEXT NOT NULL,
+            score REAL DEFAULT 0,
+            count INTEGER DEFAULT 1,
+            last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(agent_id, feature, value)
+        )
+    `).run();
+
+    // Logs do Sentinel (monitoramento contínuo)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS sentinel_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            check_type TEXT NOT NULL,
+            status TEXT NOT NULL,
+            metric TEXT DEFAULT '',
+            value REAL DEFAULT 0,
+            threshold REAL DEFAULT 0,
+            severity TEXT DEFAULT 'info',
+            message TEXT DEFAULT '',
+            details TEXT DEFAULT '{}',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    // Oportunidades de Crescimento
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS growth_opportunities (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            potential_score REAL DEFAULT 0,
+            category TEXT DEFAULT 'geral',
+            source TEXT DEFAULT 'system',
+            status TEXT DEFAULT 'pending',
+            metadata TEXT DEFAULT '{}',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    try { db.prepare("ALTER TABLE brain_tasks ADD COLUMN memory_id INTEGER DEFAULT NULL").run(); } catch (_) {}
+
+    // ========================
+    // Migrações: flag is_seed para dados de demonstração
+    // ========================
+    const seedTables = ['notifications', 'sentinel_logs', 'memory_archive', 'agent_learning', 'audit_logs'];
+    for (const tbl of seedTables) {
+        try { db.prepare(`ALTER TABLE ${tbl} ADD COLUMN is_seed INTEGER DEFAULT 0`).run(); } catch (_) {}
+    }
+
+    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas + Versões + Histórico + Email + Lead Magnet Lab + Auditoria + Faxina + Memória + Sentinela + Growth)');
 };
 
 const SUPER_ADMIN_EMAIL = 'lumabusinessa1.0@gmail.com';

@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { db } = require('../config/db');
 
-// Configuração dos Planos (Price IDs fictícios - Substituir pelos reais no Stripe Dashboard)
+const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+const stripe = STRIPE_KEY ? require('stripe')(STRIPE_KEY) : null;
+
+// Planos com Price IDs reais do Stripe (carregados do luma-os .env)
 const PLANS = {
-    'basic': { credits: 200, name: 'Plano Básico', priceId: 'price_basic_123' },
-    'pro': { credits: 1000, name: 'Plano Pro', priceId: 'price_pro_123' }
+    'basic': { credits: 200, name: 'Plano Básico', priceId: process.env.STRIPE_PRICE_BASICO || 'price_basic_placeholder' },
+    'pro': { credits: 1000, name: 'Plano Pro', priceId: process.env.STRIPE_PRICE_PRO || 'price_pro_placeholder' },
+    'premium': { credits: 5000, name: 'Plano Premium', priceId: process.env.STRIPE_PRICE_PREMIUM || 'price_premium_placeholder' }
 };
 
 /**
@@ -20,15 +23,21 @@ router.post('/checkout', async (req, res) => {
         return res.status(400).json({ error: 'Plano inválido ou usuário não identificado.' });
     }
 
+    // Modo simulação quando Stripe não está configurado
+    if (!stripe) {
+        return res.json({
+            mock: true,
+            url: `/studio-lab?mock-checkout=${planId}`,
+            message: 'Modo simulação: pagamento não processado. Stripe não configurado.'
+        });
+    }
+
     try {
+        const plan = PLANS[planId];
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [{
-                price_data: {
-                    currency: 'brl',
-                    product_data: { name: PLANS[planId].name },
-                    unit_amount: planId === 'pro' ? 14900 : 4900,
-                },
+                price: plan.priceId,
                 quantity: 1,
             }],
             mode: 'subscription',
@@ -49,6 +58,8 @@ router.post('/checkout', async (req, res) => {
  * Webhook para escutar confirmação de pagamento
  */
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    if (!stripe) return res.status(200).json({ mock: true, message: 'Stripe não configurado' });
+
     const sig = req.headers['stripe-signature'];
     let event;
 
@@ -63,7 +74,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         const userId = session.client_reference_id;
         const planId = session.metadata.planId;
 
-        if (userId && PLANS[planId]) {
+        if (userId && planId && PLANS[planId]) {
             const addedCredits = PLANS[planId].credits;
             
             // Atualiza o plano e os créditos do usuário

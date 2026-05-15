@@ -1,19 +1,21 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "@/contexts/SessionContext";
 import Link from "next/link";
+import API_BASE from "@/lib/api";
 
-const API_URL = "http://localhost:3001";
+const API_URL = API_BASE;
 
 type Referral = {
-  id: string;
+  id: number;
   name: string;
   email: string;
   status: "active" | "converted" | "stalled" | "lost";
   daysSinceContact: number;
   lastContact: string;
   notes: string;
+  created_at: string;
 };
 
 type SupervisionResult = {
@@ -22,22 +24,41 @@ type SupervisionResult = {
   suggestion: string;
 };
 
-const SAMPLE_REFERRALS: Referral[] = [
-  { id: "1", name: "Ana Silva", email: "ana@example.com", status: "active", daysSinceContact: 1, lastContact: "14/05", notes: "Interessada no plano Premium" },
-  { id: "2", name: "Carlos Oliveira", email: "carlos@example.com", status: "stalled", daysSinceContact: 9, lastContact: "06/05", notes: "Pediu mais informações" },
-  { id: "3", name: "Mariana Costa", email: "mariana@example.com", status: "converted", daysSinceContact: 0, lastContact: "15/05", notes: "Fechou Plano Pro" },
-  { id: "4", name: "João Santos", email: "joao@example.com", status: "active", daysSinceContact: 2, lastContact: "13/05", notes: "Agendou demo" },
-  { id: "5", name: "Patrícia Lima", email: "patricia@example.com", status: "stalled", daysSinceContact: 14, lastContact: "01/05", notes: "Sem retorno após proposta" },
-  { id: "6", name: "Roberto Alves", email: "roberto@example.com", status: "lost", daysSinceContact: 30, lastContact: "15/04", notes: "Não teve interesse" },
-];
-
 export default function IndiquePage() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useSession();
 
-  const [referrals] = useState<Referral[]>(SAMPLE_REFERRALS);
+  const [referrals, setReferrals] = useState<Referral[]>([]);
   const [loading, setLoading] = useState(false);
+  const [leadsLoading, setLeadsLoading] = useState(true);
   const [result, setResult] = useState<SupervisionResult | null>(null);
   const [activeAction, setActiveAction] = useState<string>("analyze");
+
+  const fetchLeads = useCallback(async () => {
+    if (!user) return;
+    setLeadsLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/leads?limit=50`);
+      if (res.ok) {
+        const data = await res.json();
+        const mapped: Referral[] = (data || []).map((l: any) => ({
+          id: l.id,
+          name: l.name,
+          email: l.email,
+          status: l.funnel_stage === "converted" ? "converted" : l.download_count > 0 ? "active" : "stalled",
+          daysSinceContact: Math.floor((Date.now() - new Date(l.created_at).getTime()) / 86400000),
+          lastContact: new Date(l.created_at).toLocaleDateString("pt-BR"),
+          notes: l.category || (l.magnet_title || "Lead capturado"),
+          created_at: l.created_at,
+        }));
+        setReferrals(mapped);
+      }
+    } catch {}
+    setLeadsLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    if (isLoaded && user) fetchLeads();
+  }, [isLoaded, user, fetchLeads]);
 
   const callSupervisor = useCallback(async (action: string) => {
     if (!user) return;
@@ -49,7 +70,7 @@ export default function IndiquePage() {
         headers: {
           "Content-Type": "application/json",
           "x-user-id": user.id,
-          "x-user-email": user.primaryEmailAddress?.emailAddress || "",
+          "x-user-email": user.email || "",
         },
         body: JSON.stringify({ action, referrals }),
       });
@@ -69,10 +90,10 @@ export default function IndiquePage() {
   }, [user, referrals]);
 
   useEffect(() => {
-    if (isLoaded && user) {
+    if (!leadsLoading && referrals.length > 0) {
       callSupervisor("analyze");
     }
-  }, [isLoaded, user, callSupervisor]);
+  }, [leadsLoading]);
 
   if (!isLoaded) {
     return (
@@ -89,7 +110,7 @@ export default function IndiquePage() {
           <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
           <h2 style={{ marginBottom: 8 }}>Acesso Restrito</h2>
           <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 24 }}>Faça login para acessar.</p>
-          <Link href="/sign-in" className="btn btn-primary">Fazer Login</Link>
+          <Link href="/login" className="btn btn-primary">Fazer Login</Link>
         </div>
       </div>
     );
@@ -119,9 +140,14 @@ export default function IndiquePage() {
               Acompanhe suas indicações ativas, detecte gargalos e receba sugestões prioritárias.
             </p>
           </div>
-          <Link href="/studio/mia-brain" className="btn btn-ghost btn-sm" style={{ fontSize: 11 }}>
-            🧠 Mia Brain
-          </Link>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn btn-ghost btn-sm" style={{ fontSize: 11 }} onClick={fetchLeads}>
+              🔄 Atualizar
+            </button>
+            <Link href="/studio/mia-brain" className="btn btn-ghost btn-sm" style={{ fontSize: 11 }}>
+              🧠 Mia Brain
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -153,49 +179,61 @@ export default function IndiquePage() {
           <div className="card" style={{ padding: 16, marginBottom: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span>📋 Indicações ({referrals.length})</span>
-              <span style={{ fontSize: 10, color: "var(--faint)" }}>Atualizado automaticamente</span>
+              <span style={{ fontSize: 10, color: "var(--faint)" }}>
+                {leadsLoading ? "Carregando..." : "Fonte: leads reais"}
+              </span>
             </div>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border)", color: "var(--faint)", fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>
-                    <th style={{ textAlign: "left", padding: "8px 6px", fontWeight: 600 }}>Nome</th>
-                    <th style={{ textAlign: "left", padding: "8px 6px", fontWeight: 600 }}>Status</th>
-                    <th style={{ textAlign: "center", padding: "8px 6px", fontWeight: 600 }}>Dias sem contato</th>
-                    <th style={{ textAlign: "right", padding: "8px 6px", fontWeight: 600 }}>Ação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {referrals.map((r) => (
-                    <tr key={r.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                      <td style={{ padding: "10px 6px" }}>
-                        <div style={{ fontWeight: 600 }}>{r.name}</div>
-                        <div style={{ fontSize: 10, color: "var(--faint)" }}>{r.notes}</div>
-                      </td>
-                      <td style={{ padding: "10px 6px" }}>
-                        <span className="badge" style={{
-                          fontSize: 10,
-                          background: r.status === "active" ? "rgba(34,197,94,0.15)" : r.status === "stalled" ? "rgba(239,68,68,0.15)" : r.status === "converted" ? "rgba(99,102,241,0.15)" : "rgba(113,113,122,0.15)",
-                          color: r.status === "active" ? "#22c55e" : r.status === "stalled" ? "#ef4444" : r.status === "converted" ? "#818cf8" : "#a1a1aa",
-                        }}>
-                          {r.status === "active" ? "🟢 Ativa" : r.status === "stalled" ? "🔴 Parada" : r.status === "converted" ? "🔵 Convertida" : "⚪ Perdida"}
-                        </span>
-                      </td>
-                      <td style={{ padding: "10px 6px", textAlign: "center", color: r.daysSinceContact > 7 ? "#ef4444" : r.daysSinceContact > 3 ? "#eab308" : "var(--text)" }}>
-                        {r.daysSinceContact}d
-                      </td>
-                      <td style={{ padding: "10px 6px", textAlign: "right" }}>
-                        {r.status === "stalled" && (
-                          <button className="btn btn-sm" style={{ fontSize: 10, padding: "4px 8px", background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.3)" }}>
-                            🔄 Reengajar
-                          </button>
-                        )}
-                      </td>
+            {leadsLoading ? (
+              <div style={{ padding: 20, textAlign: "center", color: "var(--muted)", fontSize: 12 }}>
+                Carregando leads...
+              </div>
+            ) : referrals.length === 0 ? (
+              <div style={{ padding: 20, textAlign: "center", color: "var(--muted)", fontSize: 12 }}>
+                Nenhum lead capturado ainda. Crie iscas digitais no <Link href="/studio/iscas-lab" style={{ color: "#a5b4fc" }}>Iscas Lab</Link> para começar.
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--border)", color: "var(--faint)", fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>
+                      <th style={{ textAlign: "left", padding: "8px 6px", fontWeight: 600 }}>Nome</th>
+                      <th style={{ textAlign: "left", padding: "8px 6px", fontWeight: 600 }}>Status</th>
+                      <th style={{ textAlign: "center", padding: "8px 6px", fontWeight: 600 }}>Dias sem contato</th>
+                      <th style={{ textAlign: "right", padding: "8px 6px", fontWeight: 600 }}>Ação</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {referrals.map((r) => (
+                      <tr key={r.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                        <td style={{ padding: "10px 6px" }}>
+                          <div style={{ fontWeight: 600 }}>{r.name}</div>
+                          <div style={{ fontSize: 10, color: "var(--faint)" }}>{r.notes}</div>
+                        </td>
+                        <td style={{ padding: "10px 6px" }}>
+                          <span className="badge" style={{
+                            fontSize: 10,
+                            background: r.status === "active" ? "rgba(34,197,94,0.15)" : r.status === "stalled" ? "rgba(239,68,68,0.15)" : r.status === "converted" ? "rgba(99,102,241,0.15)" : "rgba(113,113,122,0.15)",
+                            color: r.status === "active" ? "#22c55e" : r.status === "stalled" ? "#ef4444" : r.status === "converted" ? "#818cf8" : "#a1a1aa",
+                          }}>
+                            {r.status === "active" ? "🟢 Ativa" : r.status === "stalled" ? "🔴 Parada" : r.status === "converted" ? "🔵 Convertida" : "⚪ Perdida"}
+                          </span>
+                        </td>
+                        <td style={{ padding: "10px 6px", textAlign: "center", color: r.daysSinceContact > 7 ? "#ef4444" : r.daysSinceContact > 3 ? "#eab308" : "var(--text)" }}>
+                          {r.daysSinceContact}d
+                        </td>
+                        <td style={{ padding: "10px 6px", textAlign: "right" }}>
+                          {r.status === "stalled" && (
+                            <button className="btn btn-sm" style={{ fontSize: 10, padding: "4px 8px", background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.3)" }}>
+                              🔄 Reengajar
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
 
@@ -216,7 +254,7 @@ export default function IndiquePage() {
                   className={`btn btn-sm ${activeAction === a.id ? "btn-primary" : "btn-ghost"}`}
                   style={{ fontSize: 11 }}
                   onClick={() => callSupervisor(a.id)}
-                  disabled={loading}
+                  disabled={loading || referrals.length === 0}
                 >
                   {a.label}
                 </button>
@@ -251,7 +289,9 @@ export default function IndiquePage() {
                 )}
               </div>
             ) : (
-              <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>Carregando análise inicial...</div>
+              <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>
+                {leadsLoading ? "Carregando leads..." : referrals.length === 0 ? "Sem leads para analisar." : "Analisando leads..."}
+              </div>
             )}
           </div>
 

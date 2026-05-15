@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "@/contexts/SessionContext";
 import Link from "next/link";
+import API_BASE from "@/lib/api";
 
-const API_URL = "http://localhost:3001";
+const API_URL = API_BASE;
 
 type LeadMagnet = {
   id: number;
@@ -59,7 +60,7 @@ function stageLabel(stage: string) {
 }
 
 export default function IscasLab() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useSession();
 
   const [magnets, setMagnets] = useState<LeadMagnet[]>([]);
   const [stats, setStats] = useState<LeadMagnetStats | null>(null);
@@ -211,7 +212,7 @@ export default function IscasLab() {
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
         <h2 style={{ marginBottom: 8 }}>Acesso Restrito</h2>
         <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 24 }}>Faça login.</p>
-        <Link href="/sign-in" className="btn btn-primary">Login</Link>
+        <Link href="/login" className="btn btn-primary">Login</Link>
       </div>
     </div>
   );

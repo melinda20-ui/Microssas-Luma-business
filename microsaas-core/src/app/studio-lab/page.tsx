@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "@/contexts/SessionContext";
 import Link from "next/link";
 import MiaWidget from "@/components/studio/MiaWidget";
 
@@ -25,15 +25,16 @@ type SuperAdminCheck = {
   role: string;
 };
 
-const AGENT_META: Record<string, { icon: string; label: string; color: string; desc: string }> = {
+type AgentMeta = { icon: string; label: string; color: string; desc: string };
+const AGENT_META_FALLBACK: Record<string, AgentMeta> = {
   support:    { icon: "💬", label: "Mia (Suporte)",       color: "orange", desc: "Suporte 24/7 via Ollama + Gemini" },
   content:   { icon: "✍️", label: "Content Creator",      color: "cyan",   desc: "Posts, blogs, e-mails e scripts" },
-  tiktok:    { icon: "📱", label: "TikTok Shop Agent",    color: "pink",   desc: "Roteiros e estratgia viral" },
+  tiktok:    { icon: "📱", label: "TikTok Shop Agent",    color: "pink",   desc: "Roteiros e estrategia viral" },
   shopify:   { icon: "🛍️", label: "Shopify Expert",       color: "green",  desc: "Copy de vendas e SEO" },
-  pinterest: { icon: "📌", label: "Pinterest Growth",     color: "orange", desc: "Tráfego visual e pins" },
+  pinterest: { icon: "📌", label: "Pinterest Growth",     color: "orange", desc: "Trafico visual e pins" },
   website:   { icon: "🏗️", label: "Website Builder",      color: "purple", desc: "Sites completos com Gemini Pro" },
   automation:{ icon: "⚙️", label: "Automation Builder",   color: "pink",   desc: "Workflows n8n com IA" },
-  analytics: { icon: "📊", label: "Business Intelligence", color: "green",  desc: "Insights e análises de dados" },
+  analytics: { icon: "📊", label: "Business Intelligence", color: "green",  desc: "Insights e analises de dados" },
 };
 
 const API_URL = process.env.NEXT_PUBLIC_AGENT_API_URL || "http://localhost:3001";
@@ -50,7 +51,7 @@ function fmtMemory(bytes: number): string {
 }
 
 export default function StudioLab() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useSession();
 
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -61,10 +62,16 @@ export default function StudioLab() {
   const [statusError, setStatusError] = useState<string | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
 
+  const [agentMeta, setAgentMeta] = useState<Record<string, AgentMeta> | null>(null);
+  const [agentMetaError, setAgentMetaError] = useState<string | null>(null);
+
   const [activeHistoryTab, setActiveHistoryTab] = useState<"history" | "alerts" | "kanban">("history");
   const [historyEntries, setHistoryEntries] = useState<any[]>([]);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const [alerts, setAlerts] = useState<any[]>([]);
+  const [alertsError, setAlertsError] = useState<string | null>(null);
   const [kanbanStats, setKanbanStats] = useState<any>(null);
+  const [kanbanError, setKanbanError] = useState<string | null>(null);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -105,16 +112,30 @@ export default function StudioLab() {
     }
   }, []);
 
+  const fetchAgentMeta = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/agents/meta`);
+      if (!res.ok) throw new Error(`Agent meta API retornou ${res.status}`);
+      setAgentMeta(await res.json());
+      setAgentMetaError(null);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erro ao carregar metadados dos agentes";
+      setAgentMetaError(msg);
+      console.warn("[StudioLab] Erro ao buscar agent meta, usando fallback:", msg);
+      setAgentMeta(AGENT_META_FALLBACK);
+    }
+  }, []);
+
   const fetchHistory = useCallback(async () => {
-    try { const res = await fetch(`${API_URL}/api/operations/history?limit=30`); if (res.ok) setHistoryEntries(await res.json()); } catch {}
+    try { const res = await fetch(`${API_URL}/api/operations/history?limit=30`); if (res.ok) { setHistoryEntries(await res.json()); setHistoryError(null); } else setHistoryError(`HTTP ${res.status}`); } catch (e) { setHistoryError("Falha de conexao"); }
   }, []);
 
   const fetchAlerts = useCallback(async () => {
-    try { const res = await fetch(`${API_URL}/api/alerts/check`); if (res.ok) { const d = await res.json(); setAlerts(d.alerts || []); } } catch {}
+    try { const res = await fetch(`${API_URL}/api/alerts/check`); if (res.ok) { const d = await res.json(); setAlerts(d.alerts || []); setAlertsError(null); } else setAlertsError(`HTTP ${res.status}`); } catch (e) { setAlertsError("Falha de conexao"); }
   }, []);
 
   const fetchKanbanStats = useCallback(async () => {
-    try { const res = await fetch(`${API_URL}/api/operations/kanban-stats`); if (res.ok) setKanbanStats(await res.json()); } catch {}
+    try { const res = await fetch(`${API_URL}/api/operations/kanban-stats`); if (res.ok) { setKanbanStats(await res.json()); setKanbanError(null); } else setKanbanError(`HTTP ${res.status}`); } catch (e) { setKanbanError("Falha de conexao"); }
   }, []);
 
   const clearAllAlerts = async () => {
@@ -124,11 +145,16 @@ export default function StudioLab() {
   useEffect(() => {
     if (!isLoaded) return;
     fetchStatus();
-    if (user) fetchProfile(user.id);
+    fetchAgentMeta();
+    if (user) {
+      fetchProfile(user.id);
+    } else {
+      setProfileLoading(false);
+    }
     fetchHistory();
     fetchAlerts();
     fetchKanbanStats();
-  }, [isLoaded, user, fetchStatus, fetchProfile, fetchHistory, fetchAlerts, fetchKanbanStats]);
+  }, [isLoaded, user, fetchStatus, fetchAgentMeta, fetchProfile, fetchHistory, fetchAlerts, fetchKanbanStats]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -140,7 +166,7 @@ export default function StudioLab() {
   }, [user, fetchStatus, fetchProfile, fetchAlerts]);
 
   const hasAnyError = statusError !== null || profileError !== null;
-  const isDataReady = !statusLoading && !profileLoading;
+  const isDataReady = !statusLoading && (!user || !profileLoading);
 
   return (
     <>
@@ -163,7 +189,7 @@ export default function StudioLab() {
                   ? `Studio Lab`
                   : "Conectando..."}
               </h1>
-              <p style={{ color: "var(--muted)", fontSize: 14 }}>Dados em tempo real do backend — sem fallbacks, sem cache.</p>
+              <p style={{ color: "var(--muted)", fontSize: 14 }}>Monitoramento ao vivo — status, agentes e operacoes do sistema.</p>
             </div>
             <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
               {superAdmin?.superAdmin && (
@@ -201,14 +227,15 @@ export default function StudioLab() {
               <button
                 className="btn btn-ghost btn-sm"
                 style={{ marginTop: 12 }}
-                onClick={() => {
-                  setStatusLoading(true);
-                  setProfileLoading(true);
-                  setStatusError(null);
-                  setProfileError(null);
-                  fetchStatus();
-                  if (user) fetchProfile(user.id);
-                }}
+                  onClick={() => {
+                    setStatusLoading(true);
+                    setProfileLoading(true);
+                    setStatusError(null);
+                    setProfileError(null);
+                    fetchStatus();
+                    fetchAgentMeta();
+                    if (user) fetchProfile(user.id);
+                  }}
               >
                 Tentar novamente
               </button>
@@ -272,10 +299,10 @@ export default function StudioLab() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(99,102,241,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>
-                      {user.primaryEmailAddress?.emailAddress?.charAt(0).toUpperCase() || "?"}
+                      {user.email?.charAt(0).toUpperCase() || "?"}
                     </div>
                     <div>
-                      <div style={{ fontWeight: 600 }}>{user.primaryEmailAddress?.emailAddress || "Usuário"}</div>
+                      <div style={{ fontWeight: 600 }}>{user.email || "Usuário"}</div>
                       <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
                         ID: {user.id.slice(0, 12)}...
                       </div>
@@ -322,8 +349,15 @@ export default function StudioLab() {
                 ? "Cérebro Azul (Ollama) online · Fallback Gemini ativo"
                 : "Gemini como provedor principal"}
             </p>
+            {(!agentMeta || Object.keys(agentMeta).length === 0) ? (
+              <div className="card" style={{ padding: 24, textAlign: "center" }}>
+                <p style={{ fontSize: 14, color: "var(--muted)" }}>
+                  {agentMetaError ? `Erro ao carregar catalogo: ${agentMetaError}` : "Carregando agentes..."}
+                </p>
+              </div>
+            ) : (
             <div className="agents-grid">
-              {Object.entries(AGENT_META).map(([id, meta]) => (
+              {Object.entries(agentMeta).map(([id, meta]) => (
                 <Link
                   key={id}
                   href={`/chat?agent=${id}`}
@@ -346,6 +380,7 @@ export default function StudioLab() {
                 </Link>
               ))}
             </div>
+            )}
           </div>
 
           {/* Operation History + Alerts */}
@@ -363,8 +398,14 @@ export default function StudioLab() {
             {activeHistoryTab === "history" && (
               <div className="card" style={{ padding: 16 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>🗂️ Histórico Operacional</div>
-                {historyEntries.length === 0 ? (
-                  <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>Nenhum histórico disponível.</div>
+                {historyError && (
+                  <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic", marginBottom: 8 }}>
+                    Erro ao carregar: {historyError}
+                    <button className="btn btn-sm btn-ghost" style={{ fontSize: 10, marginLeft: 8 }} onClick={fetchHistory}>🔄</button>
+                  </div>
+                )}
+                {historyEntries.length === 0 && !historyError ? (
+                  <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>Nenhum histórico disponível — as operações dos agentes aparecerão aqui.</div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 400, overflow: "auto" }}>
                     {historyEntries.map((e: any) => (
@@ -387,6 +428,11 @@ export default function StudioLab() {
                     {alerts.length > 0 && <button className="btn btn-sm" style={{ fontSize: 10, background: "rgba(239,68,68,0.1)", color: "#fca5a5" }} onClick={clearAllAlerts}>Limpar</button>}
                   </div>
                 </div>
+                {alertsError && (
+                  <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic", marginBottom: 8 }}>
+                    Erro ao carregar: {alertsError}
+                  </div>
+                )}
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   {alerts.map((a: any) => (
                     <div key={a.id} style={{
@@ -399,33 +445,44 @@ export default function StudioLab() {
                       <div style={{ fontSize: 9, color: "var(--faint)", marginTop: 4 }}>{a.source} · {a.createdAt?.slice(0, 19)}</div>
                     </div>
                   ))}
-                  {alerts.length === 0 && <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>Nenhum alerta ativo.</div>}
+                  {alerts.length === 0 && !alertsError && <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>Nenhum alerta ativo — o Sentinel vigia automaticamente.</div>}
                 </div>
               </div>
             )}
 
-            {activeHistoryTab === "kanban" && kanbanStats && (
+            {activeHistoryTab === "kanban" && (
               <div className="card" style={{ padding: 16 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>📊 Estatísticas do Kanban</div>
+                {kanbanError && (
+                  <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic", marginBottom: 8 }}>
+                    Erro ao carregar: {kanbanError}
+                    <button className="btn btn-sm btn-ghost" style={{ fontSize: 10, marginLeft: 8 }} onClick={fetchKanbanStats}>🔄</button>
+                  </div>
+                )}
+                {!kanbanStats && !kanbanError && (
+                  <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>Carregando estatísticas...</div>
+                )}
+                {kanbanStats && (
+                <>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
                   <div className="card" style={{ flex: 1, minWidth: 80, padding: "8px 12px", textAlign: "center" }}>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{kanbanStats.active}</div>
+                    <div style={{ fontSize: 20, fontWeight: 700 }}>{kanbanStats.active ?? 0}</div>
                     <div style={{ fontSize: 9, color: "var(--faint)" }}>Ativas</div>
                   </div>
                   <div className="card" style={{ flex: 1, minWidth: 80, padding: "8px 12px", textAlign: "center" }}>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: "#22c55e" }}>{kanbanStats.completed}</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#22c55e" }}>{kanbanStats.completed ?? 0}</div>
                     <div style={{ fontSize: 9, color: "var(--faint)" }}>Concluídas</div>
                   </div>
                   <div className="card" style={{ flex: 1, minWidth: 80, padding: "8px 12px", textAlign: "center" }}>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: "#a1a1aa" }}>{kanbanStats.archived}</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#a1a1aa" }}>{kanbanStats.archived ?? 0}</div>
                     <div style={{ fontSize: 9, color: "var(--faint)" }}>Arquivadas</div>
                   </div>
                   <div className="card" style={{ flex: 1, minWidth: 80, padding: "8px 12px", textAlign: "center" }}>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: "#818cf8" }}>{kanbanStats.inHistory}</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#818cf8" }}>{kanbanStats.inHistory ?? 0}</div>
                     <div style={{ fontSize: 9, color: "var(--faint)" }}>no Histórico</div>
                   </div>
                 </div>
-                {kanbanStats.byStatus && (
+                {kanbanStats.byStatus && kanbanStats.byStatus.length > 0 && (
                   <div>
                     <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>Por Status</div>
                     {kanbanStats.byStatus.map((s: any) => (
@@ -440,6 +497,11 @@ export default function StudioLab() {
                   <div style={{ marginTop: 8, padding: "6px 10px", background: "rgba(245,158,11,0.1)", borderRadius: 4, fontSize: 11 }}>
                     ⚠️ {kanbanStats.pendingOldDays} tarefas PENDING há mais de 7 dias
                   </div>
+                )}
+                {!kanbanStats.byStatus && !kanbanStats.pendingOldDays && (
+                  <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic", marginTop: 8 }}>Nenhuma estatística disponível — crie tarefas no Kanban para ver dados aqui.</div>
+                )}
+                </>
                 )}
               </div>
             )}
@@ -456,8 +518,12 @@ export default function StudioLab() {
 [Status] last: ${JSON.stringify(status, null, 2)}
 [Profile] last: ${JSON.stringify(profile, null, 2)}
 [SuperAdmin] last: ${JSON.stringify(superAdmin, null, 2)}
+[AgentMeta] loaded: ${agentMeta ? Object.keys(agentMeta).length + " agents" : "none"}
 [StatusError] ${statusError || "none"}
 [ProfileError] ${profileError || "none"}
+[History] ${historyEntries.length} entries${historyError ? ` (error: ${historyError})` : ""}
+[Alerts] ${alerts.length} active${alertsError ? ` (error: ${alertsError})` : ""}
+[Kanban] ${kanbanStats ? "loaded" : "none"}${kanbanError ? ` (error: ${kanbanError})` : ""}
 [Poll] Interval: 30s`}
               </pre>
             </details>
