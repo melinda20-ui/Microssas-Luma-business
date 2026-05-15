@@ -173,6 +173,79 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // ========================
+// 🧠 BRAIN TASKS (Mia Brain)
+// ========================
+
+// Listar tarefas por sessão
+app.get('/api/brain/tasks/:sessionId', (req, res) => {
+    const tasks = db.prepare('SELECT * FROM brain_tasks WHERE session_id = ? ORDER BY created_at DESC').all(req.params.sessionId);
+    res.json(tasks);
+});
+
+// Listar tarefas pendentes do usuário
+app.get('/api/brain/tasks/pending/:clerkId', (req, res) => {
+    const tasks = db.prepare("SELECT * FROM brain_tasks WHERE clerk_id = ? AND status = 'PENDING' ORDER BY created_at DESC").all(req.params.clerkId);
+    res.json(tasks);
+});
+
+// Criar tarefa (PENDING por padrão)
+app.post('/api/brain/tasks', (req, res) => {
+    const { sessionId, clerkId, agentId, title, description, payload } = req.body;
+    if (!sessionId || !clerkId || !agentId || !title) {
+        return res.status(400).json({ error: 'Campos obrigatórios: sessionId, clerkId, agentId, title' });
+    }
+    const result = db.prepare(
+        'INSERT INTO brain_tasks (session_id, clerk_id, agent_id, title, description, payload) VALUES (?, ?, ?, ?, ?, ?)'
+    ).run(sessionId, clerkId, agentId, title, description || '', JSON.stringify(payload || {}));
+    const task = db.prepare('SELECT * FROM brain_tasks WHERE id = ?').get(result.lastInsertRowid);
+    console.log(`[Brain] Tarefa #${task.id} criada: "${title}" (${agentId})`);
+    res.status(201).json(task);
+});
+
+// Aprovar tarefa (PENDING → APPROVED)
+app.patch('/api/brain/tasks/:id/approve', (req, res) => {
+    const { clerkId } = req.body;
+    if (!clerkId) return res.status(400).json({ error: 'clerkId obrigatório' });
+    const task = db.prepare('SELECT * FROM brain_tasks WHERE id = ?').get(req.params.id);
+    if (!task) return res.status(404).json({ error: 'Tarefa não encontrada' });
+    if (task.status !== 'PENDING') return res.status(400).json({ error: `Tarefa já está como ${task.status}` });
+    db.prepare("UPDATE brain_tasks SET status = 'APPROVED', approved_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(clerkId, req.params.id);
+    const updated = db.prepare('SELECT * FROM brain_tasks WHERE id = ?').get(req.params.id);
+    console.log(`[Brain] Tarefa #${task.id} APROVADA por ${clerkId}`);
+    res.json(updated);
+});
+
+// Iniciar execução (APPROVED → EXECUTING)
+app.patch('/api/brain/tasks/:id/execute', (req, res) => {
+    const task = db.prepare('SELECT * FROM brain_tasks WHERE id = ?').get(req.params.id);
+    if (!task) return res.status(404).json({ error: 'Tarefa não encontrada' });
+    if (task.status !== 'APPROVED') return res.status(400).json({ error: `Tarefa precisa ser aprovada primeiro. Status atual: ${task.status}` });
+    db.prepare("UPDATE brain_tasks SET status = 'EXECUTING', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(req.params.id);
+    const updated = db.prepare('SELECT * FROM brain_tasks WHERE id = ?').get(req.params.id);
+    console.log(`[Brain] Tarefa #${task.id} EXECUTANDO`);
+    res.json(updated);
+});
+
+// Completar tarefa (EXECUTING → COMPLETED)
+app.patch('/api/brain/tasks/:id/complete', (req, res) => {
+    const task = db.prepare('SELECT * FROM brain_tasks WHERE id = ?').get(req.params.id);
+    if (!task) return res.status(404).json({ error: 'Tarefa não encontrada' });
+    if (task.status !== 'EXECUTING') return res.status(400).json({ error: `Tarefa não está em execução. Status atual: ${task.status}` });
+    db.prepare("UPDATE brain_tasks SET status = 'COMPLETED', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(req.params.id);
+    const updated = db.prepare('SELECT * FROM brain_tasks WHERE id = ?').get(req.params.id);
+    console.log(`[Brain] Tarefa #${task.id} COMPLETADA`);
+    res.json(updated);
+});
+
+// Rejeitar tarefa (qualquer status → REJECTED)
+app.patch('/api/brain/tasks/:id/reject', (req, res) => {
+    db.prepare("UPDATE brain_tasks SET status = 'REJECTED', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(req.params.id);
+    const updated = db.prepare('SELECT * FROM brain_tasks WHERE id = ?').get(req.params.id);
+    console.log(`[Brain] Tarefa #${updated.id} REJEITADA`);
+    res.json(updated);
+});
+
+// ========================
 // ERRO 404
 // ========================
 app.use((req, res) => {

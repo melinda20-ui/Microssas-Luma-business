@@ -117,7 +117,24 @@ const initDb = () => {
         )
     `).run();
 
-    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace)');
+    // Tabela de Tarefas do Cérebro (Mia Brain - BLOCO 3)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS brain_tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            clerk_id TEXT NOT NULL,
+            agent_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            payload TEXT DEFAULT '{}',
+            status TEXT DEFAULT 'PENDING',
+            approved_by TEXT DEFAULT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain)');
 };
 
 const SUPER_ADMIN_EMAIL = 'lumabusinessa1.0@gmail.com';

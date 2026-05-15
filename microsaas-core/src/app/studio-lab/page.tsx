@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import MiaWidget from "@/components/studio/MiaWidget";
 
 type SystemStatus = {
   api: string;
@@ -341,6 +342,7 @@ export default function StudioLab() {
           </div>
         </div>
       </div>
+      <MiaWidget />
     </>
   );
 }
