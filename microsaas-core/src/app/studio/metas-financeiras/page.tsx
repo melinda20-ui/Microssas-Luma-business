@@ -30,6 +30,15 @@ type FinancialMetrics = {
   fetchedAt: string;
 };
 
+type RevenueEntry = {
+  date: string;
+  mrr: number;
+  total_revenue: number;
+  paying_users: number;
+  total_users: number;
+  conversion_rate: number;
+};
+
 const ACTIONS = [
   { id: "analyze", label: "📊 Analisar", desc: "Diagnóstico completo" },
   { id: "opportunities", label: "💰 Oportunidades", desc: "Receita não explorada" },
@@ -62,6 +71,9 @@ export default function MetasFinanceiras() {
   const [diagnosis, setDiagnosis] = useState("");
   const [diagnosisLoading, setDiagnosisLoading] = useState(false);
 
+  const [revenueHistory, setRevenueHistory] = useState<RevenueEntry[]>([]);
+  const [historyRange, setHistoryRange] = useState(30);
+
   const fetchMetrics = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/api/agents/financial`, {
@@ -83,12 +95,27 @@ export default function MetasFinanceiras() {
     } catch {}
   }, []);
 
+  const fetchRevenueHistory = useCallback(async (days = 30) => {
+    try {
+      const res = await fetch(`${API_URL}/api/financial/revenue-history?days=${days}`);
+      if (res.ok) setRevenueHistory(await res.json());
+    } catch {}
+  }, []);
+
+  const takeSnapshot = async () => {
+    try {
+      await fetch(`${API_URL}/api/financial/revenue-snapshot`, { method: "POST" });
+      fetchRevenueHistory(historyRange);
+    } catch {}
+  };
+
   useEffect(() => {
     if (isLoaded && user) {
       fetchMetrics();
       fetchGoals();
+      fetchRevenueHistory(historyRange);
     }
-  }, [isLoaded, user, fetchMetrics, fetchGoals]);
+  }, [isLoaded, user, fetchMetrics, fetchGoals, fetchRevenueHistory, historyRange]);
 
   const callFinancialAgent = useCallback(async (action: string, msg?: string) => {
     if (!user) return;
@@ -256,6 +283,30 @@ export default function MetasFinanceiras() {
             <div className="card" style={{ flex: 1, minWidth: 140, padding: 16, borderLeft: "4px solid #a855f7" }}>
               <div style={{ fontSize: 10, color: "var(--faint)", textTransform: "uppercase", letterSpacing: 1 }}>Metas Ativas</div>
               <div style={{ fontSize: 24, fontWeight: 700, color: "#a855f7" }}>{goals.filter(g => g.status === "active").length}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Revenue History Chart */}
+        {revenueHistory.length > 1 && (
+          <div className="card" style={{ padding: 16, marginBottom: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+                <span>📈</span> Histórico de Receita
+              </div>
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                <button className="btn btn-sm btn-ghost" style={{ fontSize: 10, padding: "4px 8px" }} onClick={takeSnapshot}>📸 Snapshot</button>
+                <select className="chat-input" style={{ width: 80, fontSize: 10, padding: "4px 6px" }} value={historyRange} onChange={(e) => setHistoryRange(Number(e.target.value))}>
+                  <option value={7}>7 dias</option>
+                  <option value={30}>30 dias</option>
+                  <option value={90}>90 dias</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+              <MiniChart data={revenueHistory} dataKey="mrr" label="MRR (R$)" color="#22c55e" />
+              <MiniChart data={revenueHistory} dataKey="total_revenue" label="Receita Total (R$)" color="#818cf8" />
+              <MiniChart data={revenueHistory} dataKey="paying_users" label="Usuários Pagantes" color="#eab308" />
             </div>
           </div>
         )}
@@ -428,5 +479,58 @@ export default function MetasFinanceiras() {
         </div>
       </main>
     </>
+  );
+}
+
+function MiniChart({ data, dataKey, label, color }: { data: RevenueEntry[]; dataKey: keyof RevenueEntry; label: string; color: string }) {
+  const values = data.map(d => Number(d[dataKey]) || 0);
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = max - min || 1;
+  const W = 280, H = 80;
+  const pad = 4;
+
+  const pts = values.map((v, i) => {
+    const x = pad + (i / Math.max(values.length - 1, 1)) * (W - 2 * pad);
+    const y = H - pad - ((v - min) / range) * (H - 2 * pad);
+    return `${x},${y}`;
+  }).join(" ");
+
+  const current = values[values.length - 1] || 0;
+  const prev = values.length > 1 ? values[values.length - 2] : current;
+  const diff = current - prev;
+  const pctChange = prev !== 0 ? ((diff / prev) * 100) : 0;
+
+  return (
+    <div style={{ flex: 1, minWidth: 200 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
+        <span style={{ fontSize: 10, color: "var(--faint)" }}>{label}</span>
+        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontSize: 14, fontWeight: 700 }}>{typeof current === "number" ? current.toFixed(0) : current}</span>
+          {values.length > 1 && (
+            <span style={{ fontSize: 10, color: diff >= 0 ? "#22c55e" : "#ef4444" }}>
+              {diff >= 0 ? "↑" : "↓"} {Math.abs(pctChange).toFixed(1)}%
+            </span>
+          )}
+        </span>
+      </div>
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: 80 }}>
+        <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        {values.map((v, i) => {
+          const x = pad + (i / Math.max(values.length - 1, 1)) * (W - 2 * pad);
+          const y = H - pad - ((v - min) / range) * (H - 2 * pad);
+          return i === values.length - 1 ? (
+            <circle key={i} cx={x} cy={y} r="3" fill={color} />
+          ) : null;
+        })}
+        {/* Grid lines */}
+        <line x1={pad} y1={H - pad} x2={W - pad} y2={H - pad} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+        <line x1={pad} y1={pad} x2={W - pad} y2={pad} stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+      </svg>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9, color: "var(--faint)" }}>
+        <span>{data.length > 0 ? data[0].date?.slice(5) : ""}</span>
+        <span>{data.length > 0 ? data[data.length - 1].date?.slice(5) : ""}</span>
+      </div>
+    </div>
   );
 }

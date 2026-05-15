@@ -213,7 +213,54 @@ const initDb = () => {
         )
     `).run();
 
-    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas)');
+    // Tabela de Versionamento de Conteúdo (SQLite)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS content_versions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_id TEXT NOT NULL,
+            content TEXT NOT NULL,
+            metadata TEXT DEFAULT '{}',
+            version INTEGER NOT NULL,
+            saved_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    // Migração: importa versões JSON existentes
+    try {
+        const count = db.prepare("SELECT COUNT(*) as c FROM content_versions").get();
+        if (count.c === 0) {
+            const versionsDir = path.join(__dirname, '../data/versions');
+            if (fs.existsSync(versionsDir)) {
+                const files = fs.readdirSync(versionsDir).filter(f => f.endsWith('.json'));
+                const insert = db.prepare(
+                    "INSERT INTO content_versions (post_id, content, metadata, version, saved_at) VALUES (?, ?, ?, ?, ?)"
+                );
+                for (const file of files) {
+                    try {
+                        const data = JSON.parse(fs.readFileSync(path.join(versionsDir, file), 'utf-8'));
+                        insert.run(data.postId, data.content, JSON.stringify(data.metadata), data.version, data.savedAt);
+                    } catch {}
+                }
+                if (files.length > 0) console.log(`📦 Importadas ${files.length} versões JSON para SQLite`);
+            }
+        }
+    } catch (_) {}
+
+    // Tabela de Histórico de Receita (gráficos temporais)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS revenue_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL UNIQUE,
+            mrr REAL DEFAULT 0,
+            total_revenue REAL DEFAULT 0,
+            paying_users INTEGER DEFAULT 0,
+            total_users INTEGER DEFAULT 0,
+            conversion_rate REAL DEFAULT 0,
+            snapshot_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas + Versões + Histórico)');
 };
 
 const SUPER_ADMIN_EMAIL = 'lumabusinessa1.0@gmail.com';

@@ -343,6 +343,46 @@ app.delete('/api/financial/goals/:id', (req, res) => {
 });
 
 // ========================
+// 📈 REVENUE HISTORY (temporal charts)
+// ========================
+
+// Snapshot manual dos dados atuais
+app.post('/api/financial/revenue-snapshot', (req, res) => {
+  try {
+    const { readFinancialMetrics } = require('./services/stripeReader');
+    const m = readFinancialMetrics();
+    if (!m) return res.status(500).json({ error: 'Não foi possível ler métricas financeiras' });
+    const today = new Date().toISOString().slice(0, 10);
+    db.prepare(`
+      INSERT INTO revenue_history (date, mrr, total_revenue, paying_users, total_users, conversion_rate)
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(date) DO UPDATE SET
+        mrr = excluded.mrr,
+        total_revenue = excluded.total_revenue,
+        paying_users = excluded.paying_users,
+        total_users = excluded.total_users,
+        conversion_rate = excluded.conversion_rate,
+        snapshot_at = CURRENT_TIMESTAMP
+    `).run(today, m.mrr, m.totalRevenue, m.payingUsers, m.totalUsers, m.conversionRate);
+    res.json({ success: true, date: today, metrics: m });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Histórico temporal
+app.get('/api/financial/revenue-history', (req, res) => {
+  const days = parseInt(req.query.days) || 30;
+  const rows = db.prepare(`
+    SELECT date, mrr, total_revenue, paying_users, total_users, conversion_rate, snapshot_at
+    FROM revenue_history
+    ORDER BY date DESC
+    LIMIT ?
+  `).all(days);
+  res.json(rows.reverse());
+});
+
+// ========================
 // 💡 CONTENT IDEAS
 // ========================
 

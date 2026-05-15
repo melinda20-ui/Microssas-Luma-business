@@ -1,70 +1,42 @@
-const path = require('path');
-const fs = require('fs');
-
-const VERSIONS_DIR = path.join(__dirname, '../data/versions');
-
-function ensureDir() {
-  if (!fs.existsSync(VERSIONS_DIR)) {
-    fs.mkdirSync(VERSIONS_DIR, { recursive: true });
-  }
-}
+const { db } = require('../config/db');
 
 function saveVersion(postId, content, metadata = {}) {
-  ensureDir();
-  const version = {
-    postId,
-    content,
-    metadata,
-    version: Date.now(),
-    savedAt: new Date().toISOString(),
-  };
-  const filename = `${postId}_${version.version}.json`;
-  fs.writeFileSync(path.join(VERSIONS_DIR, filename), JSON.stringify(version, null, 2));
-  return version;
+    const maxVer = db.prepare("SELECT COALESCE(MAX(version), 0) as mv FROM content_versions WHERE post_id = ?").get(postId);
+    const version = maxVer.mv + 1;
+    db.prepare(
+        "INSERT INTO content_versions (post_id, content, metadata, version) VALUES (?, ?, ?, ?)"
+    ).run(postId, content, JSON.stringify(metadata), version);
+    return { postId, content, metadata, version, savedAt: new Date().toISOString() };
 }
 
 function listVersions(postId) {
-  ensureDir();
-  const files = fs.readdirSync(VERSIONS_DIR)
-    .filter(f => f.startsWith(postId))
-    .sort()
-    .reverse();
-
-  return files.map(f => {
-    const data = JSON.parse(fs.readFileSync(path.join(VERSIONS_DIR, f), 'utf-8'));
-    return {
-      version: data.version,
-      savedAt: data.savedAt,
-      preview: (data.content || '').slice(0, 200),
-      metadata: data.metadata,
-    };
-  });
+    return db.prepare(
+        "SELECT version, saved_at as savedAt, metadata, substr(content, 1, 200) as preview FROM content_versions WHERE post_id = ? ORDER BY version DESC"
+    ).all(postId).map(r => ({
+        ...r,
+        metadata: JSON.parse(r.metadata || '{}'),
+    }));
 }
 
 function rollback(postId, targetVersion) {
-  const versions = listVersions(postId);
-  const target = versions.find(v => v.version === targetVersion);
-  if (!target) return null;
-
-  const filepath = path.join(VERSIONS_DIR, `${postId}_${targetVersion}.json`);
-  const data = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
-  return data.content;
+    const row = db.prepare("SELECT content FROM content_versions WHERE post_id = ? AND version = ?").get(postId, targetVersion);
+    return row ? row.content : null;
 }
 
 function getLatestVersion(postId) {
-  const versions = listVersions(postId);
-  return versions.length > 0 ? versions[0] : null;
+    const row = db.prepare(
+        "SELECT version, saved_at as savedAt, metadata, substr(content, 1, 200) as preview FROM content_versions WHERE post_id = ? ORDER BY version DESC LIMIT 1"
+    ).get(postId);
+    if (!row) return null;
+    return { ...row, metadata: JSON.parse(row.metadata || '{}') };
 }
 
 function cleanupOldVersions(postId, keepCount = 10) {
-  const versions = listVersions(postId);
-  if (versions.length <= keepCount) return;
-
-  const toDelete = versions.slice(keepCount);
-  for (const v of toDelete) {
-    const filepath = path.join(VERSIONS_DIR, `${postId}_${v.version}.json`);
-    try { fs.unlinkSync(filepath); } catch {}
-  }
+    db.prepare(`
+        DELETE FROM content_versions WHERE post_id = ? AND version NOT IN (
+            SELECT version FROM content_versions WHERE post_id = ? ORDER BY version DESC LIMIT ?
+        )
+    `).run(postId, postId, keepCount);
 }
 
 module.exports = { saveVersion, listVersions, rollback, getLatestVersion, cleanupOldVersions };
