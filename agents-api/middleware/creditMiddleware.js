@@ -1,4 +1,4 @@
-const { db } = require('../config/db');
+const { db, SUPER_ADMIN_EMAIL } = require('../config/db');
 
 /**
  * Middleware para validar e descontar créditos de IA
@@ -16,13 +16,23 @@ const creditMiddleware = (cost = 1) => {
             const user = db.prepare('SELECT credits, plan FROM users WHERE clerk_id = ?').get(userId);
 
             if (!user) {
-                // Caso o usuário não esteja no nosso banco ainda (primeiro uso pós-login)
-                // Criamos ele automaticamente com os 20 créditos free
-                db.prepare('INSERT INTO users (clerk_id, email, credits) VALUES (?, ?, ?)')
-                  .run(userId, req.headers['x-user-email'] || 'unknown', 20);
+                const email = req.headers['x-user-email'] || 'unknown';
+                const isSuperAdmin = email === SUPER_ADMIN_EMAIL;
+                const credits = isSuperAdmin ? 999999 : 20;
+                const role = isSuperAdmin ? 'super-admin' : 'user';
+                const plan = isSuperAdmin ? 'pro' : 'free';
+
+                db.prepare('INSERT INTO users (clerk_id, email, credits, plan, role) VALUES (?, ?, ?, ?, ?)')
+                  .run(userId, email, credits, plan, role);
+
+                if (isSuperAdmin) {
+                    console.log(`[SuperAdmin] Conta super-admin ativada para ${email}`);
+                }
                 
                 return res.status(200).json({ 
-                    info: 'Conta ativada com 20 créditos gratuitos. Tente novamente.',
+                    info: isSuperAdmin
+                        ? 'Conta super-admin ativada com créditos ilimitados.'
+                        : 'Conta ativada com 20 créditos gratuitos. Tente novamente.',
                     retry: true 
                 });
             }

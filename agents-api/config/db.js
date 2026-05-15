@@ -61,10 +61,26 @@ const initDb = () => {
             email TEXT NOT NULL,
             credits INTEGER DEFAULT 20,
             plan TEXT DEFAULT 'free',
+            role TEXT DEFAULT 'user',
             last_reset DATETIME DEFAULT CURRENT_TIMESTAMP,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `).run();
+
+    // Migração: adiciona coluna role se não existir (bancos existentes)
+    try {
+        db.prepare("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'").run();
+    } catch (_) { /* já existe */ }
+
+    // Garante que o super-admin está registrado no banco
+    const existing = db.prepare("SELECT clerk_id, role FROM users WHERE email = ?").get(SUPER_ADMIN_EMAIL);
+    if (!existing) {
+        db.prepare("INSERT OR IGNORE INTO users (clerk_id, email, credits, plan, role) VALUES (?, ?, ?, ?, ?)")
+            .run('super-admin-seed', SUPER_ADMIN_EMAIL, 999999, 'pro', 'super-admin');
+    } else if (existing.role !== 'super-admin') {
+        db.prepare("UPDATE users SET role = 'super-admin', plan = 'pro' WHERE email = ?")
+            .run(SUPER_ADMIN_EMAIL);
+    }
 
     // Tabela de Pedidos do Marketplace (Sprint 4)
     db.prepare(`
@@ -104,7 +120,10 @@ const initDb = () => {
     console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace)');
 };
 
+const SUPER_ADMIN_EMAIL = 'lumabusinessa1.0@gmail.com';
+
 module.exports = {
     db,
-    initDb
+    initDb,
+    SUPER_ADMIN_EMAIL
 };

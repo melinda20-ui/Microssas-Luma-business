@@ -10,7 +10,7 @@ const contentCreatorAgent = require('./agents/contentCreator');
 const automationBuilderAgent = require('./agents/automationBuilder');
 const businessIntelligenceAgent = require('./agents/businessIntelligence');
 const { customerSupportAgent, clearSession } = require('./agents/customerSupport');
-const { initDb } = require('./config/db');
+const { initDb, SUPER_ADMIN_EMAIL } = require('./config/db');
 const { startJob } = require('./services/cleanupJob');
 const blogManager = require('./agents/blogManager');
 const tiktokShopAgent = require('./agents/tiktokShopAgent');
@@ -95,9 +95,16 @@ const creditMiddleware = require('./middleware/creditMiddleware');
 
 // 🏢 Buscar Perfil/Créditos do Usuário
 app.get('/api/user/:clerkId', (req, res) => {
-    const user = db.prepare('SELECT credits, plan, last_reset FROM users WHERE clerk_id = ?').get(req.params.clerkId);
+    const user = db.prepare('SELECT credits, plan, role, last_reset FROM users WHERE clerk_id = ?').get(req.params.clerkId);
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
     res.json(user);
+});
+
+// 🔐 Verificar super-admin
+app.get('/api/user/:clerkId/super-admin', (req, res) => {
+    const user = db.prepare('SELECT email, role FROM users WHERE clerk_id = ?').get(req.params.clerkId);
+    const isSuperAdmin = user && user.role === 'super-admin' && user.email === SUPER_ADMIN_EMAIL;
+    res.json({ superAdmin: !!isSuperAdmin, role: user?.role || 'none' });
 });
 
 // 🏗️ Website Builder — Gemini Pro (5 Créditos)
