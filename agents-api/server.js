@@ -16,6 +16,9 @@ const blogManager = require('./agents/blogManager');
 const tiktokShopAgent = require('./agents/tiktokShopAgent');
 const shopifyAgent = require('./agents/shopifyAgent');
 const pinterestAgent = require('./agents/pinterestAgent');
+const tdahAgent = require('./agents/tdahAgent');
+const supervisorAgent = require('./agents/supervisorAgent');
+const uxAgent = require('./agents/uxAgent');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -131,6 +134,15 @@ app.post('/api/agents/tiktok', creditMiddleware(2), tiktokShopAgent);
 app.post('/api/agents/shopify', creditMiddleware(2), shopifyAgent);
 app.post('/api/agents/pinterest', creditMiddleware(2), pinterestAgent);
 
+// 🧠 TDAH Specialist — Organização cognitiva (1 crédito)
+app.post('/api/agents/tdah', creditMiddleware(1), tdahAgent);
+
+// 👁️ Supervisor Inteligente — Indicações (1 crédito)
+app.post('/api/agents/supervisor', creditMiddleware(1), supervisorAgent);
+
+// 🎨 UX Specialist — Onboarding (1 crédito)
+app.post('/api/agents/ux', creditMiddleware(1), uxAgent);
+
 // 💳 Billing & Stripe
 const marketplaceRoutes = require('./routes/marketplace');
 app.use('/api/billing', billingRoutes);
@@ -158,7 +170,10 @@ app.post('/api/chat', async (req, res) => {
     'support': customerSupportAgent,
     'tiktok': tiktokShopAgent,
     'shopify': shopifyAgent,
-    'pinterest': pinterestAgent
+    'pinterest': pinterestAgent,
+    'tdah': tdahAgent,
+    'supervisor': supervisorAgent,
+    'ux': uxAgent
   };
 
   const handler = agentMap[agent];
