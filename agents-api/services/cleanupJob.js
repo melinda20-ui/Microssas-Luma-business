@@ -1,15 +1,37 @@
 const { db } = require('../config/db');
 const fs = require('fs');
 const path = require('path');
+const { cleanupCompletedTasks } = require('./kanbanCleanup');
+const { checkAlerts } = require('./alertService');
 
 const STORAGE_PATH = path.join(__dirname, '../storage/videos');
 
 /**
- * Job de limpeza e alerta de vídeos
+ * Job de limpeza e alerta de vídeos + kanban + alerts
  */
 const runCleanupJob = () => {
     console.log('[Cleanup Job] Iniciando verificação de rotina...');
     const now = new Date().toISOString();
+
+    // Kanban cleanup: arquiva tarefas concluídas > 24h
+    try {
+        const result = cleanupCompletedTasks();
+        if (result.moved > 0 || result.archived > 0) {
+            console.log(`[Cleanup Job] Kanban: ${result.moved} movidas, ${result.archived} arquivadas.`);
+        }
+    } catch (err) {
+        console.error('[Cleanup Job] Erro no kanban cleanup:', err);
+    }
+
+    // Alert check
+    try {
+        const alerts = checkAlerts();
+        if (alerts.length > 0) {
+            console.log(`[Cleanup Job] ${alerts.length} alertas ativos.`);
+        }
+    } catch (err) {
+        console.error('[Cleanup Job] Erro no check de alertas:', err);
+    }
 
     // 1. Procurar vídeos expirados (expires_at < agora)
     const expiredVideos = db.prepare('SELECT * FROM video_vault WHERE expires_at < ?').all(now);

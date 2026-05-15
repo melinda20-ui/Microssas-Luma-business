@@ -61,6 +61,11 @@ export default function StudioLab() {
   const [statusError, setStatusError] = useState<string | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
 
+  const [activeHistoryTab, setActiveHistoryTab] = useState<"history" | "alerts" | "kanban">("history");
+  const [historyEntries, setHistoryEntries] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [kanbanStats, setKanbanStats] = useState<any>(null);
+
   const fetchStatus = useCallback(async () => {
     try {
       setStatusError(null);
@@ -100,19 +105,39 @@ export default function StudioLab() {
     }
   }, []);
 
+  const fetchHistory = useCallback(async () => {
+    try { const res = await fetch(`${API_URL}/api/operations/history?limit=30`); if (res.ok) setHistoryEntries(await res.json()); } catch {}
+  }, []);
+
+  const fetchAlerts = useCallback(async () => {
+    try { const res = await fetch(`${API_URL}/api/alerts/check`); if (res.ok) { const d = await res.json(); setAlerts(d.alerts || []); } } catch {}
+  }, []);
+
+  const fetchKanbanStats = useCallback(async () => {
+    try { const res = await fetch(`${API_URL}/api/operations/kanban-stats`); if (res.ok) setKanbanStats(await res.json()); } catch {}
+  }, []);
+
+  const clearAllAlerts = async () => {
+    try { await fetch(`${API_URL}/api/alerts`, { method: "DELETE" }); setAlerts([]); } catch {}
+  };
+
   useEffect(() => {
     if (!isLoaded) return;
     fetchStatus();
     if (user) fetchProfile(user.id);
-  }, [isLoaded, user, fetchStatus, fetchProfile]);
+    fetchHistory();
+    fetchAlerts();
+    fetchKanbanStats();
+  }, [isLoaded, user, fetchStatus, fetchProfile, fetchHistory, fetchAlerts, fetchKanbanStats]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       fetchStatus();
       if (user) fetchProfile(user.id);
+      fetchAlerts();
     }, 30000);
     return () => clearInterval(interval);
-  }, [user, fetchStatus, fetchProfile]);
+  }, [user, fetchStatus, fetchProfile, fetchAlerts]);
 
   const hasAnyError = statusError !== null || profileError !== null;
   const isDataReady = !statusLoading && !profileLoading;
@@ -321,6 +346,103 @@ export default function StudioLab() {
                 </Link>
               ))}
             </div>
+          </div>
+
+          {/* Operation History + Alerts */}
+          <div style={{ marginTop: 48, marginBottom: 32 }}>
+            <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+              {[
+                { id: "history", label: "🗂️ Histórico" },
+                { id: "alerts", label: "🚨 Alertas" },
+                { id: "kanban", label: "📊 Kanban" },
+              ].map(t => (
+                <button key={t.id} className={`btn btn-sm ${activeHistoryTab === t.id ? "btn-primary" : "btn-ghost"}`} style={{ fontSize: 11 }} onClick={() => setActiveHistoryTab(t.id as typeof activeHistoryTab)}>{t.label}</button>
+              ))}
+            </div>
+
+            {activeHistoryTab === "history" && (
+              <div className="card" style={{ padding: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>🗂️ Histórico Operacional</div>
+                {historyEntries.length === 0 ? (
+                  <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>Nenhum histórico disponível.</div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 400, overflow: "auto" }}>
+                    {historyEntries.map((e: any) => (
+                      <div key={e.id} style={{ fontSize: 11, padding: "6px 10px", background: "rgba(0,0,0,0.1)", borderRadius: 4, display: "flex", justifyContent: "space-between" }}>
+                        <span><strong>{e.title}</strong> — {e.description?.slice(0, 80)}</span>
+                        <span style={{ color: e.status === "COMPLETED" ? "#22c55e" : "#a1a1aa", flexShrink: 0 }}>{e.status} · {e.archived_at?.slice(0, 10)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeHistoryTab === "alerts" && (
+              <div className="card" style={{ padding: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>🚨 Alertas Ativos ({alerts.length})</div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button className="btn btn-sm btn-ghost" style={{ fontSize: 10 }} onClick={fetchAlerts}>🔄 Atualizar</button>
+                    {alerts.length > 0 && <button className="btn btn-sm" style={{ fontSize: 10, background: "rgba(239,68,68,0.1)", color: "#fca5a5" }} onClick={clearAllAlerts}>Limpar</button>}
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {alerts.map((a: any) => (
+                    <div key={a.id} style={{
+                      padding: "10px 14px", borderRadius: 6, fontSize: 11,
+                      background: a.severity === "critical" ? "rgba(239,68,68,0.1)" : a.severity === "warning" ? "rgba(245,158,11,0.1)" : "rgba(59,130,246,0.08)",
+                      borderLeft: `4px solid ${a.severity === "critical" ? "#ef4444" : a.severity === "warning" ? "#eab308" : "#3b82f6"}`,
+                    }}>
+                      <div style={{ fontWeight: 600, marginBottom: 2 }}>{a.severity === "critical" ? "🚨 " : a.severity === "warning" ? "⚠️ " : "ℹ️ "}{a.title}</div>
+                      <div style={{ color: "var(--muted)" }}>{a.description}</div>
+                      <div style={{ fontSize: 9, color: "var(--faint)", marginTop: 4 }}>{a.source} · {a.createdAt?.slice(0, 19)}</div>
+                    </div>
+                  ))}
+                  {alerts.length === 0 && <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>Nenhum alerta ativo.</div>}
+                </div>
+              </div>
+            )}
+
+            {activeHistoryTab === "kanban" && kanbanStats && (
+              <div className="card" style={{ padding: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>📊 Estatísticas do Kanban</div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+                  <div className="card" style={{ flex: 1, minWidth: 80, padding: "8px 12px", textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 700 }}>{kanbanStats.active}</div>
+                    <div style={{ fontSize: 9, color: "var(--faint)" }}>Ativas</div>
+                  </div>
+                  <div className="card" style={{ flex: 1, minWidth: 80, padding: "8px 12px", textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#22c55e" }}>{kanbanStats.completed}</div>
+                    <div style={{ fontSize: 9, color: "var(--faint)" }}>Concluídas</div>
+                  </div>
+                  <div className="card" style={{ flex: 1, minWidth: 80, padding: "8px 12px", textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#a1a1aa" }}>{kanbanStats.archived}</div>
+                    <div style={{ fontSize: 9, color: "var(--faint)" }}>Arquivadas</div>
+                  </div>
+                  <div className="card" style={{ flex: 1, minWidth: 80, padding: "8px 12px", textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#818cf8" }}>{kanbanStats.inHistory}</div>
+                    <div style={{ fontSize: 9, color: "var(--faint)" }}>no Histórico</div>
+                  </div>
+                </div>
+                {kanbanStats.byStatus && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>Por Status</div>
+                    {kanbanStats.byStatus.map((s: any) => (
+                      <div key={s.status} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                        <span>{s.status}</span>
+                        <span style={{ fontWeight: 600 }}>{s.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {kanbanStats.pendingOldDays > 0 && (
+                  <div style={{ marginTop: 8, padding: "6px 10px", background: "rgba(245,158,11,0.1)", borderRadius: 4, fontSize: 11 }}>
+                    ⚠️ {kanbanStats.pendingOldDays} tarefas PENDING há mais de 7 dias
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Footer debug info */}

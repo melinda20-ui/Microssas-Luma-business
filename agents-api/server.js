@@ -28,6 +28,9 @@ const leadMagnetUXAgent = require('./agents/leadMagnetUXAgent');
 const leadMagnetCopyAgent = require('./agents/leadMagnetCopyAgent');
 const leadMagnetTDAHAgent = require('./agents/leadMagnetTDAHAgent');
 const { sendArticleForApproval, sendPublishConfirmation } = require('./services/discordService');
+const { sendForApproval, handleApprovalAction, sendWeeklySummary } = require('./services/discordControlCenter');
+const { cleanupCompletedTasks, getOperationHistory, getKanbanStats } = require('./services/kanbanCleanup');
+const { checkAlerts, getAlerts, clearAlerts } = require('./services/alertService');
 const { saveVersion, listVersions, rollback } = require('./services/contentVersioning');
 const { getImageForSuggestion, getStats: getImageStats } = require('./services/imageCache');
 const organicMarketingAgent = require('./agents/organicMarketingAgent');
@@ -854,6 +857,140 @@ app.get('/api/campaigns/insights', (req, res) => {
   const totalBudget = db.prepare('SELECT COALESCE(SUM(budget), 0) as total FROM campaigns').get();
   const avgBudget = db.prepare('SELECT COALESCE(AVG(budget), 0) as avg FROM campaigns WHERE budget > 0').get();
   res.json({ total: total.c, byStatus, byPlatform, totalBudget: totalBudget.total, avgBudget: avgBudget.avg });
+});
+
+// ========================
+// 🎮 BLOCO 9 — DISCORD CONTROL CENTER
+// ========================
+
+// Aprovação unificada para qualquer fluxo
+app.post('/api/discord/approve-flow', async (req, res) => {
+  const { flowType, item, actor } = req.body;
+  if (!flowType || !item) return res.status(400).json({ error: 'flowType e item obrigatórios' });
+  try {
+    const result = await sendForApproval(flowType, item, actor || req.headers['x-user-email'] || 'admin');
+    res.json({ success: true, result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Ação do Discord (POSTAR, SALVAR, REJEITAR, REGERAR, PAUSAR, RETOMAR)
+app.post('/api/discord/action', async (req, res) => {
+  const { customId, actor } = req.body;
+  if (!customId) return res.status(400).json({ error: 'customId obrigatório' });
+  try {
+    const result = await handleApprovalAction(customId, actor || req.headers['x-user-email'] || 'discord-user');
+    if (result.error) return res.status(400).json(result);
+    res.json({ success: true, result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Resumo semanal
+app.post('/api/discord/weekly-summary', async (req, res) => {
+  try {
+    const result = await sendWeeklySummary();
+    res.json({ success: true, result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========================
+// 📋 OPERATIONS CONTROL
+// ========================
+
+// Histórico operacional
+app.get('/api/operations/history', (req, res) => {
+  const { sourceTable, limit } = req.query;
+  res.json(getOperationHistory(sourceTable, parseInt(limit) || 50));
+});
+
+// Estatísticas do Kanban
+app.get('/api/operations/kanban-stats', (req, res) => {
+  res.json(getKanbanStats());
+});
+
+// Limpeza manual
+app.post('/api/operations/cleanup', (req, res) => {
+  const result = cleanupCompletedTasks();
+  res.json({ success: true, ...result });
+});
+
+// ========================
+// 🚨 ALERTS
+// ========================
+
+// Verificar alertas
+app.get('/api/alerts/check', (req, res) => {
+  const alerts = checkAlerts();
+  res.json({ alerts, count: alerts.length });
+});
+
+// Listar alertas ativos
+app.get('/api/alerts', (req, res) => {
+  const { severity } = req.query;
+  res.json(getAlerts(severity));
+});
+
+// Limpar alertas
+app.delete('/api/alerts', (req, res) => {
+  clearAlerts();
+  res.json({ success: true });
+});
+
+// ========================
+// 👤 LEADS (segmentação)
+// ========================
+
+// Listar leads com filtros
+app.get('/api/leads', (req, res) => {
+  const { category, funnelStage, search, limit } = req.query;
+  let query = 'SELECT * FROM lead_captures WHERE 1=1';
+  const params = [];
+  if (category) { query += ' AND category = ?'; params.push(category); }
+  if (funnelStage) { query += ' AND funnel_stage = ?'; params.push(funnelStage); }
+  if (search) { query += ' AND (name LIKE ? OR email LIKE ?)'; params.push(`%${search}%`, `%${search}%`); }
+  query += ' ORDER BY created_at DESC LIMIT ?';
+  params.push(parseInt(limit) || 100);
+  const leads = db.prepare(query).all(...params);
+  res.json(leads);
+});
+
+// Segmentação de leads
+app.get('/api/leads/segmentation', (req, res) => {
+  const byCategory = db.prepare('SELECT category, COUNT(*) as count FROM lead_captures WHERE category != "" GROUP BY category ORDER BY count DESC').all();
+  const byFunnelStage = db.prepare('SELECT funnel_stage, COUNT(*) as count FROM lead_captures GROUP BY funnel_stage ORDER BY count DESC').all();
+  const byMagnet = db.prepare('SELECT magnet_title, COUNT(*) as count FROM lead_captures WHERE magnet_title != "" GROUP BY magnet_title ORDER BY count DESC LIMIT 10').all();
+  const byOrigin = db.prepare('SELECT origin_article, COUNT(*) as count FROM lead_captures WHERE origin_article != "" GROUP BY origin_article ORDER BY count DESC LIMIT 10').all();
+  const total = db.prepare('SELECT COUNT(*) as c FROM lead_captures').get();
+  res.json({ total: total.c, byCategory, byFunnelStage, byMagnet, byOrigin });
+});
+
+// ========================
+// 📋 AUDIT LOGS
+// ========================
+
+app.get('/api/audit/logs', (req, res) => {
+  const { entityType, action, limit } = req.query;
+  let query = 'SELECT * FROM audit_logs WHERE 1=1';
+  const params = [];
+  if (entityType) { query += ' AND entity_type = ?'; params.push(entityType); }
+  if (action) { query += ' AND action = ?'; params.push(action); }
+  query += ' ORDER BY created_at DESC LIMIT ?';
+  params.push(parseInt(limit) || 100);
+  const logs = db.prepare(query).all(...params);
+  res.json(logs);
+});
+
+app.get('/api/audit/stats', (req, res) => {
+  const total = db.prepare('SELECT COUNT(*) as c FROM audit_logs').get();
+  const byAction = db.prepare('SELECT action, COUNT(*) as count FROM audit_logs GROUP BY action ORDER BY count DESC').all();
+  const byEntity = db.prepare('SELECT entity_type, COUNT(*) as count FROM audit_logs GROUP BY entity_type ORDER BY count DESC').all();
+  const recentErrors = db.prepare("SELECT COUNT(*) as c FROM audit_logs WHERE status = 'error' AND created_at > datetime('now', '-1 day')").get();
+  res.json({ total: total.c, byAction, byEntity, recentErrors: recentErrors.c });
 });
 
 // ========================

@@ -346,7 +346,56 @@ const initDb = () => {
         )
     `).run();
 
-    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas + Versões + Histórico + Email + Lead Magnet Lab)');
+    // ========================
+    // BLOCO 9 — CENTRO DE CONTROLE, DISCORD E FAXINA
+    // ========================
+
+    // Logs de Auditoria (aprovações, rejeições, execuções)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS audit_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action TEXT NOT NULL,
+            entity_type TEXT NOT NULL,
+            entity_id TEXT,
+            actor TEXT DEFAULT 'system',
+            details TEXT DEFAULT '{}',
+            status TEXT DEFAULT 'success',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    // Histórico Operacional (tarefas concluídas/arquivadas)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS operation_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            original_id INTEGER,
+            source_table TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            status TEXT NOT NULL,
+            archived_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            original_created_at DATETIME,
+            metadata TEXT DEFAULT '{}'
+        )
+    `).run();
+
+    // Coluna de arquivamento em brain_tasks
+    try { db.prepare("ALTER TABLE brain_tasks ADD COLUMN archived_at DATETIME DEFAULT NULL").run(); } catch (_) {}
+
+    // Migração: brain_tasks concluídas/arquivadas > 24h vão para operation_history
+    try {
+        const moved = db.prepare(`
+            INSERT OR IGNORE INTO operation_history (original_id, source_table, title, description, status, original_created_at, metadata)
+            SELECT id, 'brain_tasks', title, description, status, created_at, payload
+            FROM brain_tasks
+            WHERE (status = 'COMPLETED' OR (archived_at IS NOT NULL))
+              AND (archived_at IS NOT NULL OR (status = 'COMPLETED' AND created_at < datetime('now', '-1 day')))
+              AND id NOT IN (SELECT original_id FROM operation_history WHERE source_table = 'brain_tasks')
+        `).run();
+        if (moved.changes > 0) console.log(`🗂️ ${moved.changes} tarefas migradas para histórico operacional`);
+    } catch (_) {}
+
+    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas + Versões + Histórico + Email + Lead Magnet Lab + Auditoria + Faxina)');
 };
 
 const SUPER_ADMIN_EMAIL = 'lumabusinessa1.0@gmail.com';
