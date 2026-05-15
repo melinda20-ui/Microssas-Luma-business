@@ -21,6 +21,8 @@ const supervisorAgent = require('./agents/supervisorAgent');
 const uxAgent = require('./agents/uxAgent');
 const financialAgent = require('./agents/financialAgent');
 const googleAgent = require('./agents/googleAgent');
+const googleSeoAgent = require('./agents/googleSeoAgent');
+const { blogAgent, getQueue, updateQueueStatus, publishBatch, getStats } = require('./agents/blogAgent');
 const { db } = require('./config/db');
 
 const app = express();
@@ -152,6 +154,12 @@ app.post('/api/agents/financial', creditMiddleware(2), financialAgent);
 // 📈 Google/Marketing Strategy (1 crédito)
 app.post('/api/agents/google', creditMiddleware(1), googleAgent);
 
+// 🔍 Google SEO Intelligence (2 créditos)
+app.post('/api/agents/google-seo', creditMiddleware(2), googleSeoAgent);
+
+// ✍️ Blog Agent — Geração e publicação (3 créditos)
+app.post('/api/agents/blog', creditMiddleware(3), blogAgent);
+
 // 💳 Billing & Stripe
 const marketplaceRoutes = require('./routes/marketplace');
 const billingRoutes = require('./routes/billing');
@@ -185,7 +193,9 @@ app.post('/api/chat', async (req, res) => {
     'supervisor': supervisorAgent,
     'ux': uxAgent,
     'financial': financialAgent,
-    'google': googleAgent
+    'google': googleAgent,
+    'google-seo': googleSeoAgent,
+    'blog': blogAgent
   };
 
   const handler = agentMap[agent];
@@ -356,6 +366,22 @@ app.delete('/api/content/ideas/:id', (req, res) => {
   db.prepare('DELETE FROM content_ideas WHERE id = ?').run(req.params.id);
   res.json({ success: true });
 });
+
+// ========================
+// ✍️ BLOG AGENT — Content Queue & Publishing
+// ========================
+
+// Listar fila de conteúdo
+app.get('/api/blog/queue', getQueue);
+
+// Atualizar item da fila
+app.patch('/api/blog/queue/:id', updateQueueStatus);
+
+// Publicar batch (até 5/dia, mínimo 20 artigos totais)
+app.post('/api/blog/publish', publishBatch);
+
+// Estatísticas do blog
+app.get('/api/blog/stats', getStats);
 
 // ========================
 // ERRO 404
