@@ -17,6 +17,11 @@ type QueueItem = {
   seo_score: number;
   status: string;
   idea_id: number | null;
+  lead_magnet: string;
+  branding_applied: number;
+  image_descriptions: string;
+  approved_by: string | null;
+  approved_at: string | null;
   scheduled_for: string | null;
   published_at: string | null;
   created_at: string;
@@ -238,7 +243,7 @@ export default function BlogAgent() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {queue.map((item) => (
-                <div key={item.id} className={`card ${STATUS_COLORS[item.status] || ""}`} style={{ padding: "12px 16px" }}>
+                <div key={item.id} className={`card ${STATUS_COLORS[item.status] || ""}`} style={{ padding: "12px 16px", cursor: "pointer" }} onClick={() => setSelectedItem(item)}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
@@ -303,6 +308,38 @@ export default function BlogAgent() {
               </div>
             )}
           </div>
+
+          {/* Lead Magnet + Discord + Image Info */}
+          {selectedItem && (
+            <div className="card" style={{ padding: 16, marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                <span>🧲</span> Detalhes do Artigo #{selectedItem.id}
+              </div>
+              <div style={{ fontSize: 11, lineHeight: 1.6 }}>
+                {selectedItem.lead_magnet && <div style={{ marginBottom: 4 }}>🧲 <strong>Lead Magnet:</strong> {selectedItem.lead_magnet}</div>}
+                <div style={{ marginBottom: 4 }}>🏷️ <strong>Branding:</strong> {selectedItem.branding_applied ? '✅ Aplicado' : '❌ Não aplicado'}</div>
+                {selectedItem.image_descriptions && <div style={{ marginBottom: 4 }}>🖼️ <strong>Imagens:</strong> {selectedItem.image_descriptions}</div>}
+                {selectedItem.approved_by && <div style={{ marginBottom: 4 }}>✅ <strong>Aprovado por:</strong> {selectedItem.approved_by} em {selectedItem.approved_at}</div>}
+              </div>
+              <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+                <button className="btn btn-sm" style={{ fontSize: 10, background: "rgba(88,101,242,0.15)", color: "#8b9cf7", border: "1px solid rgba(88,101,242,0.3)" }}
+                  onClick={async () => {
+                    await fetch(`${API_URL}/api/discord/approve`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ queueId: selectedItem.id }) });
+                    setResult("✅ Enviado para aprovação no Discord!");
+                  }}>
+                  🚀 Enviar para Discord
+                </button>
+                <button className="btn btn-sm" style={{ fontSize: 10, background: "rgba(34,197,94,0.15)", color: "#6ee7b7", border: "1px solid rgba(34,197,94,0.3)" }}
+                  onClick={async () => {
+                    await fetch(`${API_URL}/api/discord/confirm`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ queueId: selectedItem.id, approvedBy: user?.id }) });
+                    setResult("✅ Aprovação registrada!");
+                    fetchQueue();
+                  }}>
+                  ✅ Confirmar Aprovação
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Result output */}
           {result && (

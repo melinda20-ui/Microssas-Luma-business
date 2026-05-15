@@ -3,6 +3,10 @@ const { db } = require('../config/db');
 const path = require('path');
 const fs = require('fs');
 
+const { getImageForSuggestion } = require('../services/imageCache');
+const { saveVersion } = require('../services/contentVersioning');
+const { sendArticleForApproval } = require('../services/discordService');
+
 const SYSTEM_PROMPT = `Você é um redator SEO sênior especializado em conteúdo digital.
 Cria artigos completos, bem estruturados e otimizados para mecanismos de busca.
 
@@ -16,7 +20,33 @@ Cria artigos completos, bem estruturados e otimizados para mecanismos de busca.
 7. Densidade de keyword: 1-2% natural
 8. Incluir dados, exemplos ou analogias
 9. Links internos sugeridos (apenas sugerir, não criar URLs)
-10. E-E-A-T: demonstrar experiência no tema`;
+10. E-E-A-T: demonstrar experiência no tema
+
+**REGRAS DE ESTRUTURA VISUAL:**
+- A cada 2-3 parágrafos, insira um marcador [IMAGE_PLACEHOLDER: descrição da imagem]
+- A descrição deve ser específica e visual (ex: "Pessoa focada trabalhando em laptop", "Dashboard financeiro moderno")
+- NÃO repita descrições de imagem
+- Coloque [IMAGE_PLACEHOLDER] em linha própria
+
+**REGRAS DE BRANDING:**
+- Insira 1-2 menções naturais à Sualuma durante o artigo
+- Use frases como: "Segundo a metodologia da Sualuma", "Como a Lude costuma ensinar", "Na visão estratégica da Sualuma"
+- A menção deve soar natural, nunca forçada
+- No final, adicione: "Quer se aprofundar? A Sualuma tem conteúdo exclusivo sobre este tema."
+
+**FORMATO DE SAÍDA:**
+[Conteúdo completo do artigo com [IMAGE_PLACEHOLDER] nos locais apropriados]
+
+---
+**📊 Resumo SEO:**
+- Contagem de palavras: X
+- Palavra-chave principal: X
+- Densidade: X%
+- Legibilidade: Fácil/Médio
+
+**🏷️ Tags:** tag1, tag2, tag3, tag4, tag5
+**📝 Meta Description:** texto com até 160 caracteres
+**🖼️ Imagens:** desc1, desc2, desc3`;
 
 function ensureQueueTable() {
   db.prepare(`
@@ -31,11 +61,24 @@ function ensureQueueTable() {
       seo_score INTEGER DEFAULT 0,
       status TEXT DEFAULT 'draft',
       idea_id INTEGER,
+      lead_magnet TEXT DEFAULT '',
+      branding_applied INTEGER DEFAULT 0,
+      image_descriptions TEXT DEFAULT '',
+      discord_message_id TEXT,
+      approved_by TEXT,
+      approved_at DATETIME,
       scheduled_for DATETIME,
       published_at DATETIME,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
+
+  try { db.prepare("ALTER TABLE content_queue ADD COLUMN lead_magnet TEXT DEFAULT ''").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE content_queue ADD COLUMN branding_applied INTEGER DEFAULT 0").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE content_queue ADD COLUMN image_descriptions TEXT DEFAULT ''").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE content_queue ADD COLUMN discord_message_id TEXT").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE content_queue ADD COLUMN approved_by TEXT").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE content_queue ADD COLUMN approved_at DATETIME").run(); } catch (_) {}
 }
 
 function ensureSeoColumn() {
@@ -132,13 +175,28 @@ Mantenha a mesma estrutura e palavras-chave, mas corrija os problemas apontados.
       const wordCount = response.split(/\s+/).length;
       const tagMatch = response.match(/\*\*🏷️ Tags:\*\*\s*(.+)/i);
       const metaMatch = response.match(/\*\*📝 Meta Description:\*\*\s*(.+)/i);
+      const imgMatch = response.match(/\*\*🖼️ Imagens:\*\*\s*(.+)/i);
       const tags = tagMatch ? tagMatch[1].trim() : '';
       const metaDescription = metaMatch ? metaMatch[1].trim() : '';
+      const imageDescs = imgMatch ? imgMatch[1].trim() : '';
 
-      const excerpt = response.replace(/\*\*.*?\*\*/g, '').replace(/---/g, '').trim().slice(0, 200) + '...';
+      // Extract IMAGE_PLACEHOLDERs and cache suggestions
+      const imagePlaceholders = response.match(/\[IMAGE_PLACEHOLDER:[^\]]+\]/g) || [];
+      const imageContexts = imagePlaceholders.map(p => p.replace(/\[IMAGE_PLACEHOLDER:\s*([^\]]+)\]/, '$1').trim());
+      const imageEntries = imageContexts.map(ctx => {
+        const img = getImageForSuggestion(ctx);
+        return { context: ctx, url: img.url, source: img.source };
+      });
+
+      // Add branding flag
+      const brandingApplied = /Sualuma|Lude|Ludi/i.test(response);
+
+      // Save version for rollback
+      const postId = require('crypto').randomUUID();
+      saveVersion(postId, response, { title, niche, keywords, tags, wordCount });
 
       const post = {
-        id: require('crypto').randomUUID(),
+        id: postId,
         title: title || 'Artigo Gerado',
         slug: (title || 'artigo-gerado').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         content: response,
@@ -150,6 +208,8 @@ Mantenha a mesma estrutura e palavras-chave, mas corrija os problemas apontados.
         tags,
         metaDescription,
         wordCount,
+        imageEntries,
+        brandingApplied,
         readTime: `${Math.max(1, Math.round(wordCount / 200))} min`,
       };
 
@@ -166,21 +226,55 @@ Mantenha a mesma estrutura e palavras-chave, mas corrija os problemas apontados.
           .run(75, tags, keywords || '', ideaId);
       }
 
+      // Get lead magnet suggestion
+      let leadMagnet = '';
+      try {
+        const lmRes = await callGemini(
+          `Com base no título "${title}" e categoria "${niche}", sugira APENAS o nome de uma isca digital com emoji. Ex: "📋 Planner de Foco"`,
+          'gemini-1.5-flash'
+        );
+        leadMagnet = lmRes.trim().slice(0, 100);
+      } catch {}
+
       ensureQueueTable();
-      db.prepare(`INSERT INTO content_queue (clerk_id, title, content, excerpt, tags, seo_score, status, idea_id)
-        VALUES (?, ?, ?, ?, ?, ?, 'draft', ?)`)
-        .run(clerkId || 'system', title, response.slice(0, 500), excerpt, tags, 75, ideaId || null);
+      db.prepare(`INSERT INTO content_queue (clerk_id, title, content, excerpt, tags, seo_score, status, idea_id, lead_magnet, branding_applied, image_descriptions)
+        VALUES (?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?, ?)`)
+        .run(clerkId || 'system', title, response.slice(0, 500), excerpt, tags, 75, ideaId || null, leadMagnet, brandingApplied ? 1 : 0, imageDescs);
+
+      const queueId = db.prepare('SELECT last_insert_rowid() as id').get().id;
+
+      // Send to Discord for approval
+      try {
+        await sendArticleForApproval({
+          id: queueId,
+          title,
+          content: response,
+          excerpt,
+          category: niche,
+          tags,
+          seoScore: 75,
+          keywords,
+          brandingApplied,
+          leadMagnet,
+        });
+      } catch (discordErr) {
+        console.log('[BlogAgent] Discord not configured, skipping approval notification.');
+      }
 
       return res.json({
         success: true,
         agent: 'blog',
         action: 'generated',
         post,
-        queueId: db.prepare('SELECT last_insert_rowid() as id').get().id,
+        queueId,
+        leadMagnet,
+        brandingApplied,
+        imageEntries,
         metadata: {
           wordCount,
           tags,
           readTime: post.readTime,
+          discordNotified: !!process.env.DISCORD_WEBHOOK_URL,
         },
       });
     }

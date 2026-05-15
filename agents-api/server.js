@@ -23,6 +23,10 @@ const financialAgent = require('./agents/financialAgent');
 const googleAgent = require('./agents/googleAgent');
 const googleSeoAgent = require('./agents/googleSeoAgent');
 const { blogAgent, getQueue, updateQueueStatus, publishBatch, getStats } = require('./agents/blogAgent');
+const leadMagnetAgent = require('./agents/leadMagnetAgent');
+const { sendArticleForApproval, sendPublishConfirmation } = require('./services/discordService');
+const { saveVersion, listVersions, rollback } = require('./services/contentVersioning');
+const { getImageForSuggestion, getStats: getImageStats } = require('./services/imageCache');
 const { db } = require('./config/db');
 
 const app = express();
@@ -382,6 +386,73 @@ app.post('/api/blog/publish', publishBatch);
 
 // Estatísticas do blog
 app.get('/api/blog/stats', getStats);
+
+// ========================
+// 🧲 LEAD MAGNETS
+// ========================
+
+app.post('/api/agents/lead-magnet', leadMagnetAgent);
+
+// ========================
+// 🚀 DISCORD APPROVAL
+// ========================
+
+app.post('/api/discord/approve', async (req, res) => {
+  const { queueId } = req.body;
+  if (!queueId) return res.status(400).json({ error: 'queueId obrigatório' });
+  const item = db.prepare('SELECT * FROM content_queue WHERE id = ?').get(queueId);
+  if (!item) return res.status(404).json({ error: 'Item não encontrado' });
+  try {
+    await sendArticleForApproval({
+      id: item.id, title: item.title, content: item.content || item.excerpt,
+      excerpt: item.excerpt, category: item.category, tags: item.tags,
+      seoScore: item.seo_score, leadMagnet: item.lead_magnet, brandingApplied: item.branding_applied,
+    });
+    res.json({ success: true, message: 'Artigo enviado para aprovação no Discord.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/discord/confirm', async (req, res) => {
+  const { queueId, approvedBy } = req.body;
+  if (!queueId) return res.status(400).json({ error: 'queueId obrigatório' });
+  const item = db.prepare('SELECT * FROM content_queue WHERE id = ?').get(queueId);
+  if (!item) return res.status(404).json({ error: 'Item não encontrado' });
+  db.prepare("UPDATE content_queue SET status = 'reviewed', approved_by = ?, approved_at = CURRENT_TIMESTAMP WHERE id = ?")
+    .run(approvedBy || 'discord-admin', queueId);
+  try { await sendPublishConfirmation({ title: item.title, category: item.category, seoScore: item.seo_score }, approvedBy); } catch {}
+  res.json({ success: true, message: 'Artigo aprovado via Discord.' });
+});
+
+// ========================
+// 📦 CONTENT VERSIONING
+// ========================
+
+app.get('/api/content/versions/:postId', (req, res) => {
+  res.json(listVersions(req.params.postId));
+});
+
+app.post('/api/content/rollback/:postId', (req, res) => {
+  const { version } = req.body;
+  const content = rollback(req.params.postId, version);
+  if (!content) return res.status(404).json({ error: 'Versão não encontrada' });
+  res.json({ success: true, content });
+});
+
+// ========================
+// 🖼️ IMAGE CACHE
+// ========================
+
+app.get('/api/images/stats', (req, res) => {
+  res.json(getImageStats());
+});
+
+app.post('/api/images/suggest', (req, res) => {
+  const { context } = req.body;
+  if (!context) return res.status(400).json({ error: 'context obrigatório' });
+  res.json(getImageForSuggestion(context));
+});
 
 // ========================
 // ERRO 404
