@@ -226,14 +226,39 @@ Mantenha a mesma estrutura e palavras-chave, mas corrija os problemas apontados.
           .run(75, tags, keywords || '', ideaId);
       }
 
-      // Get lead magnet suggestion
+      // Get lead magnet from inventory (match system)
       let leadMagnet = '';
       try {
-        const lmRes = await callGemini(
-          `Com base no título "${title}" e categoria "${niche}", sugira APENAS o nome de uma isca digital com emoji. Ex: "📋 Planner de Foco"`,
-          'gemini-1.5-flash'
-        );
-        leadMagnet = lmRes.trim().slice(0, 100);
+        const magnets = db.prepare("SELECT title, description, type, category, download_count, conversion_count FROM lead_magnets WHERE status IN ('published', 'approved') ORDER BY conversion_count DESC, download_count DESC").all();
+        if (magnets.length > 0) {
+          // Score-based matching
+          let bestMatch = null; let bestScore = 0;
+          const aTitle = (title || '').toLowerCase();
+          const aNiche = (niche || '').toLowerCase();
+          for (const m of magnets) {
+            let score = 0;
+            const mTitle = (m.title || '').toLowerCase();
+            const mCat = (m.category || '').toLowerCase();
+            if (aNiche && mCat.includes(aNiche)) score += 30;
+            if (aNiche && aNiche.includes(mCat)) score += 20;
+            const titleWords = aTitle.split(' ');
+            for (const w of titleWords) { if (w.length > 3 && mTitle.includes(w)) { score += 5; } }
+            score += Math.min(m.download_count || 0, 15);
+            score += Math.min(m.conversion_count || 0, 20);
+            if (score > bestScore) { bestScore = score; bestMatch = m; }
+          }
+          if (bestMatch && bestScore > 0) {
+            leadMagnet = bestMatch.title;
+          }
+        }
+        if (!leadMagnet) {
+          // Fallback: Gemini suggestion
+          const lmRes = await callGemini(
+            `Com base no título "${title}" e categoria "${niche}", sugira APENAS o nome de uma isca digital com emoji. Ex: "📋 Planner de Foco"`,
+            'gemini-1.5-flash'
+          );
+          leadMagnet = lmRes.trim().slice(0, 100);
+        }
       } catch {}
 
       ensureQueueTable();

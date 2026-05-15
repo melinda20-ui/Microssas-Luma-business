@@ -276,7 +276,77 @@ const initDb = () => {
 
     try { db.prepare("ALTER TABLE content_queue ADD COLUMN campaign_id INTEGER DEFAULT NULL").run(); } catch (_) {}
 
-    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas + Versões + Histórico + Email)');
+    // ========================
+    // BLOCO 8 — LEAD MAGNET LAB
+    // ========================
+
+    // Inventário de Iscas Digitais
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS lead_magnets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            type TEXT DEFAULT 'pdf',
+            category TEXT DEFAULT 'geral',
+            objective TEXT DEFAULT 'lead',
+            funnel_stage TEXT DEFAULT 'top',
+            niche TEXT DEFAULT '',
+            content TEXT DEFAULT '',
+            cta TEXT DEFAULT '',
+            seo_score INTEGER DEFAULT 0,
+            download_count INTEGER DEFAULT 0,
+            conversion_count INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'draft',
+            thumbnail TEXT DEFAULT '',
+            tags TEXT DEFAULT '',
+            version INTEGER DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    // Capturas de Leads
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS lead_captures (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            magnet_id INTEGER,
+            magnet_title TEXT DEFAULT '',
+            origin_article TEXT DEFAULT '',
+            origin_article_id INTEGER,
+            category TEXT DEFAULT '',
+            funnel_stage TEXT DEFAULT 'top',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    // Logs de Download
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS lead_magnet_downloads (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            magnet_id INTEGER NOT NULL,
+            lead_id INTEGER,
+            ip TEXT DEFAULT '',
+            user_agent TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    // Versionamento de Assets
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS lead_magnet_versions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            magnet_id INTEGER NOT NULL,
+            version INTEGER NOT NULL,
+            content TEXT NOT NULL,
+            diff_log TEXT DEFAULT '',
+            created_by TEXT DEFAULT 'system',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas + Versões + Histórico + Email + Lead Magnet Lab)');
 };
 
 const SUPER_ADMIN_EMAIL = 'lumabusinessa1.0@gmail.com';

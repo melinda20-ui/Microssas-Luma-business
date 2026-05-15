@@ -24,6 +24,9 @@ const googleAgent = require('./agents/googleAgent');
 const googleSeoAgent = require('./agents/googleSeoAgent');
 const { blogAgent, getQueue, updateQueueStatus, publishBatch, getStats } = require('./agents/blogAgent');
 const leadMagnetAgent = require('./agents/leadMagnetAgent');
+const leadMagnetUXAgent = require('./agents/leadMagnetUXAgent');
+const leadMagnetCopyAgent = require('./agents/leadMagnetCopyAgent');
+const leadMagnetTDAHAgent = require('./agents/leadMagnetTDAHAgent');
 const { sendArticleForApproval, sendPublishConfirmation } = require('./services/discordService');
 const { saveVersion, listVersions, rollback } = require('./services/contentVersioning');
 const { getImageForSuggestion, getStats: getImageStats } = require('./services/imageCache');
@@ -443,10 +446,222 @@ app.post('/api/blog/publish', publishBatch);
 app.get('/api/blog/stats', getStats);
 
 // ========================
-// 🧲 LEAD MAGNETS
+// 🧲 LEAD MAGNET LAB (BLOCO 8)
 // ========================
 
 app.post('/api/agents/lead-magnet', leadMagnetAgent);
+app.post('/api/agents/lead-magnet-ux', leadMagnetUXAgent);
+app.post('/api/agents/lead-magnet-copy', leadMagnetCopyAgent);
+app.post('/api/agents/lead-magnet-tdah', leadMagnetTDAHAgent);
+
+// Inventário CRUD
+app.get('/api/lead-magnets', (req, res) => {
+  const magnets = db.prepare('SELECT * FROM lead_magnets ORDER BY created_at DESC').all();
+  res.json(magnets);
+});
+
+app.get('/api/lead-magnets/:id', (req, res) => {
+  const magnet = db.prepare('SELECT * FROM lead_magnets WHERE id = ?').get(req.params.id);
+  if (!magnet) return res.status(404).json({ error: 'Isca não encontrada' });
+  res.json(magnet);
+});
+
+app.post('/api/lead-magnets', (req, res) => {
+  const { title, description, type, category, objective, funnelStage, niche, content, cta, tags } = req.body;
+  if (!title) return res.status(400).json({ error: 'title obrigatório' });
+  const result = db.prepare(`
+    INSERT INTO lead_magnets (title, description, type, category, objective, funnel_stage, niche, content, cta, tags)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(title, description || '', type || 'pdf', category || 'geral', objective || 'lead', funnelStage || 'top', niche || '', content || '', cta || '', tags || '');
+  const magnet = db.prepare('SELECT * FROM lead_magnets WHERE id = ?').get(result.lastInsertRowid);
+  console.log(`[LeadMagnet] #${magnet.id} criada: ${title}`);
+  res.json(magnet);
+});
+
+app.patch('/api/lead-magnets/:id', (req, res) => {
+  const { title, description, type, category, objective, funnelStage, niche, content, cta, status, seoScore, tags } = req.body;
+  const updates = []; const params = [];
+  if (title) { updates.push('title = ?'); params.push(title); }
+  if (description !== undefined) { updates.push('description = ?'); params.push(description); }
+  if (type) { updates.push('type = ?'); params.push(type); }
+  if (category) { updates.push('category = ?'); params.push(category); }
+  if (objective) { updates.push('objective = ?'); params.push(objective); }
+  if (funnelStage) { updates.push('funnel_stage = ?'); params.push(funnelStage); }
+  if (niche) { updates.push('niche = ?'); params.push(niche); }
+  if (content !== undefined) { updates.push('content = ?'); params.push(content); }
+  if (cta !== undefined) { updates.push('cta = ?'); params.push(cta); }
+  if (status) { updates.push('status = ?'); params.push(status); }
+  if (seoScore !== undefined) { updates.push('seo_score = ?'); params.push(seoScore); }
+  if (tags !== undefined) { updates.push('tags = ?'); params.push(tags); }
+  updates.push('updated_at = CURRENT_TIMESTAMP');
+  params.push(req.params.id);
+  db.prepare(`UPDATE lead_magnets SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+  const magnet = db.prepare('SELECT * FROM lead_magnets WHERE id = ?').get(req.params.id);
+  res.json(magnet);
+});
+
+app.delete('/api/lead-magnets/:id', (req, res) => {
+  db.prepare('DELETE FROM lead_magnets WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// Gerar isca com 3 agentes em paralelo
+app.post('/api/lead-magnets/generate', async (req, res) => {
+  const { title, type, category, niche, audience } = req.body;
+  if (!title) return res.status(400).json({ error: 'title obrigatório' });
+  try {
+    const { callGemini } = require('./config/llm');
+    const prompt = `Crie uma isca digital (lead magnet) completa para o título: "${title}".
+
+Tipo: ${type || 'pdf'}
+Categoria: ${category || 'geral'}
+Nichos: ${niche || 'empreendedorismo'}
+Público: ${audience || 'Pequenos empresários brasileiros'}
+
+Gere um JSON válido (sem markdown) com:
+{
+  "description": "descrição em 2 linhas",
+  "content": "conteúdo principal em 200-300 palavras com valor prático imediato",
+  "cta": "chamada para ação irresistível",
+  "seo_score": numero_de_0_a_100,
+  "tags": "tag1, tag2, tag3"
+}`;
+    const raw = await callGemini(prompt, 'gemini-1.5-flash');
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return res.status(500).json({ error: 'Resposta inválida da IA' });
+    const generated = JSON.parse(jsonMatch[0]);
+
+    // Salvar no banco
+    const result = db.prepare(`
+      INSERT INTO lead_magnets (title, description, type, category, niche, content, cta, seo_score, tags, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft')
+    `).run(title, generated.description || '', type || 'pdf', category || 'geral', niche || '', generated.content || '', generated.cta || '', generated.seo_score || 75, generated.tags || '');
+    const magnet = db.prepare('SELECT * FROM lead_magnets WHERE id = ?').get(result.lastInsertRowid);
+
+    // Criar versão inicial
+    db.prepare('INSERT INTO lead_magnet_versions (magnet_id, version, content) VALUES (?, ?, ?)').run(magnet.id, 1, JSON.stringify({ content: generated.content, cta: generated.cta }));
+
+    res.json({ success: true, magnet, generated });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Match: artigo → melhor isca
+app.post('/api/lead-magnets/match', (req, res) => {
+  const { articleTitle, articleCategory, articleContent } = req.body;
+  const category = (articleCategory || '').toLowerCase();
+  const magnets = db.prepare("SELECT * FROM lead_magnets WHERE status = 'published' OR status = 'approved'").all();
+
+  if (magnets.length === 0) {
+    return res.json({ success: true, matched: null, message: 'Nenhuma isca publicada disponível' });
+  }
+
+  // Score matching simples: categoria match + keyword match no título
+  let best = null; let bestScore = 0;
+  for (const m of magnets) {
+    let score = 0;
+    const mCat = (m.category || '').toLowerCase();
+    const mTitle = (m.title || '').toLowerCase();
+    const aTitle = (articleTitle || '').toLowerCase();
+    const aContent = (articleContent || '').toLowerCase();
+
+    if (category && mCat.includes(category)) score += 30;
+    if (mTitle && aTitle.includes(mTitle.slice(0, 20))) score += 20;
+    const words = aTitle.split(' ').concat(aContent.slice(0, 200).split(' '));
+    const mWords = mTitle.split(' ');
+    for (const w of mWords) { if (w.length > 3 && words.includes(w)) score += 5; }
+    if (m.download_count > 0) score += Math.min(m.download_count, 10);
+
+    if (score > bestScore) { bestScore = score; best = m; }
+  }
+
+  res.json({ success: true, matched: best, score: bestScore, total: magnets.length });
+});
+
+// Captura de lead
+app.post('/api/lead-magnets/capture', (req, res) => {
+  const { name, email, magnetId, magnetTitle, originArticle, originArticleId, category, funnelStage } = req.body;
+  if (!name || !email) return res.status(400).json({ error: 'name e email obrigatórios' });
+
+  // Evitar duplicatas
+  const existing = db.prepare("SELECT id FROM lead_captures WHERE email = ? AND magnet_id = ?").get(email, magnetId || null);
+  if (existing) return res.json({ success: true, existing: true, id: existing.id });
+
+  const result = db.prepare(`
+    INSERT INTO lead_captures (name, email, magnet_id, magnet_title, origin_article, origin_article_id, category, funnel_stage)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(name, email, magnetId || null, magnetTitle || '', originArticle || '', originArticleId || null, category || 'geral', funnelStage || 'top');
+
+  // Incrementar contagem de conversão da isca
+  if (magnetId) {
+    db.prepare('UPDATE lead_magnets SET conversion_count = conversion_count + 1 WHERE id = ?').run(magnetId);
+  }
+
+  res.json({ success: true, id: result.lastInsertRowid, existing: false });
+});
+
+// Log de download
+app.post('/api/lead-magnets/:id/download', (req, res) => {
+  const { leadId } = req.body;
+  db.prepare('INSERT INTO lead_magnet_downloads (magnet_id, lead_id, ip, user_agent) VALUES (?, ?, ?, ?)')
+    .run(req.params.id, leadId || null, req.ip || '', req.headers['user-agent'] || '');
+  db.prepare('UPDATE lead_magnets SET download_count = download_count + 1 WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// Estatísticas
+app.get('/api/lead-magnets/stats', (req, res) => {
+  const total = db.prepare('SELECT COUNT(*) as c FROM lead_magnets').get();
+  const published = db.prepare("SELECT COUNT(*) as c FROM lead_magnets WHERE status = 'published' OR status = 'approved'").get();
+  const totalDownloads = db.prepare('SELECT COALESCE(SUM(download_count), 0) as t FROM lead_magnets').get();
+  const totalConversions = db.prepare('SELECT COALESCE(SUM(conversion_count), 0) as t FROM lead_magnets').get();
+  const totalLeads = db.prepare('SELECT COUNT(*) as c FROM lead_captures').get();
+  const byCategory = db.prepare('SELECT category, COUNT(*) as count FROM lead_magnets GROUP BY category').all();
+  const byType = db.prepare('SELECT type, COUNT(*) as count FROM lead_magnets GROUP BY type').all();
+  const byFunnelStage = db.prepare('SELECT funnel_stage, COUNT(*) as count FROM lead_magnets GROUP BY funnel_stage').all();
+  const recentLeads = db.prepare('SELECT * FROM lead_captures ORDER BY created_at DESC LIMIT 10').all();
+  res.json({
+    total: total.c, published: published.c, totalDownloads: totalDownloads.t,
+    totalConversions: totalConversions.t, totalLeads: totalLeads.c,
+    byCategory, byType, byFunnelStage, recentLeads,
+  });
+});
+
+// Aprovação via Discord
+app.post('/api/lead-magnets/:id/approve-discord', async (req, res) => {
+  const magnet = db.prepare('SELECT * FROM lead_magnets WHERE id = ?').get(req.params.id);
+  if (!magnet) return res.status(404).json({ error: 'Isca não encontrada' });
+  try {
+    await sendArticleForApproval({
+      id: magnet.id, title: magnet.title,
+      content: magnet.content || magnet.description,
+      excerpt: magnet.description, category: magnet.category,
+      tags: magnet.tags, seoScore: magnet.seo_score,
+      leadMagnet: magnet.title, brandingApplied: true,
+    });
+    res.json({ success: true, message: 'Isca enviada para aprovação no Discord.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Versionamento
+app.get('/api/lead-magnets/:id/versions', (req, res) => {
+  const versions = db.prepare('SELECT * FROM lead_magnet_versions WHERE magnet_id = ? ORDER BY version DESC').all(req.params.id);
+  res.json(versions);
+});
+
+app.post('/api/lead-magnets/:id/versions', (req, res) => {
+  const { content, createdBy } = req.body;
+  if (!content) return res.status(400).json({ error: 'content obrigatório' });
+  const maxVer = db.prepare("SELECT COALESCE(MAX(version), 0) as mv FROM lead_magnet_versions WHERE magnet_id = ?").get(req.params.id);
+  const version = maxVer.mv + 1;
+  db.prepare('INSERT INTO lead_magnet_versions (magnet_id, version, content, created_by) VALUES (?, ?, ?, ?)')
+    .run(req.params.id, version, JSON.stringify(content), createdBy || 'system');
+  db.prepare('UPDATE lead_magnets SET version = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(version, req.params.id);
+  res.json({ success: true, version });
+});
 
 // ========================
 // 🚀 DISCORD APPROVAL
