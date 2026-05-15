@@ -554,6 +554,94 @@ app.delete('/api/campaigns/:id', (req, res) => {
 });
 
 // ========================
+// 📢 CAMPAIGN AUTOMATION
+// ========================
+
+// Gerar campanha com IA
+app.post('/api/campaigns/generate', async (req, res) => {
+  const { clerkId, brief } = req.body;
+  if (!clerkId || !brief) return res.status(400).json({ error: 'Campos obrigatórios: clerkId, brief' });
+  try {
+    const { callGemini } = require('./config/llm');
+    const prompt = `Crie uma campanha de marketing completa para este brief: "${brief}"
+
+Gere um JSON válido (sem markdown) com:
+{
+  "title": "título da campanha",
+  "description": "descrição em 2 linhas",
+  "platform": "organic | meta-ads | google-ads | tiktok-ads | email",
+  "objective": "conversion | traffic | leads | awareness | retention",
+  "budget": numero_estimado,
+  "audience": "público-alvo detalhado",
+  "creative": "headline e descrição do criativo"
+}`;
+    const raw = await callGemini(prompt, 'gemini-1.5-flash');
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return res.status(500).json({ error: 'Resposta inválida da IA' });
+    const suggestion = JSON.parse(jsonMatch[0]);
+    res.json({ success: true, suggestion });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Sequências de email para campanha
+app.get('/api/campaigns/:id/sequences', (req, res) => {
+  const sequences = db.prepare('SELECT * FROM email_sequences WHERE campaign_id = ? ORDER BY days_after_start ASC').all(req.params.id);
+  res.json(sequences);
+});
+
+app.post('/api/campaigns/:id/sequences', (req, res) => {
+  const { subject, body, daysAfterStart } = req.body;
+  if (!subject) return res.status(400).json({ error: 'subject obrigatório' });
+  const result = db.prepare(
+    'INSERT INTO email_sequences (campaign_id, subject, body, days_after_start) VALUES (?, ?, ?, ?)'
+  ).run(req.params.id, subject, body || '', daysAfterStart || 0);
+  const seq = db.prepare('SELECT * FROM email_sequences WHERE id = ?').get(result.lastInsertRowid);
+  res.json(seq);
+});
+
+app.patch('/api/campaigns/:id/sequences/:seqId', (req, res) => {
+  const { subject, body, daysAfterStart, status } = req.body;
+  const updates = []; const params = [];
+  if (subject) { updates.push('subject = ?'); params.push(subject); }
+  if (body) { updates.push('body = ?'); params.push(body); }
+  if (daysAfterStart !== undefined) { updates.push('days_after_start = ?'); params.push(daysAfterStart); }
+  if (status) { updates.push('status = ?'); params.push(status); }
+  updates.push('updated_at = CURRENT_TIMESTAMP');
+  params.push(req.params.seqId);
+  db.prepare(`UPDATE email_sequences SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+  res.json({ success: true });
+});
+
+// Conectar campanha a blog posts
+app.get('/api/campaigns/:id/blog-connections', (req, res) => {
+  const posts = db.prepare('SELECT id, title, category, status, campaign_id FROM content_queue WHERE campaign_id = ?').all(req.params.id);
+  res.json(posts);
+});
+
+app.post('/api/campaigns/:id/connect-blog', (req, res) => {
+  const { postIds } = req.body;
+  if (!postIds || !Array.isArray(postIds)) return res.status(400).json({ error: 'postIds array obrigatório' });
+  const update = db.prepare('UPDATE content_queue SET campaign_id = ? WHERE id = ?');
+  const txn = db.transaction((ids) => {
+    for (const pid of ids) { update.run(req.params.id, pid); }
+  });
+  txn(postIds);
+  res.json({ success: true, connected: postIds.length });
+});
+
+// Insights de campanhas
+app.get('/api/campaigns/insights', (req, res) => {
+  const total = db.prepare('SELECT COUNT(*) as c FROM campaigns').get();
+  const byStatus = db.prepare('SELECT status, COUNT(*) as count FROM campaigns GROUP BY status').all();
+  const byPlatform = db.prepare('SELECT platform, COUNT(*) as count FROM campaigns GROUP BY platform').all();
+  const totalBudget = db.prepare('SELECT COALESCE(SUM(budget), 0) as total FROM campaigns').get();
+  const avgBudget = db.prepare('SELECT COALESCE(AVG(budget), 0) as avg FROM campaigns WHERE budget > 0').get();
+  res.json({ total: total.c, byStatus, byPlatform, totalBudget: totalBudget.total, avgBudget: avgBudget.avg });
+});
+
+// ========================
 // ERRO 404
 // ========================
 app.use((req, res) => {

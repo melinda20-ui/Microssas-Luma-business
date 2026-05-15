@@ -260,7 +260,23 @@ const initDb = () => {
         )
     `).run();
 
-    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas + Versões + Histórico)');
+    // Tabela de Sequências de Email para Campanhas
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS email_sequences (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            campaign_id INTEGER NOT NULL,
+            subject TEXT NOT NULL,
+            body TEXT DEFAULT '',
+            days_after_start INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'draft',
+            sent_at DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    try { db.prepare("ALTER TABLE content_queue ADD COLUMN campaign_id INTEGER DEFAULT NULL").run(); } catch (_) {}
+
+    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas + Versões + Histórico + Email)');
 };
 
 const SUPER_ADMIN_EMAIL = 'lumabusinessa1.0@gmail.com';
