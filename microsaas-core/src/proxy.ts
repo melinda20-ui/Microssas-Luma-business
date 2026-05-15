@@ -1,4 +1,5 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const ALLOWED_EMAIL = "lumabusinessa1.0@gmail.com";
 const AUTH_REDIRECT = "/sign-in";
@@ -8,13 +9,10 @@ export default clerkMiddleware(async (auth, req) => {
   const isStudio = host.startsWith("studio.");
 
   if (isStudio) {
-    const { userId, sessionClaims } = auth();
+    const { userId, sessionClaims } = await auth();
 
     if (!userId) {
-      return new Response(null, {
-        status: 302,
-        headers: { Location: AUTH_REDIRECT },
-      });
+      return NextResponse.redirect(new URL(AUTH_REDIRECT, req.url));
     }
 
     const email = sessionClaims?.email as string | undefined;
