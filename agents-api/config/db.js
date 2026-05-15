@@ -190,7 +190,30 @@ const initDb = () => {
     try { db.prepare("ALTER TABLE content_ideas ADD COLUMN tags TEXT DEFAULT ''").run(); } catch (_) {}
     try { db.prepare("ALTER TABLE content_ideas ADD COLUMN keywords TEXT DEFAULT ''").run(); } catch (_) {}
 
-    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO)');
+    // Tabela de Campanhas (BLOCO 7)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS campaigns (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            clerk_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            platform TEXT DEFAULT 'organic',
+            objective TEXT DEFAULT 'conversion',
+            budget REAL DEFAULT 0,
+            audience TEXT DEFAULT '',
+            creative TEXT DEFAULT '',
+            status TEXT DEFAULT 'PENDING',
+            review_notes TEXT DEFAULT '',
+            approved_by TEXT DEFAULT NULL,
+            approved_at DATETIME,
+            executed_at DATETIME,
+            completed_at DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro + SEO + Campanhas)');
 };
 
 const SUPER_ADMIN_EMAIL = 'lumabusinessa1.0@gmail.com';

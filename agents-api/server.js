@@ -27,6 +27,9 @@ const leadMagnetAgent = require('./agents/leadMagnetAgent');
 const { sendArticleForApproval, sendPublishConfirmation } = require('./services/discordService');
 const { saveVersion, listVersions, rollback } = require('./services/contentVersioning');
 const { getImageForSuggestion, getStats: getImageStats } = require('./services/imageCache');
+const organicMarketingAgent = require('./agents/organicMarketingAgent');
+const paidMarketingAgent = require('./agents/paidMarketingAgent');
+const funnelCoordinator = require('./agents/funnelCoordinator');
 const { db } = require('./config/db');
 
 const app = express();
@@ -161,6 +164,15 @@ app.post('/api/agents/google', creditMiddleware(1), googleAgent);
 // 🔍 Google SEO Intelligence (2 créditos)
 app.post('/api/agents/google-seo', creditMiddleware(2), googleSeoAgent);
 
+// 📱 Marketing Orgânico (1 crédito)
+app.post('/api/agents/organic-marketing', creditMiddleware(1), organicMarketingAgent);
+
+// 💰 Marketing Pago (2 créditos)
+app.post('/api/agents/paid-marketing', creditMiddleware(2), paidMarketingAgent);
+
+// 🔄 Funnel Coordinator — Orquestração multigentes (3 créditos)
+app.post('/api/agents/funnel', creditMiddleware(3), funnelCoordinator);
+
 // ✍️ Blog Agent — Geração e publicação (3 créditos)
 app.post('/api/agents/blog', creditMiddleware(3), blogAgent);
 
@@ -199,7 +211,10 @@ app.post('/api/chat', async (req, res) => {
     'financial': financialAgent,
     'google': googleAgent,
     'google-seo': googleSeoAgent,
-    'blog': blogAgent
+    'blog': blogAgent,
+    'organic-marketing': organicMarketingAgent,
+    'paid-marketing': paidMarketingAgent,
+    'funnel': funnelCoordinator
   };
 
   const handler = agentMap[agent];
@@ -452,6 +467,50 @@ app.post('/api/images/suggest', (req, res) => {
   const { context } = req.body;
   if (!context) return res.status(400).json({ error: 'context obrigatório' });
   res.json(getImageForSuggestion(context));
+});
+
+// ========================
+// 📢 CAMPAIGNS
+// ========================
+
+app.get('/api/campaigns', (req, res) => {
+  const campaigns = db.prepare('SELECT * FROM campaigns ORDER BY created_at DESC').all();
+  res.json(campaigns);
+});
+
+app.post('/api/campaigns', (req, res) => {
+  const { clerkId, title, description, platform, objective, budget, audience, creative } = req.body;
+  if (!clerkId || !title) return res.status(400).json({ error: 'Campos obrigatórios: clerkId, title' });
+  const result = db.prepare(
+    `INSERT INTO campaigns (clerk_id, title, description, platform, objective, budget, audience, creative)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  ).run(clerkId, title, description || '', platform || 'organic', objective || 'conversion', budget || 0, audience || '', creative || '');
+  const campaign = db.prepare('SELECT * FROM campaigns WHERE id = ?').get(result.lastInsertRowid);
+  console.log(`[Campaign] #${campaign.id} criada: ${title}`);
+  res.json(campaign);
+});
+
+app.patch('/api/campaigns/:id', (req, res) => {
+  const { status, reviewNotes, approvedBy } = req.body;
+  const updates = [];
+  const params = [];
+  if (status) { updates.push('status = ?'); params.push(status); }
+  if (reviewNotes) { updates.push('review_notes = ?'); params.push(reviewNotes); }
+  if (approvedBy) { updates.push('approved_by = ?'); params.push(approvedBy); }
+  if (status === 'APPROVED') { updates.push('approved_at = CURRENT_TIMESTAMP'); }
+  if (status === 'EXECUTING') { updates.push('executed_at = CURRENT_TIMESTAMP'); }
+  if (status === 'COMPLETED') { updates.push('completed_at = CURRENT_TIMESTAMP'); }
+  updates.push('updated_at = CURRENT_TIMESTAMP');
+  params.push(req.params.id);
+
+  db.prepare(`UPDATE campaigns SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+  const campaign = db.prepare('SELECT * FROM campaigns WHERE id = ?').get(req.params.id);
+  res.json(campaign);
+});
+
+app.delete('/api/campaigns/:id', (req, res) => {
+  db.prepare('DELETE FROM campaigns WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
 });
 
 // ========================
