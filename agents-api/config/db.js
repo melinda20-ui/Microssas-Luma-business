@@ -134,7 +134,39 @@ const initDb = () => {
         )
     `).run();
 
-    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain)');
+    // Tabela de Metas Financeiras (BLOCO 5)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS financial_goals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            clerk_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            target_value REAL DEFAULT 0,
+            current_value REAL DEFAULT 0,
+            category TEXT DEFAULT 'revenue',
+            status TEXT DEFAULT 'active',
+            due_date DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    // Tabela de Ideias de Conteúdo (BLOCO 5)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS content_ideas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            clerk_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            category TEXT DEFAULT 'acquisition',
+            financial_goal_id INTEGER,
+            status TEXT DEFAULT 'draft',
+            platform TEXT DEFAULT 'blog',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    console.log('✅ Banco de Dados SQLite Atualizado (Monetização + Marketplace + Brain + Financeiro)');
 };
 
 const SUPER_ADMIN_EMAIL = 'lumabusinessa1.0@gmail.com';

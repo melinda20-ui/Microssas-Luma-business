@@ -19,6 +19,9 @@ const pinterestAgent = require('./agents/pinterestAgent');
 const tdahAgent = require('./agents/tdahAgent');
 const supervisorAgent = require('./agents/supervisorAgent');
 const uxAgent = require('./agents/uxAgent');
+const financialAgent = require('./agents/financialAgent');
+const googleAgent = require('./agents/googleAgent');
+const { db } = require('./config/db');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -143,8 +146,15 @@ app.post('/api/agents/supervisor', creditMiddleware(1), supervisorAgent);
 // 🎨 UX Specialist — Onboarding (1 crédito)
 app.post('/api/agents/ux', creditMiddleware(1), uxAgent);
 
+// 💰 Financial Intelligence (2 créditos)
+app.post('/api/agents/financial', creditMiddleware(2), financialAgent);
+
+// 📈 Google/Marketing Strategy (1 crédito)
+app.post('/api/agents/google', creditMiddleware(1), googleAgent);
+
 // 💳 Billing & Stripe
 const marketplaceRoutes = require('./routes/marketplace');
+const billingRoutes = require('./routes/billing');
 app.use('/api/billing', billingRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 
@@ -173,7 +183,9 @@ app.post('/api/chat', async (req, res) => {
     'pinterest': pinterestAgent,
     'tdah': tdahAgent,
     'supervisor': supervisorAgent,
-    'ux': uxAgent
+    'ux': uxAgent,
+    'financial': financialAgent,
+    'google': googleAgent
   };
 
   const handler = agentMap[agent];
@@ -258,6 +270,91 @@ app.patch('/api/brain/tasks/:id/reject', (req, res) => {
     const updated = db.prepare('SELECT * FROM brain_tasks WHERE id = ?').get(req.params.id);
     console.log(`[Brain] Tarefa #${updated.id} REJEITADA`);
     res.json(updated);
+});
+
+// ========================
+// 🎯 FINANCIAL GOALS
+// ========================
+
+// Listar metas
+app.get('/api/financial/goals', (req, res) => {
+  const goals = db.prepare('SELECT * FROM financial_goals ORDER BY created_at DESC').all();
+  res.json(goals);
+});
+
+// Criar meta
+app.post('/api/financial/goals', (req, res) => {
+  const { clerkId, title, description, targetValue, category, dueDate } = req.body;
+  if (!clerkId || !title) {
+    return res.status(400).json({ error: 'Campos obrigatórios: clerkId, title' });
+  }
+  const result = db.prepare(
+    `INSERT INTO financial_goals (clerk_id, title, description, target_value, category, due_date)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(clerkId, title, description, targetValue || 0, category || 'revenue', dueDate || null);
+  const goal = db.prepare('SELECT * FROM financial_goals WHERE id = ?').get(result.lastInsertRowid);
+  console.log(`[Financeiro] Meta #${goal.id} criada: ${title}`);
+  res.json(goal);
+});
+
+// Atualizar meta
+app.patch('/api/financial/goals/:id', (req, res) => {
+  const { currentValue, status } = req.body;
+  db.prepare(
+    `UPDATE financial_goals SET current_value = COALESCE(?, current_value), status = COALESCE(?, status), updated_at = CURRENT_TIMESTAMP WHERE id = ?`
+  ).run(currentValue, status, req.params.id);
+  const goal = db.prepare('SELECT * FROM financial_goals WHERE id = ?').get(req.params.id);
+  res.json(goal);
+});
+
+// Deletar meta
+app.delete('/api/financial/goals/:id', (req, res) => {
+  db.prepare('DELETE FROM financial_goals WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// ========================
+// 💡 CONTENT IDEAS
+// ========================
+
+// Listar ideias
+app.get('/api/content/ideas', (req, res) => {
+  const ideas = db.prepare(`
+    SELECT ci.*, fg.title as goal_title FROM content_ideas ci
+    LEFT JOIN financial_goals fg ON ci.financial_goal_id = fg.id
+    ORDER BY ci.created_at DESC
+  `).all();
+  res.json(ideas);
+});
+
+// Criar ideia
+app.post('/api/content/ideas', (req, res) => {
+  const { clerkId, title, description, category, financialGoalId, platform } = req.body;
+  if (!clerkId || !title) {
+    return res.status(400).json({ error: 'Campos obrigatórios: clerkId, title' });
+  }
+  const result = db.prepare(
+    `INSERT INTO content_ideas (clerk_id, title, description, category, financial_goal_id, platform)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(clerkId, title, description, category || 'acquisition', financialGoalId || null, platform || 'blog');
+  const idea = db.prepare('SELECT * FROM content_ideas WHERE id = ?').get(result.lastInsertRowid);
+  res.json(idea);
+});
+
+// Atualizar ideia
+app.patch('/api/content/ideas/:id', (req, res) => {
+  const { status, platform } = req.body;
+  db.prepare(
+    `UPDATE content_ideas SET status = COALESCE(?, status), platform = COALESCE(?, platform) WHERE id = ?`
+  ).run(status, platform, req.params.id);
+  const idea = db.prepare('SELECT * FROM content_ideas WHERE id = ?').get(req.params.id);
+  res.json(idea);
+});
+
+// Deletar ideia
+app.delete('/api/content/ideas/:id', (req, res) => {
+  db.prepare('DELETE FROM content_ideas WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
 });
 
 // ========================
