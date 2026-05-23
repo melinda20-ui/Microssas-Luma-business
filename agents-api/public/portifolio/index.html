@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mila Kadosh — Desenvolvedora & Estrategista Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07070d;
+    --bg2: #0e0e18;
+    --bg3: #14141f;
+    --accent: #c0392b;
+    --accent2: #e74c3c;
+    --accent3: #ff6b6b;
+    --gold: #f39c12;
+    --purple: #8e44ad;
+    --purple2: #a569bd;
+    --text: #f5f0ff;
+    --text2: #a89ec0;
+    --text3: #5a5470;
+    --border: rgba(192,57,43,0.2);
+    --border2: rgba(142,68,173,0.2);
+    --card: rgba(14,14,24,0.9);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* grain */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 18px 48px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(7,7,13,0.85);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.08em;
+    color: var(--text);
+  }
+  .nav-logo span { color: var(--accent2); }
+
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--text2); text-decoration: none;
+    font-size: 0.88rem; font-weight: 400;
+    transition: color 0.2s; letter-spacing: 0.03em;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--accent) !important;
+    color: #fff !important;
+    padding: 8px 22px; border-radius: 50px;
+    font-weight: 600 !important;
+    transition: background 0.2s, transform 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--accent2) !important; transform: translateY(-1px); }
+
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 48px 80px;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-blob {
+    position: absolute;
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(192,57,43,0.1) 0%, transparent 65%);
+    top: -200px; right: -300px; pointer-events: none;
+  }
+  .hero-blob2 {
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(142,68,173,0.08) 0%, transparent 65%);
+    bottom: -100px; left: -150px; pointer-events: none;
+  }
+
+  .hero-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 400px;
+    gap: 80px; align-items: center; width: 100%;
+    position: relative; z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(192,57,43,0.1);
+    border: 1px solid var(--border);
+    color: var(--accent3);
+    font-size: 0.75rem; font-weight: 600;
+    padding: 6px 16px; border-radius: 50px;
+    margin-bottom: 24px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .hero-badge::before {
+    content: ''; width: 6px; height: 6px;
+    background: var(--accent2); border-radius: 50%;
+    animation: blink 2s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+  h1 .red { color: var(--accent2); }
+  h1 .outline {
+    -webkit-text-stroke: 2px var(--text);
+    color: transparent;
+  }
+
+  .hero-desc {
+    color: var(--text2); font-size: 1rem;
+    max-width: 520px; margin-bottom: 40px;
+    font-weight: 300; line-height: 1.8;
+  }
+
+  .hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .btn-primary {
+    background: var(--accent); color: #fff;
+    padding: 14px 32px; border-radius: 8px;
+    text-decoration: none; font-weight: 600;
+    font-size: 0.92rem; transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary:hover {
+    background: var(--accent2); transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(192,57,43,0.4);
+  }
+  .btn-secondary {
+    background: transparent; color: var(--text2);
+    padding: 14px 32px; border-radius: 8px;
+    text-decoration: none; font-weight: 400;
+    font-size: 0.92rem; transition: all 0.2s;
+    border: 1px solid var(--border2);
+  }
+  .btn-secondary:hover { color: var(--text); border-color: var(--purple2); }
+
+  /* HERO CARD */
+  .hero-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 36px;
+    backdrop-filter: blur(20px);
+    position: relative; overflow: hidden;
+  }
+  .hero-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--gold), var(--purple));
+  }
+
+  .hero-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 2px solid var(--accent);
+    overflow: hidden; margin-bottom: 16px;
+    background: var(--bg3);
+  }
+  .hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .hero-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem; letter-spacing: 0.05em; margin-bottom: 4px;
+  }
+  .hero-card .sub { color: var(--text2); font-size: 0.83rem; margin-bottom: 24px; }
+
+  .hero-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
+  }
+  .stat {
+    background: rgba(192,57,43,0.07);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px; text-align: center;
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem; letter-spacing: 0.05em;
+    color: var(--accent2); display: block;
+  }
+  .stat-label { font-size: 0.7rem; color: var(--text3); }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    background: rgba(142,68,173,0.1);
+    border: 1px solid var(--border2);
+    color: var(--purple2);
+    font-size: 0.72rem; padding: 3px 11px;
+    border-radius: 50px; font-weight: 500;
+  }
+
+  /* SECTION BASE */
+  section { padding: 100px 48px; position: relative; }
+  .alt-bg { background: var(--bg2); }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.15em;
+    color: var(--accent2); margin-bottom: 12px;
+    display: block;
+  }
+
+  h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: 0.04em; line-height: 1.05;
+    margin-bottom: 16px;
+  }
+
+  .section-desc {
+    color: var(--text2); font-size: 0.97rem;
+    max-width: 560px; margin-bottom: 56px;
+    font-weight: 300;
+  }
+
+  /* SERVICES GRID */
+  .services-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+  .service-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px;
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .service-card:hover {
+    border-color: rgba(192,57,43,0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(192,57,43,0.15);
+  }
+  .service-icon {
+    width: 44px; height: 44px;
+    background: rgba(192,57,43,0.1);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 18px;
+  }
+  .service-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem; letter-spacing: 0.05em; margin-bottom: 8px;
+  }
+  .service-card p { color: var(--text2); font-size: 0.86rem; line-height: 1.7; font-weight: 300; }
+
+  /* PROJECTS */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .project-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    transition: all 0.3s; text-decoration: none; color: var(--text);
+    display: flex; flex-direction: column;
+  }
+  .project-card:hover {
+    border-color: rgba(192,57,43,0.45);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .project-thumb {
+    height: 170px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; position: relative; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .project-thumb img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center top;
+  }
+  .project-thumb .overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(7,7,13,0.9));
+  }
+
+  /* thumb color fallbacks */
+  .t1 { background: linear-gradient(135deg,#1a0505,#5a0a0a); }
+  .t2 { background: linear-gradient(135deg,#0d0520,#2d0e5a); }
+  .t3 { background: linear-gradient(135deg,#051020,#0a2d5a); }
+  .t4 { background: linear-gradient(135deg,#05150a,#0a4020); }
+  .t5 { background: linear-gradient(135deg,#150510,#4a1040); }
+  .t6 { background: linear-gradient(135deg,#150a00,#4a2800); }
+  .t7 { background: linear-gradient(135deg,#050a20,#10205a); }
+  .t8 { background: linear-gradient(135deg,#0a0520,#2a0a50); }
+  .t9 { background: linear-gradient(135deg,#1a0510,#5a0a30); }
+  .t10 { background: linear-gradient(135deg,#000005,#050020); }
+  .t11 { background: linear-gradient(135deg,#050010,#10005a); }
+  .t12 { background: linear-gradient(135deg,#000510,#001040); }
+  .t13 { background: linear-gradient(135deg,#0a0520,#200840); }
+  .t14 { background: linear-gradient(135deg,#050005,#200020); }
+  .t15 { background: linear-gradient(135deg,#050005,#1a0030); }
+  .t16 { background: linear-gradient(135deg,#020510,#050a30); }
+  .t17 { background: linear-gradient(135deg,#050005,#15003a); }
+
+  .project-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+  .project-type {
+    font-size: 0.68rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--accent2);
+    font-weight: 600; margin-bottom: 6px;
+  }
+  .project-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem; letter-spacing: 0.04em; margin-bottom: 8px;
+  }
+  .project-card p { color: var(--text2); font-size: 0.8rem; line-height: 1.65; font-weight: 300; flex: 1; }
+
+  .project-checks { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .project-checks span { font-size: 0.73rem; color: var(--text3); display: flex; align-items: flex-start; gap: 6px; }
+  .project-checks span::before { content: '✓'; color: var(--accent2); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  .project-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--accent3); font-size: 0.78rem; font-weight: 600;
+    margin-top: 14px; text-decoration: none;
+    transition: gap 0.2s; letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .project-link:hover { gap: 10px; }
+
+  /* ABOUT */
+  .about-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center;
+  }
+  .about-img-wrap {
+    aspect-ratio: 4/5; border-radius: 20px;
+    overflow: hidden; border: 1px solid var(--border);
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 5rem; opacity: 0.3;
+    position: relative;
+  }
+  .about-img-wrap img { width: 100%; height: 100%; object-fit: cover; opacity: 1; }
+
+  .about-badge-wrap { position: relative; }
+  .about-corner-badge {
+    position: absolute; bottom: -16px; right: -16px;
+    background: var(--accent); border-radius: 12px;
+    padding: 14px 18px; text-align: center;
+    box-shadow: 0 8px 30px rgba(192,57,43,0.5);
+  }
+  .about-corner-badge strong {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem; color: #fff;
+  }
+  .about-corner-badge span { font-size: 0.72rem; color: rgba(255,255,255,0.8); }
+
+  .about-text p { color: var(--text2); font-size: 0.95rem; line-height: 1.8; margin-bottom: 14px; font-weight: 300; }
+
+  .skill-bars { margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
+  .skill-bar-top { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .skill-bar-top span:first-child { font-size: 0.85rem; font-weight: 500; }
+  .skill-bar-top span:last-child { font-size: 0.8rem; color: var(--accent2); font-weight: 600; }
+  .bar-track { height: 3px; background: rgba(192,57,43,0.1); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold)); border-radius: 3px; }
+
+  /* CONTACT */
+  .contact-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 24px; padding: 80px 60px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .contact-box::before {
+    content: ''; position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 500px; height: 300px;
+    background: radial-gradient(circle, rgba(192,57,43,0.1), transparent 70%);
+    pointer-events: none;
+  }
+  .contact-box h2 { margin-bottom: 16px; }
+  .contact-box p { color: var(--text2); max-width: 460px; margin: 0 auto 40px; font-weight: 300; }
+  .contact-btns { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+  /* FOOTER */
+  footer {
+    padding: 36px 48px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--text3); font-size: 0.82rem;
+  }
+  footer .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem; letter-spacing: 0.08em; color: var(--text2);
+  }
+  footer a { color: var(--text3); text-decoration: none; transition: color 0.2s; }
+  footer a:hover { color: var(--accent2); }
+  .footer-links { display: flex; gap: 24px; }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 0 48px; }
+
+  /* ANIMATIONS */
+  .fade-up { opacity: 0; transform: translateY(24px); animation: fu 0.6s ease forwards; }
+  @keyframes fu { to { opacity: 1; transform: translateY(0); } }
+  .d1 { animation-delay: 0.1s; } .d2 { animation-delay: 0.2s; }
+  .d3 { animation-delay: 0.3s; } .d4 { animation-delay: 0.4s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 960px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .nav-links.open {
+      display: flex; flex-direction: column;
+      position: fixed; top: 62px; left: 0; right: 0;
+      background: rgba(7,7,13,0.97);
+      backdrop-filter: blur(20px);
+      padding: 24px; gap: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hamburger { display: flex; }
+    .hero { padding: 100px 24px 60px; }
+    .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .hero-card { display: none; }
+    section { padding: 60px 24px; }
+    .services-grid { grid-template-columns: 1fr 1fr; }
+    .projects-grid { grid-template-columns: 1fr 1fr; }
+    .about-grid { grid-template-columns: 1fr; gap: 40px; }
+    .about-badge-wrap { display: none; }
+    .contact-box { padding: 40px 24px; }
+    footer { flex-direction: column; gap: 16px; padding: 32px 24px; text-align: center; }
+    .divider { margin: 0 24px; }
+    h1 { font-size: 3rem; }
+  }
+  @media (max-width: 600px) {
+    .services-grid { grid-template-columns: 1fr; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .footer-links { flex-direction: column; gap: 10px; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Mila <span>Kadosh</span></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#projetos">Projetos</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#contato" class="nav-cta">Falar comigo</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-blob"></div>
+  <div class="hero-blob2"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge fade-up">Disponível para novos projetos</div>
+      <h1 class="fade-up d1">
+        DESENVOLVEDORA<br>
+        <span class="red">& ESTRATEGISTA</span><br>
+        <span class="outline">DIGITAL</span>
+      </h1>
+      <p class="hero-desc fade-up d2">
+        Sites, páginas de vendas, MicroSaaS, aplicativos e estruturas digitais completas.
+        Do design ao código — projetos que posicionam, vendem e escalam com o seu negócio.
+      </p>
+      <div class="hero-btns fade-up d3">
+        <a href="#projetos" class="btn-primary">Ver projetos →</a>
+        <a href="#contato" class="btn-secondary">Falar comigo</a>
+      </div>
+    </div>
+    <div class="hero-card fade-up d4">
+      <div class="hero-avatar">
+        <img src="https://cf.workana.com/logos/98ac3499a94f911fb7c50e99929b0433/eg/6359efc886d341549b6c010945452fcf_192_192.jpg" alt="Mila Kadosh" onerror="this.parentElement.textContent='MK'">
+      </div>
+      <h3>Mila Kadosh</h3>
+      <p class="sub">WordPress · Node.js · MicroSaaS · Web Design</p>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">+17</span><span class="stat-label">Projetos</span></div>
+        <div class="stat"><span class="stat-num">3+</span><span class="stat-label">Anos</span></div>
+        <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Dedicação</span></div>
+        <div class="stat"><span class="stat-num">24h</span><span class="stat-label">Resposta</span></div>
+      </div>
+      <div class="tags">
+        <span class="tag">WordPress</span>
+        <span class="tag">Node.js</span>
+        <span class="tag">GitHub</span>
+        <span class="tag">Vibe Coding</span>
+        <span class="tag">MicroSaaS</span>
+        <span class="tag">Web Design</span>
+        <span class="tag">PHP</span>
+        <span class="tag">E-commerce</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SERVICES -->
+<section id="servicos" class="alt-bg">
+  <div class="container">
+    <span class="eyebrow">O que eu faço</span>
+    <h2>Serviços & Especialidades</h2>
+    <p class="section-desc">Da ideia ao ar — entrego projetos completos com foco em posicionamento, conversão e resultado real para o seu negócio.</p>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">🌐</div>
+        <h3>WordPress & PHP</h3>
+        <p>Sites profissionais, lojas WooCommerce, páginas de vendas e áreas de membros. Desenvolvimento customizado com Elementor, Tutor LMS e plugins avançados.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">⚡</div>
+        <h3>Node.js & Aplicações</h3>
+        <p>Desenvolvimento de aplicações web, APIs REST, automações e integrações. Soluções escaláveis construídas com as tecnologias mais modernas do mercado.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🎨</div>
+        <h3>Web Design</h3>
+        <p>Interfaces modernas, responsivas e orientadas à conversão. Design que transmite autoridade, atrai clientes e converte visitantes em compradores.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🚀</div>
+        <h3>MicroSaaS</h3>
+        <p>Criação de produtos digitais SaaS completos: dashboards, áreas de membros, comunidades, chats com IA e muito mais. Receita recorrente do zero.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">📦</div>
+        <h3>GitHub & DevOps</h3>
+        <p>Versionamento profissional, deploy automatizado e organização de projetos no GitHub. Código limpo, documentado e pronto para escalar.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🤖</div>
+        <h3>Vibe Coding & IA</h3>
+        <p>Desenvolvimento acelerado com IA, agentes inteligentes, automações e aplicativos construídos com as ferramentas mais avançadas disponíveis.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+<section id="projetos">
+  <div class="container">
+    <span class="eyebrow">Portfólio</span>
+    <h2>Projetos em Destaque</h2>
+    <p class="section-desc">Uma seleção de trabalhos reais — cada um com um desafio diferente, tecnologias específicas e resultado concreto.</p>
+    <div class="projects-grid">
+
+      <!-- 1. Método IDPA -->
+      <a href="https://metotoidpa-milakadosh.site/" target="_blank" class="project-card">
+        <div class="project-thumb t1">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">WordPress · LMS · Área de Membros</div>
+          <h3>Método IDPA – Área de Membros</h3>
+          <p>Plataforma de cursos online integrada com trilha de aprendizado e login exclusivo.</p>
+          <div class="project-checks">
+            <span>Tutor LMS + WordPress integrado</span>
+            <span>Área de membros com login e trilha</span>
+            <span>Layout personalizado e responsivo</span>
+          </div>
+          <span class="project-link">Acessar site →</span>
+        </div>
+      </a>
+
+      <!-- 2. Eu Lud Cavalcante -->
+      <a href="https://euludcavalcante.com/" target="_blank" class="project-card">
+        <div class="project-thumb t2">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">WordPress · Blog · SEO</div>
+          <h3>Site Pessoal – Eu Lud Cavalcante</h3>
+          <p>Site de autoridade pessoal com blog otimizado e posicionamento estratégico.</p>
+          <div class="project-checks">
+            <span>+70 artigos otimizados para SEO</span>
+            <span>Integração com WhatsApp e automações</span>
+            <span>Design elegante de autoridade</span>
+          </div>
+          <span class="project-link">Acessar site →</span>
+        </div>
+      </a>
+
+      <!-- 3. SOS Publicidade -->
+      <a href="https://sospublicidade.com/" target="_blank" class="project-card">
+        <div class="project-thumb t3">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">WordPress · Institucional · B2B</div>
+          <h3>Agência SOS Publicidade</h3>
+          <p>Site institucional focado em conversão de clientes B2B com página de serviços completa.</p>
+          <div class="project-checks">
+            <span>Integração com CRM</span>
+            <span>Estrutura para captação de leads</span>
+            <span>Página SOS Vendas inclusa</span>
+          </div>
+          <span class="project-link">Acessar site →</span>
+        </div>
+      </a>
+
+      <!-- 4. Blog Mulheres Poderosas -->
+      <a href="https://darkseagreen-mink-666191.hostingersite.com/blog/" target="_blank" class="project-card">
+        <div class="project-thumb t5">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">WordPress · Landing Page · Blog</div>
+          <h3>Blog Mulheres Poderosas</h3>
+          <p>Landing page de demonstração para treinamentos femininos com estrutura de conversão.</p>
+          <div class="project-checks">
+            <span>Responsiva e otimizada para conversão</span>
+            <span>Design moderno e feminino</span>
+          </div>
+          <span class="project-link">Acessar site →</span>
+        </div>
+      </a>
+
+      <!-- 5. Página de Vendas Elementor -->
+      <a href="https://euludcavalcante.com/elementor-3788/" target="_blank" class="project-card">
+        <div class="project-thumb t6">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">WordPress · Elementor · Vendas</div>
+          <h3>Página de Vendas – Elementor</h3>
+          <p>Página de vendas com copy persuasiva e estrutura otimizada para lançamentos digitais.</p>
+          <div class="project-checks">
+            <span>Copy persuasiva e estruturada</span>
+            <span>Otimizada para lançamentos digitais</span>
+          </div>
+          <span class="project-link">Acessar página →</span>
+        </div>
+      </a>
+
+      <!-- 6. E-book Guia Prático -->
+      <a href="https://euludcavalcante.com/ebook-guia-pratico-para-vender-mais-na-sua-empresa-com-a-internet/" target="_blank" class="project-card">
+        <div class="project-thumb t4">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">WordPress · Captura · E-mail Marketing</div>
+          <h3>E-book – Guia Prático para Vender Mais</h3>
+          <p>Página de captura para entrega de e-book com integração de e-mail marketing.</p>
+          <div class="project-checks">
+            <span>Integração com e-mail marketing</span>
+            <span>Estrutura de captura de leads</span>
+          </div>
+          <span class="project-link">Acessar página →</span>
+        </div>
+      </a>
+
+      <!-- 7. Livro Digital Segredos de Lucian -->
+      <a href="https://euludcavalcante.com/livro-digital-os-segredos-de-lucian/" target="_blank" class="project-card">
+        <div class="project-thumb t9">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">WordPress · Produto Digital · Vendas</div>
+          <h3>Livro Digital – Os Segredos de Lucian</h3>
+          <p>Página de vendas para produto digital com estrutura clara e alta conversão.</p>
+          <div class="project-checks">
+            <span>Estrutura simples e clara</span>
+            <span>Alta conversão para produto digital</span>
+          </div>
+          <span class="project-link">Acessar página →</span>
+        </div>
+      </a>
+
+      <!-- 8. Venda Mais -->
+      <a href="https://aludcavalcante-vendamais.com/" target="_blank" class="project-card">
+        <div class="project-thumb t8">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">WordPress · Vendas Digitais</div>
+          <h3>Venda Mais – Projeto Comercial</h3>
+          <p>Site focado em estratégias de vendas digitais para campanhas rápidas e eficientes.</p>
+          <div class="project-checks">
+            <span>Estrutura para campanhas rápidas</span>
+            <span>Estratégias de vendas digitais</span>
+          </div>
+          <span class="project-link">Acessar site →</span>
+        </div>
+      </a>
+
+      <!-- 9. Método IDPA - Página de Vendas -->
+      <a href="https://metotoidpa-milakadosh.site/metodo-idpa-inscreva-se/" target="_blank" class="project-card">
+        <div class="project-thumb t1">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">PHP · Lançamento Digital · CTA Delay</div>
+          <h3>Página de Vendas – Método IDPA</h3>
+          <p>Página estilo lançamento com botão de compra liberado após assistir parte do vídeo.</p>
+          <div class="project-checks">
+            <span>CTA liberado com delay estratégico</span>
+            <span>Técnica de grandes lançamentos</span>
+            <span>Integração com checkout e copy</span>
+          </div>
+          <span class="project-link">Acessar página →</span>
+        </div>
+      </a>
+
+      <!-- 10. ELMP Shop -->
+      <a href="https://elmp.shop/" target="_blank" class="project-card">
+        <div class="project-thumb t5">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">E-commerce · Shopify · Moda Íntima</div>
+          <h3>ELMP Shop – Loja de Moda Íntima</h3>
+          <p>Loja online completa com catálogo, identidade visual forte e checkout otimizado.</p>
+          <div class="project-checks">
+            <span>Catálogo e gestão de produtos</span>
+            <span>Identidade visual personalizada</span>
+            <span>Checkout otimizado</span>
+          </div>
+          <span class="project-link">Acessar loja →</span>
+        </div>
+      </a>
+
+      <!-- 11. Sualuma.online MicroSaaS -->
+      <a href="https://sualuma.online" target="_blank" class="project-card">
+        <div class="project-thumb t11">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">MicroSaaS · Node.js · IA</div>
+          <h3>Sualuma Online – Ecossistema Digital</h3>
+          <p>Plataforma SaaS completa com agentes de IA, automações e venda mais integrado.</p>
+          <div class="project-checks">
+            <span>Ecossistema com múltiplos produtos</span>
+            <span>Agentes de IA integrados</span>
+            <span>Dashboard de controle completo</span>
+          </div>
+          <span class="project-link">Acessar plataforma →</span>
+        </div>
+      </a>
+
+      <!-- 12. FlowMind -->
+      <a href="https://app.sualuma.online/flowmind-landing" target="_blank" class="project-card">
+        <div class="project-thumb t12">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">MicroSaaS · Produtividade · IA</div>
+          <h3>FlowMind – GPS Mental com IA</h3>
+          <p>Produto SaaS de produtividade que reúne rotina, empresa e metas em um único painel com IA.</p>
+          <div class="project-checks">
+            <span>Integração com Notion</span>
+            <span>Templates + Agentes de IA</span>
+            <span>Estrutura pronta para monetizar</span>
+          </div>
+          <span class="project-link">Acessar produto →</span>
+        </div>
+      </a>
+
+      <!-- 13. Studio Interno -->
+      <a href="https://studio.sualuma.online/studio-lab" target="_blank" class="project-card">
+        <div class="project-thumb t13">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">MicroSaaS · Admin · Dashboard</div>
+          <h3>Studio Sualuma – Torre de Controle</h3>
+          <p>Painel interno de controle do ecossistema com relatórios, agentes e automações em tempo real.</p>
+          <div class="project-checks">
+            <span>Visão geral do ecossistema</span>
+            <span>Agentes e automações integrados</span>
+            <span>Dados reais via API</span>
+          </div>
+          <span class="project-link">Ver studio →</span>
+        </div>
+      </a>
+
+      <!-- 14. TrabalhosJá Comunidade -->
+      <a href="https://trabalhosja.sualuma.online/" target="_blank" class="project-card">
+        <div class="project-thumb t14">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">MicroSaaS · Comunidade · Marketplace</div>
+          <h3>TrabalhosJá – Comunidade de PJs</h3>
+          <p>Plataforma de comunidade para freelancers com feed, portfólio e marketplace de serviços.</p>
+          <div class="project-checks">
+            <span>Feed público e portfólios</span>
+            <span>Marketplace de automações</span>
+            <span>Propostas e dashboards integrados</span>
+          </div>
+          <span class="project-link">Acessar comunidade →</span>
+        </div>
+      </a>
+
+      <!-- 15. Mia - Chat IA -->
+      <a href="https://chat.sualuma.online/chat" target="_blank" class="project-card">
+        <div class="project-thumb t15">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">MicroSaaS · IA · Chat</div>
+          <h3>Mia – Assistente de IA Própria</h3>
+          <p>Chat de inteligência artificial personalizado, conectado ao Cérebro Blue com memória e agentes.</p>
+          <div class="project-checks">
+            <span>IA com memória e contexto</span>
+            <span>Agentes especializados</span>
+            <span>Automações ativas em tempo real</span>
+          </div>
+          <span class="project-link">Acessar chat →</span>
+        </div>
+      </a>
+
+      <!-- 16. Dashboard Cliente -->
+      <a href="https://dashboardcliente.sualuma.online/member-user" target="_blank" class="project-card">
+        <div class="project-thumb t16">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">MicroSaaS · Dashboard · Cliente</div>
+          <h3>Dashboard do Cliente – Sualuma</h3>
+          <p>Painel interno do cliente para acompanhar projetos, entregas, mensagens e reuniões.</p>
+          <div class="project-checks">
+            <span>Projetos e entregas em tempo real</span>
+            <span>Vitrine de agentes de IA</span>
+            <span>Marketplace integrado</span>
+          </div>
+          <span class="project-link">Ver dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 17. Blog Sualuma -->
+      <a href="https://blog.sualuma.online/" target="_blank" class="project-card">
+        <div class="project-thumb t17">
+          <div class="overlay"></div>
+        </div>
+        <div class="project-body">
+          <div class="project-type">MicroSaaS · Blog · Em Desenvolvimento</div>
+          <h3>Blog Sualuma – Protótipo</h3>
+          <p>Protótipo de blog em desenvolvimento com categorias de IA, automação, negócios e marketing.</p>
+          <div class="project-checks">
+            <span>Categorias: IA, Automação, Marketing</span>
+            <span>Busca e artigos em destaque</span>
+            <span>Design limpo e editorial</span>
+          </div>
+          <span class="project-link">Ver protótipo →</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="sobre" class="alt-bg">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-badge-wrap">
+        <div class="about-img-wrap">
+          <img src="https://cf.workana.com/logos/98ac3499a94f911fb7c50e99929b0433/eg/6359efc886d341549b6c010945452fcf_192_192.jpg" alt="Mila Kadosh" onerror="this.style.display='none'">
+        </div>
+        <div class="about-corner-badge">
+          <strong>+17</strong>
+          <span>projetos</span>
+        </div>
+      </div>
+      <div class="about-text">
+        <span class="eyebrow">Sobre mim</span>
+        <h2>Olá, sou a Mila Kadosh</h2>
+        <p>Especialista em desenvolvimento web e criação de estruturas digitais completas. Do WordPress ao MicroSaaS — entrego projetos que posicionam, vendem e escalam.</p>
+        <p>Trabalho com negócios que querem crescer online com WordPress, Node.js, web design, e-commerce e desenvolvimento de produtos SaaS com IA integrada.</p>
+        <p>Cada projeto é tratado com visão estratégica e foco em resultado real — não só no visual, mas em estrutura digital que gera receita de verdade.</p>
+        <div class="skill-bars">
+          <div>
+            <div class="skill-bar-top"><span>WordPress & PHP</span><span>95%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:95%"></div></div>
+          </div>
+          <div>
+            <div class="skill-bar-top"><span>Web Design & UI</span><span>90%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:90%"></div></div>
+          </div>
+          <div>
+            <div class="skill-bar-top"><span>Node.js & MicroSaaS</span><span>82%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:82%"></div></div>
+          </div>
+          <div>
+            <div class="skill-bar-top"><span>IA & Automação</span><span>88%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:88%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contato">
+  <div class="container">
+    <div class="contact-box">
+      <span class="eyebrow">Contato</span>
+      <h2>Vamos Construir Algo Juntos?</h2>
+      <p>Tem um projeto em mente? Site, página de vendas, MicroSaaS ou solução digital completa? Me chama — respondo em até 24h.</p>
+      <div class="contact-btns">
+        <a href="https://www.workana.com/freelancer/95be15743f41329a5b55ea4a22e66dc4" target="_blank" class="btn-primary">Ver perfil no Workana →</a>
+        <a href="https://sospublicidade.sualuma.online" target="_blank" class="btn-secondary">SOS Publicidade</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Mila <span style="color:var(--accent2)">Kadosh</span></div>
+  <div>© 2026 Mila Kadosh. Todos os direitos reservados.</div>
+  <div class="footer-links">
+    <a href="https://www.workana.com/freelancer/95be15743f41329a5b55ea4a22e66dc4" target="_blank">Workana</a>
+    <a href="https://sualuma.online" target="_blank">Sualuma</a>
+    <a href="https://elmp.shop" target="_blank">ELMP</a>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+  });
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) { e.preventDefault(); window.scrollTo({ top: t.offsetTop - 72, behavior: 'smooth' }); }
+    });
+  });
+</script>
+</body>
+</html>

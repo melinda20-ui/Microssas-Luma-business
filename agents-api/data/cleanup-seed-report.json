@@ -1,0 +1,35 @@
+{
+  "date": "2026-05-15T19:26:09.588Z",
+  "removed": [
+    {
+      "table": "notifications",
+      "removed": 3,
+      "criteria": "is_seed=1"
+    },
+    {
+      "table": "memory_archive",
+      "removed": 2,
+      "criteria": "conteudo de teste"
+    },
+    {
+      "table": "agent_learning",
+      "removed": 3,
+      "criteria": "is_seed=1"
+    },
+    {
+      "table": "audit_logs",
+      "removed": 2,
+      "criteria": "test@test.com actor"
+    },
+    {
+      "table": "sentinel_logs",
+      "removed": 6,
+      "criteria": "logs de sistema sem dados reais"
+    },
+    {
+      "table": "users",
+      "removed": 1,
+      "criteria": "conta demo (demo@sualuma.online)"
+    }
+  ]
+}
