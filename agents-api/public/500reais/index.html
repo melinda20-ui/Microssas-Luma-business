@@ -40,32 +40,32 @@ nav{border-bottom:1px solid var(--border);padding:18px 40px;display:flex;align-i
 .nav-cta:hover{background:#b8922e;transform:translateY(-1px)}
 
 /* ── HERO ── */
-.hero{position:relative;overflow:hidden;padding:100px 40px 110px;text-align:center;background:var(--bg)}
+.hero{position:relative;overflow:hidden;padding:90px 40px 80px;background:var(--bg);display:flex;flex-direction:column;align-items:center}
 .hero-glow{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:800px;height:700px;background:radial-gradient(ellipse,var(--purple-glow) 0%,rgba(201,168,76,0.04) 45%,transparent 70%);pointer-events:none}
 .hero-line{position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(201,168,76,0.2),transparent)}
 
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid rgba(201,168,76,.3);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:7px 20px;border-radius:100px;margin-bottom:36px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid rgba(201,168,76,.3);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:7px 20px;border-radius:100px;margin-bottom:32px}
 .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 1.8s infinite;flex-shrink:0}
 
-.hero h1{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(36px,6.5vw,70px);line-height:1.06;letter-spacing:-.025em;color:var(--text);margin-bottom:24px}
+.hero h1{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(36px,6.5vw,70px);line-height:1.06;letter-spacing:-.025em;color:var(--text);margin-bottom:20px;text-align:center}
 .hero h1 em{font-style:normal;color:var(--gold)}
-.hero-sub{font-size:17px;color:var(--text2);max-width:520px;margin:0 auto 52px;line-height:1.7}
+.hero-sub{font-size:17px;color:var(--text2);max-width:520px;margin:0 auto 44px;line-height:1.7;text-align:center}
 
 /* ── PRICE CARD ── */
-.price-card{display:inline-block;background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:40px 56px;margin-bottom:44px;position:relative;overflow:hidden}
+.price-card{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:36px 64px;margin-bottom:36px;position:relative;overflow:hidden;min-width:380px}
 .price-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--gold),transparent)}
-.price-from{font-size:13px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:4px}
-.price-old{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:700;color:var(--text3);text-decoration:line-through;margin-bottom:8px}
-.price-by{font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-.price-value{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(72px,14vw,118px);line-height:1;color:var(--gold);letter-spacing:-.03em}
+.price-from{font-size:13px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:4px;text-align:center}
+.price-old{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:700;color:var(--text3);text-decoration:line-through;margin-bottom:8px;text-align:center}
+.price-by{font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;text-align:center}
+.price-value{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(72px,14vw,118px);line-height:1;color:var(--gold);letter-spacing:-.03em;text-align:center}
 .price-deadline{margin-top:14px;font-size:13px;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
 .deadline-dot{width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block;animation:pulse 1.5s infinite;flex-shrink:0}
 
-.hero-cta{display:inline-block;background:var(--gold);color:#1a0e00;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;letter-spacing:.07em;text-transform:uppercase;padding:16px 48px;border-radius:5px;text-decoration:none;transition:background .2s,transform .15s;margin-bottom:30px}
-.hero-cta:hover{background:#b8922e;transform:translateY(-2px)}
+.hero-cta{background:var(--gold);color:#1a0e00;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;letter-spacing:.07em;text-transform:uppercase;padding:16px 52px;border-radius:6px;text-decoration:none;transition:background .25s,transform .2s,box-shadow .25s;margin-bottom:24px}
+.hero-cta:hover{background:#b8922e;transform:translateY(-3px);box-shadow:0 8px 24px rgba(201,168,76,.25)}
 
-.trust-row{display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;margin-top:8px}
+.trust-row{display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap}
 .trust-item{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);font-weight:500}
 
 /* ── SECTIONS ── */
@@ -151,8 +151,8 @@ footer a:hover{color:var(--gold)}
 /* ── RESPONSIVE ── */
 @media(max-width:600px){
   nav{padding:16px 20px}
-  .hero{padding:72px 20px 80px}
-  .price-card{padding:32px 28px;margin-left:-4px;margin-right:-4px}
+  .hero{padding:56px 20px 60px}
+  .price-card{padding:28px 24px;min-width:0;margin-left:-4px;margin-right:-4px}
   .section{padding:64px 20px}
   .divider{margin:0 20px}
   .cta-inner{padding:64px 20px}
