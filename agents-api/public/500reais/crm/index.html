@@ -11,629 +11,870 @@
 :root{
   --bg:#08060f;--bg2:#0e0b18;--bg3:#131020;--bg4:#19152c;--bg5:#1e1934;
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
-  --gold:#c9a84c;--gold2:#e8c97a;--gold-dim:rgba(201,168,76,0.14);
+  --gold:#c9a84c;--gold2:#e8c97a;--gold3:#b8922e;--gold-dim:rgba(201,168,76,0.14);
   --text:#f0ecfa;--text2:#a098bc;--text3:#6b6080;
-  --green:#34d399;--red:#ef4444;--orange:#f97316;--blue:#60a5fa;
-  --purple-glow:rgba(120,60,220,0.2);
+  --green:#34d399;--red:#ef4444;--orange:#f97316;--blue:#60a5fa;--purple:#a78bfa;
   --radius:10px;--radius-lg:16px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+  --ease:cubic-bezier(0.16,1,0.3,1);
 }
 html,body{height:100%;overflow:hidden}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-
-/* scrollbar */
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:99px}
 ::-webkit-scrollbar-thumb:hover{background:var(--bg5)}
+::selection{background:rgba(201,168,76,.25);color:var(--gold2)}
 
-/* ── HEADER ── */
-.crm-header{padding:16px 28px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.crm-header-left{display:flex;align-items:center;gap:20px}
-.crm-logo{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--text)}
-.crm-logo span{color:var(--gold)}
-.crm-logo small{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.1em;display:block;margin-top:-2px}
+/* ── LOGIN SCREEN ── */
+.login-screen{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:var(--bg);flex-direction:column}
+.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--gold-dim) 0%,transparent 60%);pointer-events:none;opacity:.5}
+.login-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:52px 44px 44px;width:100%;max-width:400px;text-align:center;position:relative;animation:loginIn .5s ease;transition:transform .3s}
+.login-card.shake{animation:shake .5s ease}
+@keyframes loginIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-6px)}20%,40%,60%,80%{transform:translateX(6px)}}
+.login-logo{font-family:'Montserrat',sans-serif;font-weight:900;font-size:28px;color:var(--text);margin-bottom:2px}
+.login-logo span{color:var(--gold)}
+.login-subtitle{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:28px}
+.login-desc{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.5}
+.login-field{margin-bottom:16px}
+.login-field input{width:100%;background:var(--bg3);border:2px solid var(--border2);border-radius:10px;padding:14px 18px;font-size:15px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s}
+.login-field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+.login-field input::placeholder{color:var(--text3)}
+.login-error{font-size:12px;color:var(--red);margin-bottom:14px;display:none}
+.login-error.show{display:block;animation:fadeIn .3s}
+.login-btn{width:100%;background:var(--gold);color:#1a0e00;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:16px;border:none;border-radius:10px;cursor:pointer;transition:background .2s,transform .15s;display:flex;align-items:center;justify-content:center;gap:10px}
+.login-btn:hover{background:var(--gold3);transform:translateY(-1px)}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.login-hint{font-size:11px;color:var(--text3);margin-top:18px;letter-spacing:.03em}
+.login-footer{position:absolute;bottom:24px;font-size:11px;color:var(--text3)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.spinner{display:inline-block;width:18px;height:18px;border:3px solid rgba(26,14,0,.25);border-top-color:#1a0e00;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-.crm-search{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;width:200px;transition:border-color .2s}
-.crm-search::placeholder{color:var(--text3)}
-.crm-search:focus{border-color:var(--gold)}
-
-.crm-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.crm-summary{display:flex;gap:12px;flex-wrap:wrap}
-.crm-summary-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 14px;text-align:center;min-width:64px}
-.crm-summary-item .num{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;color:var(--text);line-height:1}
-.crm-summary-item .lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-
-.btn-primary{background:var(--gold);color:#1a0e00;border:none;border-radius:8px;padding:10px 20px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .15s;white-space:nowrap}
-.btn-primary:hover{background:#b8922e;transform:translateY(-1px)}
-.btn-sm{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
-.btn-sm:hover{background:var(--bg4);border-color:rgba(201,168,76,.3);color:var(--text)}
-.btn-sm.danger{color:var(--red);border-color:rgba(239,68,68,.2)}
-.btn-sm.danger:hover{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.4)}
-.btn-sm.gold{color:var(--gold);border-color:rgba(201,168,76,.25)}
-.btn-sm.gold:hover{background:var(--gold-dim)}
+/* ── HEADER SAAS ── */
+.crm-header{height:60px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:16px;flex-shrink:0}
+.header-left{display:flex;align-items:center;gap:16px;flex:1;min-width:0}
+.header-logo{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:var(--text);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.header-logo small{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;background:var(--bg3);padding:2px 7px;border-radius:4px;border:1px solid var(--border)}
+.header-logo span{color:var(--gold)}
+.header-search{position:relative;flex:1;max-width:320px}
+.header-search .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;pointer-events:none}
+.header-search input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px 8px 34px;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .2s,background .2s}
+.header-search input::placeholder{color:var(--text3)}
+.header-search input:focus{border-color:var(--gold);background:var(--bg4)}
+.header-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.header-metrics{display:flex;gap:0}
+.metric-item{display:flex;align-items:center;gap:6px;padding:4px 14px;border-right:1px solid var(--border);cursor:default}
+.metric-item:last-child{border-right:none}
+.metric-value{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;color:var(--text);line-height:1}
+.metric-value.gold{color:var(--gold)}
+.metric-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;line-height:1}
+.header-avatar{position:relative;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dim),var(--bg5));border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;color:var(--gold);cursor:pointer;transition:border-color .2s;flex-shrink:0}
+.header-avatar:hover{border-color:var(--gold)}
+.user-menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;min-width:160px;padding:6px;display:none;z-index:50;box-shadow:var(--shadow)}
+.user-menu.open{display:block;animation:menuIn .2s ease}
+@keyframes menuIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.user-menu-item{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:13px;color:var(--text2);border-radius:6px;cursor:pointer;transition:all .15s}
+.user-menu-item:hover{background:var(--bg3);color:var(--text)}
+.user-menu-item.danger{color:var(--red)}
+.user-menu-item.danger:hover{background:rgba(239,68,68,.1)}
 
 /* ── KANBAN ── */
-.kanban-wrap{height:calc(100vh - 90px);overflow-x:auto;overflow-y:hidden;padding:20px 24px}
+.kanban-wrap{height:calc(100vh - 60px);overflow-x:auto;overflow-y:hidden;padding:20px 24px}
 .kanban-board{display:flex;gap:16px;height:100%;min-width:max-content;padding-bottom:10px}
-.kanban-col{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);min-width:300px;width:300px;display:flex;flex-direction:column;max-height:100%}
-.kanban-col-header{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.kanban-col-header .col-info{display:flex;align-items:center;gap:10px}
-.kanban-col-header .col-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--text)}
-.kanban-col-header .col-count{background:var(--bg3);border:1px solid var(--border2);border-radius:99px;padding:1px 8px;font-size:11px;font-weight:600;color:var(--text3);min-width:22px;text-align:center}
-.kanban-col-body{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-height:100px}
-.kanban-col-body.drag-over{background:rgba(201,168,76,.05);border-radius:8px}
+.kanban-col{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);min-width:300px;width:300px;display:flex;flex-direction:column;max-height:100%;transition:border-color .2s}
+.kanban-col.col-collapsed .kanban-col-body{display:none}
+.kanban-col.col-collapsed{min-width:52px;width:52px}
+.kanban-col.col-collapsed .col-title{writing-mode:vertical-lr;transform:rotate(180deg);font-size:10px}
+.kanban-col.col-collapsed .col-count,.kanban-col.col-collapsed .col-toggle{display:none}
+.kanban-col-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;cursor:pointer;user-select:none}
+.kanban-col-header:hover{background:rgba(255,255,255,.02)}
+.col-info{display:flex;align-items:center;gap:10px;min-width:0}
+.col-indicator{width:3px;height:20px;border-radius:99px;flex-shrink:0}
+.col-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text);white-space:nowrap}
+.col-count{background:var(--bg3);border:1px solid var(--border2);border-radius:99px;padding:1px 8px;font-size:10px;font-weight:700;color:var(--text3);min-width:22px;text-align:center}
+.col-toggle{background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;padding:4px;border-radius:4px;transition:color .2s;line-height:1}
+.col-toggle:hover{color:var(--text)}
+.col-body{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-height:80px;transition:background .2s}
+.col-body.drag-over{background:rgba(201,168,76,.06);border-radius:8px}
+.col-body.drag-over::after{content:'';display:block;height:3px;background:var(--gold);border-radius:99px;margin-top:4px;animation:pulseGlow 1s infinite}
+@keyframes pulseGlow{0%,100%{opacity:.6}50%{opacity:1}}
 
 /* ── CARD ── */
-.kanban-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:grab;transition:border-color .2s,background .2s,transform .15s,box-shadow .2s;position:relative}
-.kanban-card:hover{border-color:rgba(201,168,76,.3);background:var(--bg4);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
-.kanban-card.dragging{opacity:.5;transform:rotate(2deg)}
-.kanban-card .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
-.kanban-card .card-name{font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;color:var(--text);line-height:1.3;word-break:break-word}
-.kanban-card .card-project{font-size:11px;color:var(--text2);margin-bottom:8px;word-break:break-word}
-.kanban-card .card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.kanban-card .card-prazo{font-size:10px;color:var(--text3);display:flex;align-items:center;gap:4px}
-.kanban-card .card-prazo.atrasado{color:var(--red)}
-.card-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.kanban-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;cursor:grab;transition:border-color .2s,background .2s,transform .2s,box-shadow .2s;position:relative;display:flex;flex-direction:column;gap:6px}
+.kanban-card:hover{border-color:rgba(201,168,76,.3);background:var(--bg4);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.kanban-card:active{cursor:grabbing}
+.kanban-card.dragging{opacity:.4;transform:rotate(3deg) scale(.95)}
+.card-row{display:flex;align-items:center;gap:10px}
+.card-row.top{align-items:flex-start}
+.card-row.between{justify-content:space-between}
+.card-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dim),var(--bg5));border:1px solid rgba(201,168,76,.2);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:11px;color:var(--gold);flex-shrink:0;overflow:hidden}
+.card-info{flex:1;min-width:0}
+.card-name{font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;color:var(--text);line-height:1.3;word-break:break-word;display:flex;align-items:center;gap:6px}
+.card-project{font-size:11px;color:var(--text2);word-break:break-word;line-height:1.3}
+.card-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:2px}
+.card-prazo{font-size:10px;color:var(--text3);display:flex;align-items:center;gap:4px}
+.card-prazo.atrasado{color:var(--red);font-weight:600}
+.card-prazo.hoje{color:var(--orange);font-weight:600}
+.card-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0}
 .badge-urgente{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.25)}
 .badge-alta{background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.25)}
 .badge-media{background:rgba(96,165,250,.15);color:var(--blue);border:1px solid rgba(96,165,250,.25)}
 .badge-baixa{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2)}
-
-.progress-mini{height:3px;background:var(--bg2);border-radius:99px;overflow:hidden;margin-top:6px}
-.progress-mini-fill{height:100%;border-radius:99px;transition:width .5s ease;background:linear-gradient(to right,var(--gold),var(--gold2))}
+.card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px}
+.card-attachments{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text3)}
+.card-attachments span{display:flex;align-items:center;gap:3px}
+.card-date{font-size:9px;color:var(--text3);letter-spacing:.03em}
+.progress-mini{height:3px;background:var(--bg2);border-radius:99px;overflow:hidden}
+.progress-mini-fill{height:100%;border-radius:99px;transition:width .6s var(--ease);background:linear-gradient(to right,var(--gold),var(--gold2))}
 .progress-mini-fill.done{background:var(--green)}
 .progress-mini-fill.warn{background:var(--orange)}
+.card-quick-actions{display:none;position:absolute;top:8px;right:8px;gap:3px}
+.kanban-card:hover .card-quick-actions{display:flex}
+.card-quick-btn{background:var(--bg2);border:1px solid var(--border);border-radius:4px;width:24px;height:24px;font-size:10px;cursor:pointer;color:var(--text3);transition:all .15s;display:flex;align-items:center;justify-content:center;line-height:1}
+.card-quick-btn:hover{background:var(--bg4);color:var(--text);border-color:var(--border2)}
+.empty-col{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;text-align:center;color:var(--text3);font-size:12px;gap:8px;flex:1}
 
-.card-actions{position:absolute;top:10px;right:10px;display:none;gap:4px}
-.kanban-card:hover .card-actions{display:flex}
-.card-actions button{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:10px;cursor:pointer;color:var(--text3);transition:all .2s;line-height:1}
-.card-actions button:hover{background:var(--bg4);color:var(--text)}
+/* ── DRAWER (Side Panel) ── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:none;backdrop-filter:blur(4px);opacity:0;transition:opacity .3s}
+.drawer-overlay.open{display:block;opacity:1}
+.drawer-panel{position:fixed;top:0;right:0;width:540px;max-width:100vw;height:100vh;background:var(--bg2);border-left:1px solid var(--border2);z-index:1001;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s var(--ease);box-shadow:-8px 0 40px rgba(0,0,0,.3)}
+.drawer-panel.open{transform:translateX(0)}
+.drawer-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg2);position:sticky;top:0;z-index:2}
+.drawer-header h2{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:var(--text)}
+.drawer-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px;line-height:1;transition:color .2s;border-radius:6px;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.drawer-close:hover{color:var(--text);background:var(--bg3)}
 
-/* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
-.modal-overlay.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:680px;max-height:90vh;overflow-y:auto;padding:0;animation:modalIn .25s ease}
-@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:2}
-.modal-header h2{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--text)}
-.modal-close{background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;padding:4px;line-height:1;transition:color .2s}
-.modal-close:hover{color:var(--text)}
-.modal-body{padding:24px;display:flex;flex-direction:column;gap:16px}
-.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--bg2)}
+/* ── TABS ── */
+.drawer-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg2);padding:0 16px;gap:0}
+.drawer-tab{padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:'Inter',sans-serif;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
+.drawer-tab:hover{color:var(--text2)}
+.drawer-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.drawer-body{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+.drawer-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-shrink:0;background:var(--bg2)}
+.tab-panel{display:none;flex-direction:column;gap:16px}
+.tab-panel.active{display:flex;animation:tabIn .2s ease}
+@keyframes tabIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-grid .full{grid-column:1/-1}
-.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group{display:flex;flex-direction:column;gap:4px}
 .form-group label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)}
-.form-group input,.form-group select,.form-group textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold)}
+.form-group input,.form-group select,.form-group textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,.08)}
 .form-group textarea{resize:vertical;min-height:60px}
-.form-group select{appearance:none;cursor:pointer}
+.form-group select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6080' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
 .form-group input[type=range]{border:none;background:none;padding:4px 0;accent-color:var(--gold)}
 
+/* ── DASHBOARD METRICS ── */
+.dashboard-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;padding:0 24px;padding-top:16px}
+.metric-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.metric-card .val{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:800;color:var(--text);line-height:1}
+.metric-card .val.gold{color:var(--gold)}
+.metric-card .val.green{color:var(--green)}
+.metric-card .val.red{color:var(--red)}
+.metric-card .lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.metric-card .sub{font-size:10px;color:var(--text3);margin-top:2px}
+
 /* ── CHECKLIST ── */
-.checklist-item{display:flex;align-items:center;gap:10px;padding:6px 0}
+.checklist-item{display:flex;align-items:center;gap:10px;padding:5px 0}
 .checklist-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
-.checklist-item span{font-size:13px;color:var(--text2);flex:1}
-.checklist-item.done span{text-decoration:line-through;color:var(--text3)}
-.checklist-item .remove-check{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:2px}
-.checklist-item .remove-check:hover{color:var(--red)}
-.add-check-btn{background:none;border:1px dashed var(--border2);border-radius:6px;padding:8px;color:var(--text3);font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px}
+.checklist-item .check-text{font-size:13px;color:var(--text2);flex:1;background:none;border:none;padding:4px 0;font-family:'Inter',sans-serif;outline:none;color:var(--text);width:100%}
+.checklist-item.done .check-text{text-decoration:line-through;color:var(--text3)}
+.checklist-item .remove-check{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:2px;line-height:1;flex-shrink:0;border-radius:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.checklist-item .remove-check:hover{color:var(--red);background:rgba(239,68,68,.1)}
+.add-check-btn{background:none;border:1px dashed var(--border2);border-radius:6px;padding:8px;color:var(--text3);font-size:12px;cursor:pointer;transition:all .2s;margin-top:2px;font-family:'Inter',sans-serif}
 .add-check-btn:hover{border-color:rgba(201,168,76,.3);color:var(--gold)}
+.checklist-progress{font-size:11px;color:var(--text3);margin-bottom:4px}
 
 /* ── UPLOAD ── */
 .upload-area{background:var(--bg3);border:2px dashed var(--border2);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .2s}
 .upload-area:hover{border-color:rgba(201,168,76,.3);background:var(--bg4)}
 .upload-area.dragover{border-color:var(--gold);background:rgba(201,168,76,.08)}
-.upload-area p{font-size:12px;color:var(--text3);margin-top:6px}
 .upload-area .icon{font-size:28px}
+.upload-area p{font-size:12px;color:var(--text3);margin-top:6px}
 .upload-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.upload-item{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2);max-width:100%}
+.upload-item{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2);max-width:100%;transition:border-color .15s}
+.upload-item:hover{border-color:var(--border2)}
 .upload-item .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
-.upload-item .remove-up{border:none;background:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0}
+.upload-item .remove-up{border:none;background:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0;transition:color .15s}
 .upload-item .remove-up:hover{color:var(--red)}
 .upload-item img{width:32px;height:32px;object-fit:cover;border-radius:4px;flex-shrink:0}
 
 /* ── CONFIRM ── */
-.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
 .confirm-overlay.open{display:flex}
-.confirm-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:32px 28px;max-width:380px;text-align:center;animation:modalIn .2s ease}
+.confirm-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:32px 28px;max-width:380px;text-align:center;animation:confirmIn .25s ease;box-shadow:var(--shadow)}
+@keyframes confirmIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 .confirm-box h3{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;margin-bottom:8px}
 .confirm-box p{color:var(--text2);font-size:13px;margin-bottom:20px;line-height:1.5}
 .confirm-actions{display:flex;gap:10px;justify-content:center}
 
-/* ── BOTÃO VOLTAR ── */
-.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text3);text-decoration:none;font-size:13px;transition:color .2s;margin-right:8px}
-.back-link:hover{color:var(--gold)}
+/* ── TOAST ── */
+.toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px 20px;font-size:13px;color:var(--text);box-shadow:var(--shadow);animation:toastIn .35s var(--ease);display:flex;align-items:center;gap:10px;min-width:280px;max-width:400px;pointer-events:auto;border-left:3px solid var(--text3)}
+.toast.success{border-left-color:var(--green)}
+.toast.error{border-left-color:var(--red)}
+.toast.info{border-left-color:var(--blue)}
+.toast.warning{border-left-color:var(--orange)}
+.toast .icon{font-size:16px;flex-shrink:0}
+.toast-remove{cursor:pointer;margin-left:auto;color:var(--text3);font-size:14px;background:none;border:none;padding:0;line-height:1;flex-shrink:0}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(40px)}}
 
-/* ── EMPTY STATE ── */
-.empty-col{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;text-align:center;color:var(--text3);font-size:12px;gap:8px;flex:1}
-.empty-col .icon{font-size:32px;opacity:.4}
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px 18px;border-radius:8px;cursor:pointer;transition:all .15s;border:none;white-space:nowrap;line-height:1}
+.btn-primary{background:var(--gold);color:#1a0e00;font-family:'Montserrat',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.btn-primary:hover{background:var(--gold3);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg3);border-color:var(--border2);color:var(--text)}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn-sm{padding:6px 12px;font-size:11px}
 
 /* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .drawer-panel{width:480px}
+  .header-metrics .metric-item{padding:4px 10px}
+  .metric-value{font-size:13px}
+}
 @media(max-width:768px){
-  .crm-header{padding:12px 16px;flex-direction:column;align-items:stretch;gap:12px}
-  .crm-header-left{flex-wrap:wrap}
-  .crm-search{width:100%}
-  .crm-actions{flex-direction:column;align-items:stretch}
-  .crm-summary{justify-content:center}
+  .crm-header{height:auto;padding:12px 16px;flex-wrap:wrap;gap:10px}
+  .header-left{flex-wrap:wrap;gap:10px}
+  .header-search{max-width:none;width:100%}
+  .header-right{width:100%;flex-wrap:wrap;gap:8px;justify-content:space-between}
+  .header-metrics{order:1;width:100%;justify-content:space-around;padding-top:6px;border-top:1px solid var(--border);margin-top:4px}
+  .header-metrics .metric-item{border-right:none;padding:4px 8px}
   .kanban-wrap{padding:12px 12px}
   .kanban-col{min-width:260px;width:260px}
+  .kanban-col.col-collapsed{min-width:44px;width:44px}
+  .dashboard-metrics{grid-template-columns:repeat(3,1fr);padding:12px 12px 0}
+  .drawer-panel{width:100vw}
   .form-grid{grid-template-columns:1fr}
-  .modal{padding:0;border-radius:var(--radius)}
-  .modal-header{padding:16px 18px}
-  .modal-body{padding:18px}
-  .modal-footer{padding:14px 18px;flex-direction:column}
-  .modal-footer .btn-primary{width:100%}
+  .drawer-header{padding:14px 18px}
+  .drawer-body{padding:16px 18px}
+  .drawer-footer{padding:12px 18px;flex-direction:column}
+  .drawer-footer .btn-primary{width:100%}
   .upload-list{flex-direction:column}
-  .card-actions{display:flex;position:static;margin-top:8px}
+  .card-quick-actions{display:flex;position:static;margin-top:4px}
+  .login-card{padding:36px 28px 32px;margin:0 16px}
+  .toast{min-width:auto;max-width:calc(100vw - 40px)}
 }
-
 @media(max-width:480px){
   .kanban-col{min-width:220px;width:220px}
-  .kanban-card{padding:12px}
-  .crm-summary-item{padding:4px 10px;min-width:50px}
-  .crm-summary-item .num{font-size:14px}
+  .dashboard-metrics{grid-template-columns:repeat(2,1fr)}
+  .metric-card .val{font-size:17px}
+  .header-logo{font-size:13px}
+  .header-avatar{width:30px;height:30px;font-size:11px}
 }
 </style>
 </head>
 <body>
 
-<div class="crm-header">
-  <div class="crm-header-left">
-    <a href="/500reais/" class="back-link">← Voltar</a>
-    <div class="crm-logo">
-      Sua<span>Luma</span>
-      <small>CRM Pedidos R$500</small>
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-bg"></div>
+  <div class="login-card" id="loginCard">
+    <div class="login-logo">Sua<span>Luma</span></div>
+    <div class="login-subtitle">CRM • Pedidos R$500</div>
+    <p class="login-desc">Acesse o painel de gerenciamento de pedidos</p>
+    <div class="login-field">
+      <input type="password" id="loginPassword" placeholder="Digite a senha de acesso" autocomplete="off">
     </div>
-    <input type="text" class="crm-search" id="searchInput" placeholder="Buscar cliente ou projeto..." oninput="renderBoard()">
+    <div class="login-error" id="loginError">Senha incorreta. Tente novamente.</div>
+    <button class="login-btn" id="loginBtn" onclick="CrmApp.handleLogin()">
+      <span id="loginBtnText">Acessar CRM</span>
+      <span class="spinner" id="loginSpinner" style="display:none"></span>
+    </button>
+    <p class="login-hint">Acesso restrito a administradores</p>
   </div>
-  <div class="crm-actions">
-    <div class="crm-summary" id="summary">
-      <div class="crm-summary-item"><div class="num" id="tot-pedidos">0</div><div class="lbl">Total</div></div>
-      <div class="crm-summary-item"><div class="num" id="tot-andamento">0</div><div class="lbl">Andamento</div></div>
-      <div class="crm-summary-item"><div class="num" id="tot-entregues">0</div><div class="lbl">Entregues</div></div>
-      <div class="crm-summary-item"><div class="num" id="tot-atrasados">0</div><div class="lbl">Atrasados</div></div>
+  <div class="login-footer">SuaLuma Online &copy; 2026</div>
+</div>
+
+<!-- ═══ TOAST CONTAINER ═══ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="mainApp" style="display:none;height:100%;flex-direction:column">
+
+  <!-- HEADER -->
+  <header class="crm-header">
+    <div class="header-left">
+      <a href="/500reais/" style="color:var(--text3);text-decoration:none;font-size:16px;transition:color .2s;display:flex" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color=''">←</a>
+      <div class="header-logo">Sua<span>Luma</span><small>CRM</small></div>
+      <div class="header-search">
+        <span class="icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar cliente ou projeto..." oninput="CrmApp.renderBoard()">
+      </div>
     </div>
-    <button class="btn-primary" onclick="openNewOrder()">+ Novo Pedido</button>
+    <div class="header-right">
+      <div class="header-metrics" id="headerMetrics">
+        <div class="metric-item"><span class="metric-value" id="mTotal">0</span><span class="metric-label">Total</span></div>
+        <div class="metric-item"><span class="metric-value" id="mHoje">0</span><span class="metric-label">Hoje</span></div>
+        <div class="metric-item"><span class="metric-value" id="mEntregues">0</span><span class="metric-label">Entregues</span></div>
+        <div class="metric-item"><span class="metric-value gold" id="mReceita">R$0</span><span class="metric-label">Receita</span></div>
+      </div>
+      <button class="btn btn-primary" onclick="CrmApp.openNewOrder()">+ Novo Pedido</button>
+      <div class="header-avatar" id="avatarBtn" onclick="CrmApp.toggleMenu()" title="Admin">A
+        <div class="user-menu" id="userMenu">
+          <div class="user-menu-item" onclick="CrmApp.toggleMenu()">
+            <span>👤</span> Admin
+          </div>
+          <div class="user-menu-item danger" onclick="SUALUMA.AuthService.logout()">
+            <span>🚪</span> Sair
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- DASHBOARD METRICS -->
+  <div class="dashboard-metrics" id="dashboardMetrics">
+    <div class="metric-card"><span class="val" id="dTotal">0</span><span class="lbl">Total Pedidos</span></div>
+    <div class="metric-card"><span class="val gold" id="dReceita">R$0</span><span class="lbl">Faturamento Potencial</span></div>
+    <div class="metric-card"><span class="val" id="dAndamento">0</span><span class="lbl">Em Andamento</span></div>
+    <div class="metric-card"><span class="val green" id="dEntreguesMes">0</span><span class="lbl">Entregues (Mês)</span></div>
+    <div class="metric-card"><span class="val red" id="dAtrasados">0</span><span class="lbl">Atrasados</span></div>
+    <div class="metric-card"><span class="val" id="dBacklog">0</span><span class="lbl">Backlog</span></div>
+  </div>
+
+  <!-- KANBAN -->
+  <div class="kanban-wrap">
+    <div class="kanban-board" id="kanbanBoard"></div>
+  </div>
+
+</div>
+
+<!-- ═══ DRAWER (Side Panel) ═══ -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="CrmApp.closeDrawer()"></div>
+<div class="drawer-panel" id="drawerPanel">
+  <div class="drawer-header">
+    <h2 id="drawerTitle">Novo Pedido</h2>
+    <button class="drawer-close" onclick="CrmApp.closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-tabs" id="drawerTabs">
+    <button class="drawer-tab active" data-tab="details" onclick="CrmApp.switchTab('details')">Detalhes</button>
+    <button class="drawer-tab" data-tab="checklist" onclick="CrmApp.switchTab('checklist')">Checklist</button>
+    <button class="drawer-tab" data-tab="files" onclick="CrmApp.switchTab('files')">Arquivos</button>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <div class="tab-panel active" id="tabDetails"></div>
+    <div class="tab-panel" id="tabChecklist"></div>
+    <div class="tab-panel" id="tabFiles"></div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-ghost btn-sm" onclick="CrmApp.closeDrawer()">Cancelar</button>
+    <button class="btn btn-primary" onclick="CrmApp.saveOrder()">Salvar Pedido</button>
   </div>
 </div>
 
-<div class="kanban-wrap">
-  <div class="kanban-board" id="kanbanBoard"></div>
-</div>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h2 id="modalTitle">Novo Pedido</h2>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-footer">
-      <button class="btn-sm" onclick="closeModal()">Cancelar</button>
-      <button class="btn-primary" onclick="saveOrder()">Salvar Pedido</button>
-    </div>
-  </div>
-</div>
-
-<!-- CONFIRM -->
+<!-- ═══ CONFIRM ═══ -->
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
     <h3 id="confirmTitle">Tem certeza?</h3>
-    <p id="confirmText">Esta ação não pode ser desfeita.</p>
+    <p id="confirmText">Esta acao nao pode ser desfeita.</p>
     <div class="confirm-actions">
-      <button class="btn-sm" onclick="closeConfirm()">Cancelar</button>
-      <button class="btn-sm danger" id="confirmBtn" onclick="">Confirmar</button>
+      <button class="btn btn-ghost btn-sm" onclick="CrmApp.closeConfirm()">Cancelar</button>
+      <button class="btn btn-danger btn-sm" id="confirmBtn">Confirmar</button>
     </div>
   </div>
 </div>
 
+<script src="services/storageService.js"></script>
+<script src="services/authService.js"></script>
+<script src="services/realtimeService.js"></script>
+<script src="services/orderService.js"></script>
+
 <script>
-const COLUMNS = [
-  { id:'novo',        label:'Novos Pedidos',      color:'#60a5fa' },
-  { id:'andamento',   label:'Em Andamento',       color:'#f97316' },
-  { id:'aguardando',  label:'Aguardando Cliente',  color:'#c9a84c' },
-  { id:'revisao',     label:'Em Revisão',          color:'#a78bfa' },
-  { id:'entregue',    label:'Entregues',           color:'#34d399' },
-];
+window.CrmApp = {};
+(function(app) {
+  var orders = [];
+  var editingId = null;
+  var dragId = null;
+  var currentTab = 'details';
+  var formData = null;
+  var confirmCb = null;
 
-const STORAGE_KEY = 'sualuma_crm_pedidos';
-let orders = [];
-let editingId = null;
-let confirmCallback = null;
-
-function loadOrders(){
-  try{
-    var d=localStorage.getItem(STORAGE_KEY);
-    orders=d?JSON.parse(d):[];
-  }catch(e){orders=[]}
-  if(!orders.length){
-    orders=getSeedOrders();
-    saveOrders();
+  /* ── UTILS ── */
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function $(id){return document.getElementById(id)}
+  function qs(s){return document.querySelector(s)}
+  function qsa(s){return document.querySelectorAll(s)}
+  function initials(name){return name?name.split(' ').map(function(w){return w[0]}).slice(0,2).join('').toUpperCase():'?'}
+  function daysUntil(dateStr){
+    if(!dateStr)return null;
+    var d=Math.ceil((new Date(dateStr)-new Date())/86400000);
+    return d;
   }
-}
+  function prazoText(dateStr){
+    var d=daysUntil(dateStr);
+    if(d===null)return'';
+    if(d<0)return Math.abs(d)+'d atrasado';
+    if(d===0)return'Hoje';
+    if(d===1)return'Amanha';
+    return d+'d';
+  }
+  function prazoClass(dateStr){
+    var d=daysUntil(dateStr);
+    if(d===null)return'';
+    if(d<0)return'atrasado';
+    if(d===0)return'hoje';
+    return'';
+  }
 
-function getSeedOrders(){
-  return [
-    {id:'s1',nome:'Ana Beatriz',whatsapp:'11999999999',email:'ana@email.com',projeto:'Salão Beleza Studio',status:'novo',prazo:'2026-06-10',observacoes:'Cliente quer site com galeria de fotos',links:'',dominio:'',login:'',senha:'',prioridade:'alta',progresso:0,checklist:[{text:'Reunir referências',done:false},{text:'Criar protótipo',done:false}],anexos:[],imagens:[],criadoEm:new Date().toISOString()},
-    {id:'s2',nome:'Carlos Eduardo',whatsapp:'11988888888',email:'carlos@email.com',projeto:'Restaurante Sabor Caseiro',status:'andamento',prazo:'2026-06-05',observacoes:'Cardápio digital + delivery',links:'',dominio:'',login:'',senha:'',prioridade:'urgente',progresso:35,checklist:[{text:'Estrutura de páginas',done:true},{text:'Design responsivo',done:false},{text:'Integrar WhatsApp',done:false}],anexos:[],imagens:[],criadoEm:new Date().toISOString()},
-    {id:'s3',nome:'Marina Silveira',whatsapp:'11977777777',email:'marina@email.com',projeto:'Clínica Bem-Estar',status:'aguardando',prazo:'2026-06-15',observacoes:'Aguardando fotos da clínica',links:'',dominio:'',login:'',senha:'',prioridade:'media',progresso:20,checklist:[{text:'Página inicial',done:true},{text:'Área de serviços',done:false},{text:'Blog',done:false}],anexos:[],imagens:[],criadoEm:new Date().toISOString()},
-    {id:'s4',nome:'Rafael Oliveira',whatsapp:'11966666666',email:'rafael@email.com',projeto:'Loja Artesanato',status:'revisao',prazo:'2026-06-02',observacoes:'Revisar cores da marca',links:'',dominio:'',login:'',senha:'',prioridade:'alta',progresso:85,checklist:[{text:'Home page',done:true},{text:'Catálogo',done:true},{text:'Carrinho',done:true},{text:'Testes finais',done:false}],anexos:[],imagens:[],criadoEm:new Date().toISOString()},
-    {id:'s5',nome:'Juliana Costa',whatsapp:'11955555555',email:'juliana@email.com',projeto:'Personal Trainer',status:'entregue',prazo:'2026-05-28',observacoes:'Site entregue e publicado',links:'https://julianatrainer.com',dominio:'julianatrainer.com',login:'juliana',senha:'****',prioridade:'baixa',progresso:100,checklist:[{text:'Design',done:true},{text:'Desenvolvimento',done:true},{text:'Publicação',done:true}],anexos:[],imagens:[],criadoEm:new Date().toISOString()},
-  ];
-}
+  /* ── TOAST ── */
+  function toast(msg, type){
+    type=type||'info';
+    var icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+    var container=$('toastContainer');
+    var el=document.createElement('div');
+    el.className='toast '+type;
+    el.innerHTML='<span class="icon">'+(icons[type]||'')+'</span>'+esc(msg)+'<button class="toast-remove" onclick="this.parentElement.style.animation=\'toastOut .3s ease forwards\';setTimeout(function(){this.parentElement.remove()}.bind(this),300)">✕</button>';
+    container.appendChild(el);
+    setTimeout(function(){
+      if(el.parentNode){
+        el.style.animation='toastOut .3s ease forwards';
+        setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},300);
+      }
+    },3500);
+  }
 
-function saveOrders(){
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(orders));
-}
+  /* ── CONFIRM ── */
+  function confirmAction(title, text, cb){
+    $('confirmTitle').textContent=title;
+    $('confirmText').textContent=text;
+    confirmCb=cb;
+    $('confirmBtn').onclick=function(){
+      if(confirmCb)confirmCb();
+      closeConfirm();
+    };
+    $('confirmOverlay').classList.add('open');
+  }
+  function closeConfirm(){
+    $('confirmOverlay').classList.remove('open');
+    confirmCb=null;
+  }
+  app.closeConfirm=closeConfirm;
 
-function generateId(){
-  return Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-}
+  /* ── LOGIN ── */
+  app.handleLogin=function(){
+    var pwd=$('loginPassword').value;
+    var btn=$('loginBtn');
+    var err=$('loginError');
+    if(!pwd){err.textContent='Digite a senha de acesso';err.classList.add('show');$('loginCard').classList.add('shake');setTimeout(function(){$('loginCard').classList.remove('shake')},500);return}
+    btn.disabled=true;$('loginBtnText').style.display='none';$('loginSpinner').style.display='inline-block';err.classList.remove('show');
+    SUALUMA.AuthService.login(pwd).then(function(r){
+      btn.disabled=false;$('loginBtnText').style.display='inline';$('loginSpinner').style.display='none';
+      if(r.success){
+        $('loginScreen').style.display='none';
+        bootApp();
+        toast('Bem-vindo ao CRM','success');
+      }else{
+        err.textContent='Senha incorreta. Tente novamente.';
+        err.classList.add('show');
+        $('loginCard').classList.add('shake');
+        setTimeout(function(){$('loginCard').classList.remove('shake')},500);
+        $('loginPassword').value='';
+        $('loginPassword').focus();
+      }
+    });
+  };
 
-function colIndex(id){
-  return COLUMNS.findIndex(c=>c.id===id);
-}
+  $('loginPassword').addEventListener('keydown',function(e){if(e.key==='Enter')app.handleLogin()});
 
-/* ── RENDER ── */
-function renderBoard(){
-  var board=document.getElementById('kanbanBoard');
-  var search=document.getElementById('searchInput').value.toLowerCase().trim();
-
-  var filtered=orders;
-  if(search){
-    filtered=orders.filter(function(o){
-      return o.nome.toLowerCase().includes(search)||o.projeto.toLowerCase().includes(search)||o.email.toLowerCase().includes(search);
+  /* ── INIT ── */
+  function bootApp(){
+    orders=SUALUMA.OrderService.getAll();
+    $('mainApp').style.display='flex';
+    SUALUMA.RealtimeService.start(function(){
+      orders=SUALUMA.OrderService.getAll();
+      app.renderBoard();
+    });
+    app.renderBoard();
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape'){
+        if($('confirmOverlay').classList.contains('open'))closeConfirm();
+        else app.closeDrawer();
+      }
     });
   }
 
-  var html='';
-  COLUMNS.forEach(function(col){
-    var items=filtered.filter(function(o){return o.status===col.id});
-    var colHtml='';
-    items.forEach(function(card){
-      colHtml+=renderCard(card);
-    });
-    if(!items.length){
-      colHtml+='<div class="empty-col"><div class="icon">📋</div><span>'+(search?'Nenhum resultado':'Nenhum pedido')+'</span></div>';
-    }
-    html+='<div class="kanban-col" data-col="'+col.id+'" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">'+
-      '<div class="kanban-col-header"><div class="col-info"><span class="col-title" style="color:'+col.color+'">'+col.label+'</span><span class="col-count">'+items.length+'</span></div></div>'+
-      '<div class="kanban-col-body" id="col-body-'+col.id+'">'+colHtml+'</div></div>';
-  });
-  board.innerHTML=html;
-  updateSummary();
-}
-
-function renderCard(o){
-  var diasRestantes=Math.ceil((new Date(o.prazo)-new Date())/86400000);
-  var prazoClass=diasRestantes<0?'atrasado':'';
-  var prazoText=diasRestantes<0?Math.abs(diasRestantes)+' dias atrasado':(diasRestantes===0?'Hoje':diasRestantes+' dias');
-  var badgeClass='badge-'+o.prioridade;
-  var progClass=o.progresso>=100?'done':(o.progresso>50?'warn':'');
-
-  return '<div class="kanban-card" draggable="true" ondragstart="onDragStart(event,\''+o.id+'\')" ondragend="onDragEnd(event)" onclick="openEditOrder(\''+o.id+'\')">'+
-    '<div class="card-actions"><button onclick="event.stopPropagation();openEditOrder(\''+o.id+'\')" title="Editar">✏️</button><button onclick="event.stopPropagation();confirmDelete(\''+o.id+'\')" title="Excluir">🗑️</button></div>'+
-    '<div class="card-head"><div class="card-name">'+esc(o.nome)+'</div><span class="card-badge '+badgeClass+'">'+o.prioridade+'</span></div>'+
-    '<div class="card-project">'+esc(o.projeto)+'</div>'+
-    '<div class="card-meta"><span class="card-prazo '+prazoClass+'">📅 '+prazoText+'</span></div>'+
-    '<div class="progress-mini"><div class="progress-mini-fill '+progClass+'" style="width:'+o.progresso+'%"></div></div>'+
-  '</div>';
-}
-
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-
-function updateSummary(){
-  var total=orders.length;
-  var andamento=orders.filter(function(o){return o.status==='andamento'||o.status==='novo'||o.status==='aguardando'||o.status==='revisao'}).length;
-  var entregues=orders.filter(function(o){return o.status==='entregue'}).length;
-  var atrasados=orders.filter(function(o){return o.prazo&&new Date(o.prazo)<new Date()&&o.status!=='entregue'}).length;
-  document.getElementById('tot-pedidos').textContent=total;
-  document.getElementById('tot-andamento').textContent=andamento;
-  document.getElementById('tot-entregues').textContent=entregues;
-  document.getElementById('tot-atrasados').textContent=atrasados;
-}
-
-/* ── DRAG & DROP ── */
-var dragId=null;
-
-function onDragStart(e,id){
-  dragId=id;
-  e.target.classList.add('dragging');
-  e.dataTransfer.effectAllowed='move';
-  e.dataTransfer.setData('text/plain',id);
-}
-
-function onDragEnd(e){
-  e.target.classList.remove('dragging');
-  dragId=null;
-  document.querySelectorAll('.kanban-col-body').forEach(function(el){el.classList.remove('drag-over')});
-}
-
-function onDragOver(e){
-  e.preventDefault();
-  e.dataTransfer.dropEffect='move';
-  var colBody=e.target.closest('.kanban-col-body');
-  if(colBody)colBody.classList.add('drag-over');
-}
-
-function onDragLeave(e){
-  var colBody=e.target.closest('.kanban-col-body');
-  if(colBody)colBody.classList.remove('drag-over');
-}
-
-function onDrop(e){
-  e.preventDefault();
-  document.querySelectorAll('.kanban-col-body').forEach(function(el){el.classList.remove('drag-over')});
-  var col=e.target.closest('.kanban-col');
-  if(!col||!dragId)return;
-  var newStatus=col.dataset.col;
-  var order=orders.find(function(o){return o.id===dragId});
-  if(order&&order.status!==newStatus){
-    order.status=newStatus;
-    if(newStatus==='entregue')order.progresso=100;
-    saveOrders();
-    renderBoard();
+  if(SUALUMA.AuthService&&SUALUMA.AuthService.isAuthenticated()){
+    $('loginScreen').style.display='none';
+    bootApp();
   }
-}
 
-/* ── MODAL ── */
-function openNewOrder(){
-  editingId=null;
-  document.getElementById('modalTitle').textContent='Novo Pedido';
-  renderForm({id:'',nome:'',whatsapp:'',email:'',projeto:'',status:'novo',prazo:'',observacoes:'',links:'',dominio:'',login:'',senha:'',prioridade:'media',progresso:0,checklist:[{text:'',done:false}],anexos:[],imagens:[]});
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function openEditOrder(id){
-  editingId=id;
-  var o=orders.find(function(x){return x.id===id});
-  if(!o)return;
-  document.getElementById('modalTitle').textContent='Editar Pedido';
-  renderForm(JSON.parse(JSON.stringify(o)));
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function closeModal(){
-  document.getElementById('modalOverlay').classList.remove('open');
-  editingId=null;
-}
-
-function renderForm(o){
-  var checklistHtml='';
-  o.checklist.forEach(function(item,i){
-    checklistHtml+='<div class="checklist-item'+(item.done?' done':'')+'">'+
-      '<input type="checkbox" '+(item.done?'checked':'')+' onchange="toggleCheck('+i+',this.checked)">'+
-      '<input type="text" value="'+esc(item.text)+'" onchange="updateCheckText('+i+',this.value)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:4px 8px;font-size:13px;color:var(--text);flex:1;font-family:Inter,sans-serif;outline:none">'+
-      '<button class="remove-check" onclick="removeCheck('+i+')">✕</button></div>';
-  });
-
-  var imagensHtml='';
-  o.imagens.forEach(function(img,i){
-    imagensHtml+='<div class="upload-item"><img src="'+img.url+'" alt=""><span class="name">'+esc(img.name)+'</span><button class="remove-up" onclick="removeImg('+i+')">✕</button></div>';
-  });
-  var anexosHtml='';
-  o.anexos.forEach(function(a,i){
-    var icon=a.type&&a.type.startsWith('image/')?'🖼️':'📎';
-    anexosHtml+='<div class="upload-item"><span>'+icon+'</span><span class="name">'+esc(a.name)+'</span><button class="remove-up" onclick="removeAnexo('+i+')">✕</button></div>';
-  });
-
-  document.getElementById('modalBody').innerHTML=
-    '<div class="form-grid">'+
-      '<div class="form-group"><label>Nome do Cliente</label><input type="text" id="f-nome" value="'+esc(o.nome)+'" placeholder="Nome completo"></div>'+
-      '<div class="form-group"><label>WhatsApp</label><input type="text" id="f-whatsapp" value="'+esc(o.whatsapp)+'" placeholder="(11) 99999-9999"></div>'+
-      '<div class="form-group"><label>E-mail</label><input type="email" id="f-email" value="'+esc(o.email)+'" placeholder="email@exemplo.com"></div>'+
-      '<div class="form-group"><label>Nome do Projeto</label><input type="text" id="f-projeto" value="'+esc(o.projeto)+'" placeholder="Ex: Salão Beleza"></div>'+
-      '<div class="form-group"><label>Status</label><select id="f-status">'+
-        COLUMNS.map(function(c){return '<option value="'+c.id+'"'+(o.status===c.id?' selected':'')+'>'+c.label+'</option>'}).join('')+
-      '</select></div>'+
-      '<div class="form-group"><label>Prioridade</label><select id="f-prioridade">'+
-        ['baixa','media','alta','urgente'].map(function(p){return '<option value="'+p+'"'+(o.prioridade===p?' selected':'')+'>'+p.charAt(0).toUpperCase()+p.slice(1)+'</option>'}).join('')+
-      '</select></div>'+
-      '<div class="form-group"><label>Prazo</label><input type="date" id="f-prazo" value="'+o.prazo+'"></div>'+
-      '<div class="form-group"><label>Progresso: <span id="progressVal">'+o.progresso+'</span>%</label><input type="range" min="0" max="100" value="'+o.progresso+'" id="f-progresso" oninput="document.getElementById(\'progressVal\').textContent=this.value"></div>'+
-      '<div class="form-group full"><label>Observações</label><textarea id="f-observacoes" rows="3" placeholder="Anotações do pedido...">'+esc(o.observacoes)+'</textarea></div>'+
-      '<div class="form-group full"><label>Links</label><input type="text" id="f-links" value="'+esc(o.links)+'" placeholder="URLs relevantes"></div>'+
-      '<div class="form-group"><label>Domínio</label><input type="text" id="f-dominio" value="'+esc(o.dominio)+'" placeholder="meusite.com.br"></div>'+
-      '<div class="form-group"><label>Login</label><input type="text" id="f-login" value="'+esc(o.login)+'" placeholder="Usuário"></div>'+
-      '<div class="form-group"><label>Senha</label><input type="text" id="f-senha" value="'+esc(o.senha)+'" placeholder="******"></div>'+
-    '</div>'+
-
-    '<div class="form-group full"><label>Checklist</label><div id="checklistContainer">'+checklistHtml+'</div>'+
-    '<button class="add-check-btn" onclick="addCheckItem()">+ Adicionar item</button></div>'+
-
-    '<div class="form-group full"><label>Imagens</label>'+
-    '<div class="upload-area" id="imgUploadArea" onclick="document.getElementById(\'imgInput\').click()" ondragover="event.preventDefault();this.classList.add(\'dragover\')" ondragleave="this.classList.remove(\'dragover\')" ondrop="handleImgDrop(event)">'+
-    '<div class="icon">🖼️</div><p>Clique ou arraste imagens aqui</p></div>'+
-    '<input type="file" id="imgInput" accept="image/*" multiple style="display:none" onchange="handleImgSelect(this)">'+
-    '<div class="upload-list" id="imgList">'+imagensHtml+'</div></div>'+
-
-    '<div class="form-group full"><label>Anexos</label>'+
-    '<div class="upload-area" id="fileUploadArea" onclick="document.getElementById(\'fileInput\').click()" ondragover="event.preventDefault();this.classList.add(\'dragover\')" ondragleave="this.classList.remove(\'dragover\')" ondrop="handleFileDrop(event)">'+
-    '<div class="icon">📎</div><p>Clique ou arraste arquivos aqui</p></div>'+
-    '<input type="file" id="fileInput" multiple style="display:none" onchange="handleFileSelect(this)">'+
-    '<div class="upload-list" id="fileList">'+anexosHtml+'</div></div>';
-
-  // Store temp data for uploads
-  window._formData=o;
-}
-
-function collectForm(){
-  var o=window._formData||{checklist:[],anexos:[],imagens:[]};
-  o.nome=document.getElementById('f-nome').value;
-  o.whatsapp=document.getElementById('f-whatsapp').value;
-  o.email=document.getElementById('f-email').value;
-  o.projeto=document.getElementById('f-projeto').value;
-  o.status=document.getElementById('f-status').value;
-  o.prioridade=document.getElementById('f-prioridade').value;
-  o.prazo=document.getElementById('f-prazo').value;
-  o.progresso=parseInt(document.getElementById('f-progresso').value)||0;
-  o.observacoes=document.getElementById('f-observacoes').value;
-  o.links=document.getElementById('f-links').value;
-  o.dominio=document.getElementById('f-dominio').value;
-  o.login=document.getElementById('f-login').value;
-  o.senha=document.getElementById('f-senha').value;
-  return o;
-}
-
-function saveOrder(){
-  var o=collectForm();
-  if(!o.nome.trim()||!o.projeto.trim()){
-    alert('Preencha nome do cliente e nome do projeto.');
-    return;
-  }
-  if(editingId){
-    var idx=orders.findIndex(function(x){return x.id===editingId});
-    if(idx>=0){
-      o.id=editingId;
-      o.criadoEm=orders[idx].criadoEm;
-      orders[idx]=o;
-    }
-  }else{
-    o.id=generateId();
-    o.criadoEm=new Date().toISOString();
-    orders.push(o);
-  }
-  saveOrders();
-  closeModal();
-  renderBoard();
-}
-
-/* ── CHECKLIST ── */
-function addCheckItem(){
-  var o=window._formData;
-  if(!o.checklist)o.checklist=[];
-  o.checklist.push({text:'',done:false});
-  renderForm(o);
-}
-
-function removeCheck(i){
-  var o=window._formData;
-  if(!o.checklist)return;
-  o.checklist.splice(i,1);
-  renderForm(o);
-}
-
-function toggleCheck(i,checked){
-  var o=window._formData;
-  if(!o.checklist||!o.checklist[i])return;
-  o.checklist[i].done=checked;
-  var container=document.getElementById('checklistContainer');
-  if(container){
-    var items=container.querySelectorAll('.checklist-item');
-    if(items[i])items[i].classList.toggle('done',checked);
-  }
-}
-
-function updateCheckText(i,val){
-  var o=window._formData;
-  if(!o.checklist||!o.checklist[i])return;
-  o.checklist[i].text=val;
-}
-
-/* ── UPLOADS ── */
-function readFileAsDataURL(file,cb){
-  var reader=new FileReader();
-  reader.onload=function(e){cb({name:file.name,url:e.target.result,type:file.type})};
-  reader.readAsDataURL(file);
-}
-
-function handleImgSelect(input){
-  Array.from(input.files).forEach(function(file){
-    readFileAsDataURL(file,function(data){
-      var o=window._formData;
-      if(!o.imagens)o.imagens=[];
-      o.imagens.push(data);
-      renderForm(o);
-    });
-  });
-  input.value='';
-}
-
-function handleImgDrop(e){
-  e.preventDefault();
-  e.target.classList.remove('dragover');
-  Array.from(e.dataTransfer.files).forEach(function(file){
-    if(file.type.startsWith('image/')){
-      readFileAsDataURL(file,function(data){
-        var o=window._formData;
-        if(!o.imagens)o.imagens=[];
-        o.imagens.push(data);
-        renderForm(o);
+  /* ── RENDER BOARD ── */
+  app.renderBoard=function(){
+    var board=$('kanbanBoard');
+    var search=$('searchInput').value.toLowerCase().trim();
+    var filtered=orders;
+    if(search){
+      filtered=orders.filter(function(o){
+        return o.nome.toLowerCase().includes(search)||o.projeto.toLowerCase().includes(search)||o.email.toLowerCase().includes(search);
       });
     }
-  });
-}
-
-function removeImg(i){
-  var o=window._formData;
-  if(!o.imagens)return;
-  o.imagens.splice(i,1);
-  renderForm(o);
-}
-
-function handleFileSelect(input){
-  Array.from(input.files).forEach(function(file){
-    readFileAsDataURL(file,function(data){
-      var o=window._formData;
-      if(!o.anexos)o.anexos=[];
-      o.anexos.push(data);
-      renderForm(o);
+    var html='';
+    SUALUMA.OrderService.COLUMNS.forEach(function(col){
+      var items=filtered.filter(function(o){return o.status===col.id});
+      var colHtml='';
+      items.forEach(function(card){colHtml+=renderCard(card)});
+      if(!items.length){
+        colHtml+='<div class="empty-col"><span>'+(search?'Nenhum resultado':'Nenhum pedido')+'</span></div>';
+      }
+      html+='<div class="kanban-col" data-col="'+col.id+'" ondragover="CrmApp.onDragOver(event)" ondrop="CrmApp.onDrop(event)" ondragleave="CrmApp.onDragLeave(event)">'+
+        '<div class="kanban-col-header" onclick="CrmApp.toggleCol(this)">'+
+          '<div class="col-info"><div class="col-indicator" style="background:'+col.color+'"></div><span class="col-title">'+col.label+'</span><span class="col-count">'+items.length+'</span></div>'+
+          '<button class="col-toggle">−</button>'+
+        '</div>'+
+        '<div class="col-body" id="col-body-'+col.id+'">'+colHtml+'</div></div>';
     });
-  });
-  input.value='';
-}
-
-function handleFileDrop(e){
-  e.preventDefault();
-  e.target.classList.remove('dragover');
-  Array.from(e.dataTransfer.files).forEach(function(file){
-    readFileAsDataURL(file,function(data){
-      var o=window._formData;
-      if(!o.anexos)o.anexos=[];
-      o.anexos.push(data);
-      renderForm(o);
-    });
-  });
-}
-
-function removeAnexo(i){
-  var o=window._formData;
-  if(!o.anexos)return;
-  o.anexos.splice(i,1);
-  renderForm(o);
-}
-
-/* ── CONFIRM ── */
-function confirmDelete(id){
-  document.getElementById('confirmTitle').textContent='Excluir Pedido';
-  document.getElementById('confirmText').textContent='Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.';
-  document.getElementById('confirmBtn').onclick=function(){
-    orders=orders.filter(function(o){return o.id!==id});
-    saveOrders();
-    closeConfirm();
-    renderBoard();
+    board.innerHTML=html;
+    updateMetrics();
   };
-  document.getElementById('confirmOverlay').classList.add('open');
-}
 
-function closeConfirm(){
-  document.getElementById('confirmOverlay').classList.remove('open');
-}
-
-/* ── KEYBOARD ── */
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){
-    if(document.getElementById('confirmOverlay').classList.contains('open'))closeConfirm();
-    else closeModal();
+  function renderCard(o){
+    var d=daysUntil(o.prazo);
+    var pt=prazoText(o.prazo);
+    var pc=prazoClass(o.prazo);
+    var bc='badge-'+o.prioridade;
+    var progClass=o.progresso>=100?'done':(o.progresso>50?'warn':'');
+    var initial=initials(o.nome);
+    var attCount=(o.anexos?o.anexos.length:0)+(o.imagens?o.imagens.length:0);
+    return '<div class="kanban-card" draggable="true" ondragstart="CrmApp.onDragStart(event,\''+o.id+'\')" ondragend="CrmApp.onDragEnd(event)" onclick="CrmApp.openEditOrder(\''+o.id+'\')">'+
+      '<div class="card-quick-actions">'+
+        '<button class="card-quick-btn" onclick="event.stopPropagation();CrmApp.openEditOrder(\''+o.id+'\')" title="Editar">✏️</button>'+
+        '<button class="card-quick-btn" onclick="event.stopPropagation();CrmApp.confirmDelete(\''+o.id+'\')" title="Excluir">🗑️</button>'+
+      '</div>'+
+      '<div class="card-row top">'+
+        '<div class="card-avatar">'+esc(initial)+'</div>'+
+        '<div class="card-info">'+
+          '<div class="card-name">'+esc(o.nome)+' <span class="card-badge '+bc+'">'+o.prioridade+'</span></div>'+
+          '<div class="card-project">'+esc(o.projeto)+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card-meta">'+
+        '<span class="card-prazo '+pc+'">📅 '+pt+'</span>'+
+      '</div>'+
+      '<div class="progress-mini"><div class="progress-mini-fill '+progClass+'" style="width:'+o.progresso+'%"></div></div>'+
+      '<div class="card-footer">'+
+        '<div class="card-attachments">'+
+          (attCount>0?'<span>📎 '+attCount+'</span>':'')+
+        '</div>'+
+        '<span class="card-date">'+new Date(o.criadoEm).toLocaleDateString('pt-BR')+'</span>'+
+      '</div>'+
+    '</div>';
   }
-});
 
-/* ── INIT ── */
-loadOrders();
-renderBoard();
+  function updateMetrics(){
+    var m=SUALUMA.OrderService.getMetrics();
+    $('mTotal').textContent=m.total;
+    $('mHoje').textContent=m.hoje;
+    $('mEntregues').textContent=m.entregues;
+    $('mReceita').textContent='R$'+m.receita;
+    $('dTotal').textContent=m.total;
+    $('dReceita').textContent='R$'+m.receitaPotencial;
+    $('dAndamento').textContent=m.andamento;
+    $('dEntreguesMes').textContent=m.entreguesMes;
+    $('dAtrasados').textContent=m.atrasados;
+    $('dBacklog').textContent=m.total-m.entregues;
+  }
+
+  /* ── COLUMN TOGGLE ── */
+  app.toggleCol=function(headerEl){
+    var col=headerEl.closest('.kanban-col');
+    col.classList.toggle('col-collapsed');
+    var btn=headerEl.querySelector('.col-toggle');
+    if(btn)btn.textContent=col.classList.contains('col-collapsed')?'+':'−';
+  };
+
+  /* ── USER MENU ── */
+  app.toggleMenu=function(){
+    $('userMenu').classList.toggle('open');
+  };
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('.header-avatar'))$('userMenu').classList.remove('open');
+  });
+
+  /* ── DRAG & DROP ── */
+  app.onDragStart=function(e,id){
+    dragId=id;
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed='move';
+    e.dataTransfer.setData('text/plain',id);
+  };
+  app.onDragEnd=function(e){
+    e.target.classList.remove('dragging');
+    dragId=null;
+    qsa('.col-body').forEach(function(el){el.classList.remove('drag-over')});
+  };
+  app.onDragOver=function(e){
+    e.preventDefault();
+    e.dataTransfer.dropEffect='move';
+    var cb=e.target.closest('.col-body');
+    if(cb)cb.classList.add('drag-over');
+  };
+  app.onDragLeave=function(e){
+    var cb=e.target.closest('.col-body');
+    if(cb)cb.classList.remove('drag-over');
+  };
+  app.onDrop=function(e){
+    e.preventDefault();
+    qsa('.col-body').forEach(function(el){el.classList.remove('drag-over')});
+    var col=e.target.closest('.kanban-col');
+    if(!col||!dragId)return;
+    var newStatus=col.dataset.col;
+    var order=orders.find(function(o){return o.id===dragId});
+    if(order&&order.status!==newStatus){
+      order.status=newStatus;
+      if(newStatus==='entregue')order.progresso=100;
+      SUALUMA.StorageService.saveOrders(orders);
+      app.renderBoard();
+      toast('Pedido movido para '+SUALUMA.OrderService.COLUMNS.find(function(c){return c.id===newStatus}).label,'info');
+    }
+  };
+
+  /* ── DRAWER ── */
+  app.openNewOrder=function(){
+    editingId=null;
+    formData=SUALUMA.OrderService.empty();
+    $('drawerTitle').textContent='Novo Pedido';
+    openDrawer();
+  };
+  app.openEditOrder=function(id){
+    editingId=id;
+    var o=orders.find(function(x){return x.id===id});
+    if(!o)return;
+    formData=JSON.parse(JSON.stringify(o));
+    $('drawerTitle').textContent='Editar Pedido';
+    openDrawer();
+  };
+
+  function openDrawer(){
+    switchTab('details');
+    renderForm(formData);
+    $('drawerOverlay').classList.add('open');
+    setTimeout(function(){$('drawerPanel').classList.add('open')},10);
+  }
+  app.closeDrawer=function(){
+    $('drawerPanel').classList.remove('open');
+    $('drawerOverlay').classList.remove('open');
+    editingId=null;
+    formData=null;
+  };
+
+  /* ── TABS ── */
+  app.switchTab=function(tab){
+    currentTab=tab;
+    qsa('.drawer-tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===tab)});
+    qsa('.tab-panel').forEach(function(p){p.classList.toggle('active',p.id==='tab'+tab.charAt(0).toUpperCase()+tab.slice(1))});
+    if(currentTab==='details'&&$('f-nome')){formData=collectForm()}
+    if(tab==='checklist')renderChecklistTab();
+    if(tab==='files')renderFilesTab();
+    if(tab==='details')renderForm(formData);
+  };
+
+  /* ── FORM RENDERING ── */
+  function renderForm(o){
+    if(!o)return;
+    formData=o;
+    $('tabDetails').innerHTML=
+      '<div class="form-grid">'+
+        '<div class="form-group"><label>Nome do Cliente</label><input type="text" id="f-nome" value="'+esc(o.nome)+'" placeholder="Nome completo"></div>'+
+        '<div class="form-group"><label>WhatsApp</label><input type="text" id="f-whatsapp" value="'+esc(o.whatsapp)+'" placeholder="(11) 99999-9999"></div>'+
+        '<div class="form-group"><label>E-mail</label><input type="email" id="f-email" value="'+esc(o.email)+'" placeholder="email@exemplo.com"></div>'+
+        '<div class="form-group"><label>Projeto</label><input type="text" id="f-projeto" value="'+esc(o.projeto)+'" placeholder="Ex: Salao Beleza"></div>'+
+        '<div class="form-group"><label>Status</label><select id="f-status">'+
+          SUALUMA.OrderService.COLUMNS.map(function(c){return '<option value="'+c.id+'"'+(o.status===c.id?' selected':'')+'>'+c.label+'</option>'}).join('')+
+        '</select></div>'+
+        '<div class="form-group"><label>Prioridade</label><select id="f-prioridade">'+
+          ['baixa','media','alta','urgente'].map(function(p){return '<option value="'+p+'"'+(o.prioridade===p?' selected':'')+'>'+p.charAt(0).toUpperCase()+p.slice(1)+'</option>'}).join('')+
+        '</select></div>'+
+        '<div class="form-group"><label>Prazo</label><input type="date" id="f-prazo" value="'+o.prazo+'"></div>'+
+        '<div class="form-group"><label>Progresso: <span id="progressVal">'+o.progresso+'</span>%</label><input type="range" min="0" max="100" value="'+o.progresso+'" id="f-progresso" oninput="document.getElementById(\'progressVal\').textContent=this.value"></div>'+
+        '<div class="form-group full"><label>Observacoes</label><textarea id="f-observacoes" rows="3" placeholder="Anotacoes do pedido...">'+esc(o.observacoes)+'</textarea></div>'+
+        '<div class="form-group full"><label>Links</label><input type="text" id="f-links" value="'+esc(o.links)+'" placeholder="URLs relevantes"></div>'+
+        '<div class="form-group"><label>Dominio</label><input type="text" id="f-dominio" value="'+esc(o.dominio)+'" placeholder="meusite.com.br"></div>'+
+        '<div class="form-group"><label>Login</label><input type="text" id="f-login" value="'+esc(o.login)+'" placeholder="Usuario"></div>'+
+        '<div class="form-group"><label>Senha</label><input type="text" id="f-senha" value="'+esc(o.senha)+'" placeholder="******"></div>'+
+      '</div>';
+  }
+
+  function collectForm(){
+    if(!formData)formData={checklist:[],anexos:[],imagens:[]};
+    formData.nome=$('f-nome')?$('f-nome').value:'';
+    formData.whatsapp=$('f-whatsapp')?$('f-whatsapp').value:'';
+    formData.email=$('f-email')?$('f-email').value:'';
+    formData.projeto=$('f-projeto')?$('f-projeto').value:'';
+    formData.status=$('f-status')?$('f-status').value:'novo';
+    formData.prioridade=$('f-prioridade')?$('f-prioridade').value:'media';
+    formData.prazo=$('f-prazo')?$('f-prazo').value:'';
+    formData.progresso=$('f-progresso')?parseInt($('f-progresso').value)||0:0;
+    formData.observacoes=$('f-observacoes')?$('f-observacoes').value:'';
+    formData.links=$('f-links')?$('f-links').value:'';
+    formData.dominio=$('f-dominio')?$('f-dominio').value:'';
+    formData.login=$('f-login')?$('f-login').value:'';
+    formData.senha=$('f-senha')?$('f-senha').value:'';
+    return formData;
+  }
+
+  /* ── SAVE ── */
+  app.saveOrder=function(){
+    var o=collectForm();
+    if(!o.nome.trim()||!o.projeto.trim()){
+      toast('Preencha nome do cliente e nome do projeto.','error');
+      return;
+    }
+    if(editingId){
+      SUALUMA.OrderService.update(editingId,o);
+      toast('Pedido atualizado com sucesso!','success');
+    }else{
+      SUALUMA.OrderService.create(o);
+      toast('Novo pedido criado com sucesso!','success');
+    }
+    orders=SUALUMA.OrderService.getAll();
+    app.closeDrawer();
+    app.renderBoard();
+  };
+
+  /* ── CHECKLIST TAB ── */
+  function renderChecklistTab(){
+    if(!formData)return;
+    if(!formData.checklist)formData.checklist=[];
+    var total=formData.checklist.length;
+    var done=formData.checklist.filter(function(i){return i.done}).length;
+    var html='<div class="checklist-progress">'+done+'/'+total+' concluidos</div><div id="checklistContainer">';
+    formData.checklist.forEach(function(item,i){
+      html+='<div class="checklist-item'+(item.done?' done':'')+'">'+
+        '<input type="checkbox" '+(item.done?'checked':'')+' onchange="CrmApp.toggleCheck('+i+',this.checked)">'+
+        '<input class="check-text" type="text" value="'+esc(item.text)+'" onchange="CrmApp.updateCheckText('+i+',this.value)" placeholder="Novo item...">'+
+        '<button class="remove-check" onclick="CrmApp.removeCheck('+i+')">✕</button></div>';
+    });
+    html+='</div><button class="add-check-btn" onclick="CrmApp.addCheckItem()">+ Adicionar item</button>';
+    $('tabChecklist').innerHTML=html;
+  }
+
+  app.addCheckItem=function(){
+    if(!formData.checklist)formData.checklist=[];
+    formData.checklist.push({text:'',done:false});
+    renderChecklistTab();
+  };
+  app.removeCheck=function(i){
+    if(!formData.checklist)return;
+    formData.checklist.splice(i,1);
+    renderChecklistTab();
+  };
+  app.toggleCheck=function(i,checked){
+    if(!formData.checklist||!formData.checklist[i])return;
+    formData.checklist[i].done=checked;
+    var items=$('checklistContainer').querySelectorAll('.checklist-item');
+    if(items[i])items[i].classList.toggle('done',checked);
+    // update progress
+    var total=formData.checklist.length;
+    var done=formData.checklist.filter(function(it){return it.done}).length;
+    var prog=$('tabChecklist').querySelector('.checklist-progress');
+    if(prog)prog.textContent=done+'/'+total+' concluidos';
+  };
+  app.updateCheckText=function(i,val){
+    if(!formData.checklist||!formData.checklist[i])return;
+    formData.checklist[i].text=val;
+  };
+
+  /* ── FILES TAB ── */
+  function renderFilesTab(){
+    if(!formData)return;
+    if(!formData.imagens)formData.imagens=[];
+    if(!formData.anexos)formData.anexos=[];
+    var imgs=formData.imagens.map(function(img,i){
+      return '<div class="upload-item"><img src="'+img.url+'" alt=""><span class="name">'+esc(img.name)+'</span><button class="remove-up" onclick="CrmApp.removeImg('+i+')">✕</button></div>';
+    }).join('');
+    var anexos=formData.anexos.map(function(a,i){
+      return '<div class="upload-item"><span>📎</span><span class="name">'+esc(a.name)+'</span><button class="remove-up" onclick="CrmApp.removeAnexo('+i+')">✕</button></div>';
+    }).join('');
+    $('tabFiles').innerHTML=
+      '<div class="form-group"><label>Imagens</label>'+
+      '<div class="upload-area" id="imgUA" onclick="document.getElementById(\'imgInput\').click()" ondragover="event.preventDefault();this.classList.add(\'dragover\')" ondragleave="this.classList.remove(\'dragover\')" ondrop="CrmApp.handleImgDrop(event)">'+
+      '<div class="icon">🖼️</div><p>Clique ou arraste imagens aqui</p></div>'+
+      '<input type="file" id="imgInput" accept="image/*" multiple style="display:none" onchange="CrmApp.handleImgSelect(this)">'+
+      '<div class="upload-list" id="imgList">'+imgs+'</div></div>'+
+      '<div class="form-group"><label>Anexos</label>'+
+      '<div class="upload-area" id="fileUA" onclick="document.getElementById(\'fileInput\').click()" ondragover="event.preventDefault();this.classList.add(\'dragover\')" ondragleave="this.classList.remove(\'dragover\')" ondrop="CrmApp.handleFileDrop(event)">'+
+      '<div class="icon">📎</div><p>Clique ou arraste arquivos aqui</p></div>'+
+      '<input type="file" id="fileInput" multiple style="display:none" onchange="CrmApp.handleFileSelect(this)">'+
+      '<div class="upload-list" id="fileList">'+anexos+'</div></div>';
+  }
+
+  /* ── UPLOADS ── */
+  function readFile(file,cb){
+    var reader=new FileReader();
+    reader.onload=function(e){cb({name:file.name,url:e.target.result,type:file.type})};
+    reader.readAsDataURL(file);
+  }
+  app.handleImgSelect=function(input){
+    Array.from(input.files).forEach(function(file){
+      readFile(file,function(data){
+        if(!formData.imagens)formData.imagens=[];
+        formData.imagens.push(data);
+        renderFilesTab();
+      });
+    });
+    input.value='';
+  };
+  app.handleImgDrop=function(e){
+    e.preventDefault();e.target.classList.remove('dragover');
+    Array.from(e.dataTransfer.files).forEach(function(file){
+      if(file.type.startsWith('image/')){
+        readFile(file,function(data){
+          if(!formData.imagens)formData.imagens=[];
+          formData.imagens.push(data);
+          renderFilesTab();
+        });
+      }
+    });
+  };
+  app.removeImg=function(i){
+    if(!formData.imagens)return;
+    formData.imagens.splice(i,1);
+    renderFilesTab();
+  };
+  app.handleFileSelect=function(input){
+    Array.from(input.files).forEach(function(file){
+      readFile(file,function(data){
+        if(!formData.anexos)formData.anexos=[];
+        formData.anexos.push(data);
+        renderFilesTab();
+      });
+    });
+    input.value='';
+  };
+  app.handleFileDrop=function(e){
+    e.preventDefault();e.target.classList.remove('dragover');
+    Array.from(e.dataTransfer.files).forEach(function(file){
+      readFile(file,function(data){
+        if(!formData.anexos)formData.anexos=[];
+        formData.anexos.push(data);
+        renderFilesTab();
+      });
+    });
+  };
+  app.removeAnexo=function(i){
+    if(!formData.anexos)return;
+    formData.anexos.splice(i,1);
+    renderFilesTab();
+  };
+
+  /* ── DELETE ── */
+  app.confirmDelete=function(id){
+    confirmAction('Excluir Pedido','Tem certeza que deseja excluir este pedido? Esta acao nao pode ser desfeita.',function(){
+      SUALUMA.OrderService.delete(id);
+      orders=SUALUMA.OrderService.getAll();
+      app.renderBoard();
+      toast('Pedido excluido.','warning');
+    });
+  };
+})(window.CrmApp);
 </script>
 </body>
 </html>

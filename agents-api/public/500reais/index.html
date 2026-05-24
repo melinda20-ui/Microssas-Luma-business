@@ -384,6 +384,12 @@ async function handleSubmit(){
       })
     });
   }catch(e){}
+  try{
+    var CRM_KEY='sualuma_crm_pedidos';
+    var p=JSON.parse(localStorage.getItem(CRM_KEY))||[];
+    p.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),nome:nome||'Lead',whatsapp:'',email:email,projeto:nome?'Site para '+nome:'Novo Lead',status:'novo',prazo:'',observacoes:'Lead capturado via landing page R$500',links:'',dominio:'',login:'',senha:'',prioridade:'media',progresso:0,checklist:[],anexos:[],imagens:[],criadoEm:new Date().toISOString()});
+    localStorage.setItem(CRM_KEY,JSON.stringify(p));
+  }catch(e){}
 
   document.getElementById('formBox').style.display='none';
   document.getElementById('successBox').style.display='block';
