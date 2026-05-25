@@ -3,73 +3,100 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/contexts/SessionContext";
+import { motion } from "framer-motion";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("lumabusinessa1.0@gmail.com");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn } = useSession();
+  const [message, setMessage] = useState("");
+  const { signIn, isLoaded } = useSession();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim()) return;
     setLoading(true);
-    await signIn(email);
-    router.push("/studio-lab");
+    setMessage("");
+
+    const ok = await signIn(email);
+    if (ok) {
+      setMessage("✅ Link de acesso enviado para seu email!");
+      setTimeout(() => router.push("/studio-lab"), 2000);
+    } else {
+      setMessage("⚠️ Erro ao enviar link. Tente novamente.");
+    }
+    setLoading(false);
   };
 
-  const quickAccess = [
-    { label: "Studio Lab", href: "/studio-lab", icon: "🎛️" },
-    { label: "Mia Brain", href: "/studio/mia-brain", icon: "🧠" },
-    { label: "Sentinela", href: "/studio/sentinela", icon: "🚨" },
-    { label: "Memória", href: "/studio/memoria", icon: "🗂️" },
-  ];
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-[#04040f] flex items-center justify-center">
+        <div className="shimmer w-80 h-48 rounded-3xl" />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-grid" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div className="card" style={{ padding: 40, maxWidth: 400, width: "100%" }}>
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>⚡</div>
-          <h1 style={{ fontSize: 24, fontWeight: 700 }}>Acesso ao Studio</h1>
-          <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4 }}>Entre com seu email para acessar</p>
+    <div className="min-h-screen bg-[#04040f] text-white flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+      <div className="fixed top-[-200px] left-[-200px] w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 bg-white/[0.03] border border-white/[0.06] rounded-3xl p-10 max-w-md w-full backdrop-blur-xl"
+      >
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-4">⚡</div>
+          <h1 className="text-2xl font-bold font-outfit">Acesso ao Studio</h1>
+          <p className="text-white/40 text-sm mt-2">Entre com seu email para acessar</p>
         </div>
 
-        <form onSubmit={handleLogin} style={{ marginBottom: 24 }}>
+        <form onSubmit={handleLogin} className="mb-6">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="seu@email.com"
-            className="chat-input"
-            style={{ width: "100%", marginBottom: 12, fontSize: 14, padding: "12px 16px" }}
+            className="w-full bg-white/[0.04] border border-white/[0.07] rounded-2xl py-3.5 px-5 text-sm text-white/70 placeholder:text-white/25 outline-none transition-all duration-300 focus:border-blue-500/40 mb-4"
             required
           />
           <button
             type="submit"
-            className="btn btn-primary"
-            style={{ width: "100%", padding: "12px 0", fontSize: 14 }}
-            disabled={loading}
+            disabled={loading || !email.trim()}
+            className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all disabled:opacity-50"
           >
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? "Enviando..." : "Entrar"}
           </button>
         </form>
 
-        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 16 }}>
-          <div style={{ fontSize: 11, color: "var(--faint)", marginBottom: 8, textAlign: "center" }}>Acesso rápido sem login</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {quickAccess.map((item) => (
+        {message && (
+          <div className="text-center text-sm mb-4 p-3 bg-white/[0.04] border border-white/[0.06] rounded-2xl">
+            {message}
+          </div>
+        )}
+
+        <div className="border-t border-white/[0.06] pt-6">
+          <p className="text-xs text-white/20 text-center mb-4">Acesso rápido sem login</p>
+          <div className="flex flex-col gap-2">
+            {[
+              { label: "Studio Lab", href: "/studio-lab", icon: "🎛️" },
+              { label: "Mia Brain", href: "/studio/mia-brain", icon: "🧠" },
+              { label: "Sentinela", href: "/studio/sentinela", icon: "🚨" },
+            ].map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="btn btn-ghost"
-                style={{ fontSize: 12, justifyContent: "flex-start", padding: "8px 12px" }}
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm text-white/50 hover:text-white/80 hover:bg-white/[0.03] transition-all"
               >
-                <span style={{ marginRight: 8 }}>{item.icon}</span>
+                <span>{item.icon}</span>
                 {item.label}
               </a>
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from '@/contexts/SessionContext';
 import { ShoppingBag, Briefcase, Zap, CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
+import API_BASE from "@/lib/api";
 import { useRouter } from 'next/navigation';
 
 interface Service {
@@ -20,7 +21,7 @@ export default function MarketplacePage() {
     const [contractingId, setContractingId] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch('http://localhost:3001/api/marketplace/services')
+        fetch(`${API_BASE}/api/marketplace/services`)
             .then(res => res.json())
             .then(data => {
                 setServices(data);
@@ -33,7 +34,7 @@ export default function MarketplacePage() {
         setContractingId(serviceId);
 
         try {
-            const res = await fetch('http://localhost:3001/api/marketplace/order', {
+            const res = await fetch(`${API_BASE}/api/marketplace/order`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

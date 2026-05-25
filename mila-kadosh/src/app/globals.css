@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Dancing+Script:wght@400..700&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #0a0908;
+  --color-rose: #c9936a;
+  --color-cta: #e8bfa0;
+  --color-gold: #b8945a;
+  --color-beige: #f5f0ea;
+  --color-beige-section: #ede5d8;
+  --color-text-light: #ccc5bc;
+  --color-text-medium: #8a7f74;
+  
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Montserrat", sans-serif;
+  --font-signature: "Dancing Script", cursive;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-text-light font-sans antialiased selection:bg-rose selection:text-white;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}

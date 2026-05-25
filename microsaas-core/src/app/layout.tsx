@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
-import { SessionProvider } from "../contexts/SessionContext";
+import { Providers } from "../components/Providers";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -18,20 +18,26 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "MicroSaaS | Agentes de IA para o Seu Negócio",
-  description: "Plataforma de automação inteligente com agentes de IA. Crie sites, conteúdo, automações e análises em minutos. Powered by Gemini + Ollama.",
+  title: "Sualuma | Agentes de IA para o Seu Negócio",
+  description: "Plataforma de automação inteligente com agentes de IA. Crie sites, conteúdo, automações e análises em minutos.",
+  keywords: ["IA", "automação", "agentes", "microsaas", "sualuma"],
+  openGraph: {
+    title: "Sualuma - Agentes de IA",
+    description: "Plataforma de automação inteligente com agentes de IA",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <SessionProvider>
-      <html lang="pt-BR" className={`${inter.variable} ${outfit.variable}`}>
-        <body>
+    <html lang="pt-BR" className={`${inter.variable} ${outfit.variable}`}>
+      <body className="antialiased">
+        <Providers>
           <Navbar />
-          <main style={{ minHeight: "80vh" }}>{children}</main>
+          {children}
           <Footer />
-        </body>
-      </html>
-    </SessionProvider>
+        </Providers>
+      </body>
+    </html>
   );
 }
