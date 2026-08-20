@@ -1,0 +1,67 @@
+{
+  "brand": {
+    "name": "MILA KADOSH",
+    "subtitle": "amor & ódio — capítulo Halloween"
+  },
+  "hero": {
+    "artistImage": "/assets/uploads/artista/artist-1787141419117-2ad5c27a.png",
+    "maskImage": "/assets/uploads/mascara/mask-1787141354097-4b718c21.png"
+  },
+  "covers": [
+    {
+      "title": "capa 01",
+      "image": "/assets/uploads/capas/cover-1-1787138171816-c188225b.png"
+    },
+    {
+      "title": "capa 02",
+      "image": "/assets/uploads/capas/cover-2-1787138192723-35ed8e08.png"
+    },
+    {
+      "title": "capa 03",
+      "image": "/assets/uploads/capas/cover-3-1787138214794-34ae3cac.png"
+    },
+    {
+      "title": "capa 04",
+      "image": "/assets/uploads/capas/cover-4-1787138242522-d8ce520b.png"
+    },
+    {
+      "title": "capa 05",
+      "image": "/assets/uploads/capas/cover-5-1787138264201-fef6de89.png"
+    },
+    {
+      "title": "capa 06",
+      "image": "/assets/uploads/capas/cover-6-1787138283942-2a9ebbc4.png"
+    },
+    {
+      "title": "capa 07",
+      "image": "/assets/uploads/capas/cover-7-1787138303370-6e40dc48.png"
+    },
+    {
+      "title": "capa 08",
+      "image": "/assets/uploads/capas/cover-8-1787138333313-e56438a2.png"
+    },
+    {
+      "title": "capa 09",
+      "image": "/assets/uploads/capas/cover-9-1787138947738-ef76b3c1.png"
+    }
+  ],
+  "cta": {
+    "title": "deixe a máscara cair",
+    "subtitle": "Ao tocar, a máscara cai e revela a experiência."
+  },
+  "social": {
+    "youtube": "",
+    "spotify": "",
+    "instagram": "",
+    "tiktok": "",
+    "apple": "",
+    "facebook": "",
+    "amazon": ""
+  },
+  "maskPosition": {
+    "x": 49.14,
+    "y": 14.6,
+    "scale": 25,
+    "rotation": 0
+  }
+}

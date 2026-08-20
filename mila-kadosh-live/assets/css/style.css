@@ -1,0 +1,6178 @@
+/* =====================================================
+   MILA KADOSH — AMOR & ÓDIO
+   HOME CINEMATOGRÁFICA MOBILE-FIRST
+===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+
+:root {
+
+    --bg: #000000;
+
+    --ink: #f4f1ea;
+
+    --ink-dim:
+        rgba(244, 241, 234, .68);
+
+    --crimson: #8f111d;
+
+    --crimson-light: #cf202c;
+
+    --gold: #c9a24b;
+
+    --line:
+        rgba(255, 255, 255, .14);
+
+    --display:
+        'Playfair Display',
+        Georgia,
+        'Times New Roman',
+        serif;
+
+    --body:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        sans-serif;
+
+}
+
+
+/* =====================================================
+   BASE
+===================================================== */
+
+html {
+
+    margin: 0;
+
+    background: var(--bg);
+
+    color-scheme: dark;
+
+}
+
+
+body {
+
+    margin: 0;
+
+    overflow-x: hidden;
+
+    background:
+
+        radial-gradient(
+            90% 50%
+            at 50% 42%,
+            rgba(125, 5, 8, .24),
+            transparent 72%
+        ),
+
+        #000;
+
+    color: var(--ink);
+
+    font-family: var(--body);
+
+    -webkit-font-smoothing: antialiased;
+
+}
+
+
+img {
+
+    display: block;
+
+    max-width: none;
+
+}
+
+
+button {
+
+    font-family: inherit;
+
+}
+
+
+a {
+
+    color: inherit;
+
+    text-decoration: none;
+
+}
+
+
+/* =====================================================
+   EXPERIÊNCIA
+===================================================== */
+
+.experience {
+
+    position: relative;
+
+    width: 100%;
+
+    max-width: 560px;
+
+    min-height: 100dvh;
+
+    margin: 0 auto;
+
+    overflow: hidden;
+
+    background:
+
+        radial-gradient(
+            75% 42%
+            at 50% 42%,
+            rgba(110, 0, 0, .17),
+            transparent 75%
+        ),
+
+        #000;
+
+}
+
+
+/* =====================================================
+   MARCA
+===================================================== */
+
+.brand {
+
+    position: relative;
+
+    z-index: 30;
+
+    text-align: center;
+
+    padding:
+
+        max(
+            26px,
+            env(safe-area-inset-top)
+        )
+
+        12px
+
+        16px;
+
+}
+
+
+#brandName {
+
+    margin: 0;
+
+    font-family: var(--display);
+
+    font-weight: 500;
+
+    font-size:
+        clamp(
+            34px,
+            10.4vw,
+            48px
+        );
+
+    line-height: .94;
+
+    letter-spacing: .055em;
+
+    white-space: nowrap;
+
+    text-transform: uppercase;
+
+}
+
+
+#brandSubtitle {
+
+    margin: 13px 0 0;
+
+    font-size:
+        clamp(
+            12px,
+            3.5vw,
+            15px
+        );
+
+    line-height: 1.3;
+
+    letter-spacing: .08em;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            .82
+        );
+
+    font-weight: 400;
+
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero {
+
+    position: relative;
+
+    width: 100%;
+
+    height:
+        clamp(
+            585px,
+            145vw,
+            735px
+        );
+
+    overflow: visible;
+
+}
+
+
+/* =====================================================
+   MOSAICO
+===================================================== */
+
+.covers {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 1;
+
+    pointer-events: none;
+
+}
+
+
+.cover {
+
+    position: absolute;
+
+    width:
+        clamp(
+            112px,
+            29vw,
+            148px
+        );
+
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+
+    border-radius: 8px;
+
+    background: #111;
+
+    border:
+        1px solid
+        rgba(
+            134,
+            45,
+            14,
+            .7
+        );
+
+    box-shadow:
+
+        0 12px 28px
+        rgba(0, 0, 0, .78),
+
+        0 0 18px
+        rgba(120, 20, 5, .10);
+
+}
+
+
+.cover-image {
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-repeat: no-repeat;
+
+}
+
+
+/*
+   Rótulos desaparecem visualmente.
+*/
+
+.cover span {
+
+    position: absolute;
+
+    width: 1px;
+
+    height: 1px;
+
+    margin: -1px;
+
+    padding: 0;
+
+    overflow: hidden;
+
+    clip: rect(0, 0, 0, 0);
+
+    white-space: nowrap;
+
+    border: 0;
+
+}
+
+
+/* =====================================================
+   POSIÇÃO DAS 9 CAPAS
+
+   3 no topo
+   2 laterais superiores
+   2 laterais inferiores
+   2 na base
+
+   A artista entra POR CIMA.
+===================================================== */
+
+
+/* topo */
+
+.cover-1 {
+
+    top: 1%;
+
+    left: 2%;
+
+}
+
+
+.cover-2 {
+
+    top: -1%;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+}
+
+
+.cover-3 {
+
+    top: 1%;
+
+    right: 2%;
+
+}
+
+
+/* laterais acima do rosto */
+
+.cover-4 {
+
+    top: 24%;
+
+    left: 0;
+
+}
+
+
+.cover-5 {
+
+    top: 24%;
+
+    right: 0;
+
+}
+
+
+/* laterais do corpo */
+
+.cover-6 {
+
+    top: 48%;
+
+    left: 2%;
+
+}
+
+
+.cover-7 {
+
+    top: 48%;
+
+    right: 2%;
+
+}
+
+
+/* base */
+
+.cover-8 {
+
+    top: 72%;
+
+    left: 5%;
+
+}
+
+
+.cover-9 {
+
+    top: 72%;
+
+    right: 5%;
+
+}
+
+
+/* =====================================================
+   ARTISTA
+===================================================== */
+
+.artist-stage {
+
+    position: absolute;
+
+    z-index: 12;
+
+    left: 50%;
+
+    bottom: -1%;
+
+    width: 82%;
+
+    height: 79%;
+
+    transform:
+        translateX(-50%);
+
+    overflow: visible;
+
+    pointer-events: none;
+
+}
+
+
+/*
+   Placeholder só aparece
+   antes da foto ser carregada.
+*/
+
+.artist-placeholder {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    background:
+        rgba(
+            10,
+            10,
+            10,
+            .55
+        );
+
+    border:
+        1px dashed
+        rgba(
+            255,
+            255,
+            255,
+            .10
+        );
+
+    border-radius:
+        45% 45%
+        0 0;
+
+}
+
+
+.artist-placeholder span {
+
+    font-size: 11px;
+
+    letter-spacing: .15em;
+
+    text-transform: uppercase;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            .24
+        );
+
+}
+
+
+/*
+   IMPORTANTE:
+
+   A imagem fica TRANSPARENTE
+   e usa contain.
+
+   Não criamos fundo preto
+   atrás da artista.
+*/
+
+.artist-photo {
+
+    position: absolute;
+
+    z-index: 2;
+
+    left: 0;
+
+    bottom: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: contain;
+
+    object-position:
+        bottom center;
+
+    background:
+        transparent;
+
+    filter:
+
+        drop-shadow(
+            0 20px 24px
+            rgba(
+                0,
+                0,
+                0,
+                .9
+            )
+        );
+
+}
+
+
+/* =====================================================
+   MÁSCARA
+===================================================== */
+
+.mask-image {
+
+    position: absolute;
+
+    z-index: 15;
+
+    top: 15%;
+
+    left: 50%;
+
+    width: 44%;
+
+    height: auto;
+
+    transform:
+        translateX(-50%);
+
+    transform-origin:
+        center center;
+
+    object-fit: contain;
+
+    pointer-events: none;
+
+    filter:
+
+        drop-shadow(
+            0 6px 16px
+            rgba(
+                90,
+                0,
+                0,
+                .70
+            )
+        );
+
+    transition:
+
+        transform
+        .9s
+        cubic-bezier(
+            .22,
+            1,
+            .36,
+            1
+        ),
+
+        opacity
+        .9s ease,
+
+        filter
+        .9s ease;
+
+    will-change:
+        transform,
+        opacity,
+        filter;
+
+}
+
+
+/* =====================================================
+   CTA
+===================================================== */
+
+.interaction {
+
+    position: relative;
+
+    z-index: 30;
+
+    text-align: center;
+
+    margin-top: -40px;
+
+    padding:
+        0 18px
+        6px;
+
+}
+
+
+.main-button {
+
+    appearance: none;
+
+    width:
+        min(
+            92%,
+            500px
+        );
+
+    min-height: 68px;
+
+    padding:
+        15px
+        26px;
+
+    border: none;
+
+    border-radius:
+        999px;
+
+    cursor: pointer;
+
+    background:
+        #f7f7f5;
+
+    color:
+        #080808;
+
+    font-size:
+        clamp(
+            21px,
+            6vw,
+            30px
+        );
+
+    font-weight: 700;
+
+    letter-spacing:
+        -.02em;
+
+    box-shadow:
+
+        0 12px 35px
+        rgba(
+            0,
+            0,
+            0,
+            .65
+        );
+
+    transition:
+
+        transform .18s ease,
+
+        box-shadow .18s ease;
+
+}
+
+
+.main-button:active {
+
+    transform:
+        scale(.97);
+
+}
+
+
+.main-button:focus-visible {
+
+    outline:
+        2px solid
+        var(--crimson-light);
+
+    outline-offset:
+        4px;
+
+}
+
+
+#ctaSubtitle {
+
+    max-width: 480px;
+
+    margin:
+        14px auto
+        0;
+
+    font-size:
+        clamp(
+            12px,
+            3.5vw,
+            15px
+        );
+
+    line-height: 1.5;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            .68
+        );
+
+}
+
+
+/* =====================================================
+   ORNAMENTO
+===================================================== */
+
+.ornament {
+
+    position: relative;
+
+    z-index: 30;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 16px;
+
+    width: 78%;
+
+    margin:
+        16px auto
+        8px;
+
+}
+
+
+.ornament span {
+
+    display: block;
+
+    flex: 1;
+
+    height: 1px;
+
+    background:
+
+        linear-gradient(
+            to right,
+            transparent,
+            rgba(
+                255,
+                255,
+                255,
+                .35
+            )
+        );
+
+}
+
+
+.ornament span:last-child {
+
+    background:
+
+        linear-gradient(
+            to left,
+            transparent,
+            rgba(
+                255,
+                255,
+                255,
+                .35
+            )
+        );
+
+}
+
+
+.mini-mask {
+
+    font-family:
+        var(--display);
+
+    font-size: 27px;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            .75
+        );
+
+    line-height: 1;
+
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer {
+
+    position: relative;
+
+    z-index: 30;
+
+    text-align: center;
+
+    padding:
+
+        10px
+
+        20px
+
+        max(
+            32px,
+            env(safe-area-inset-bottom)
+        );
+
+}
+
+
+.subscribe {
+
+    margin:
+        0 0
+        20px;
+
+    font-size:
+        clamp(
+            13px,
+            3.7vw,
+            17px
+        );
+
+    font-weight: 600;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            .92
+        );
+
+}
+
+
+.social {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+}
+
+
+.social a {
+
+    width: 38px;
+
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border:
+
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            .14
+        );
+
+    border-radius: 50%;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            .74
+        );
+
+}
+
+
+/* =====================================================
+   IPHONES PEQUENOS
+===================================================== */
+
+@media (max-width: 390px) {
+
+    #brandName {
+
+        font-size:
+            31px;
+
+    }
+
+
+    #brandSubtitle {
+
+        font-size:
+            11px;
+
+    }
+
+
+    .hero {
+
+        height:
+            570px;
+
+    }
+
+
+    .cover {
+
+        width:
+            28.5vw;
+
+        min-width:
+            103px;
+
+    }
+
+
+    .artist-stage {
+
+        width:
+            84%;
+
+        height:
+            78%;
+
+    }
+
+
+    .interaction {
+
+        margin-top:
+            -34px;
+
+    }
+
+
+    .main-button {
+
+        min-height:
+            62px;
+
+        font-size:
+            22px;
+
+    }
+
+}
+
+
+/* =====================================================
+   DESKTOP / TABLET
+===================================================== */
+
+@media (min-width: 560px) {
+
+    .experience {
+
+        border-left:
+            1px solid
+            rgba(
+                255,
+                255,
+                255,
+                .08
+            );
+
+        border-right:
+            1px solid
+            rgba(
+                255,
+                255,
+                255,
+                .08
+            );
+
+    }
+
+
+    .hero {
+
+        height:
+            760px;
+
+    }
+
+
+    .cover {
+
+        width:
+            150px;
+
+    }
+
+
+    .artist-stage {
+
+        width:
+            76%;
+
+        height:
+            80%;
+
+    }
+
+}
+
+
+/* =====================================================
+   ACESSIBILIDADE
+===================================================== */
+
+@media (
+    prefers-reduced-motion:
+    reduce
+) {
+
+    * {
+
+        animation-duration:
+            .01ms !important;
+
+        transition-duration:
+            .01ms !important;
+
+    }
+
+}
+
+
+/* =========================================================
+   AJUSTE FINO DA HERO — MOBILE
+   ========================================================= */
+
+@media (max-width: 559px) {
+
+    /*
+       ARTISTA
+
+       Mantém a artista grande e centralizada.
+    */
+
+    .artist-stage {
+        position: absolute;
+
+        left: 50%;
+        bottom: -2%;
+
+        width: 84%;
+        height: 80%;
+
+        transform: translateX(-50%);
+
+        z-index: 12;
+
+        overflow: visible;
+
+        pointer-events: none;
+    }
+
+
+    .artist-photo {
+        position: absolute;
+
+        left: 0;
+        bottom: 0;
+
+        width: 100%;
+        height: 100%;
+
+        object-fit: contain;
+        object-position: bottom center;
+
+        background: transparent;
+
+        z-index: 2;
+
+        filter:
+            drop-shadow(
+                0 18px 24px
+                rgba(0,0,0,.9)
+            );
+    }
+
+
+    /*
+       MÁSCARA
+
+       Essa é a camada independente que
+       ficará posicionada sobre os olhos.
+
+       Se precisar ajustar depois:
+       - top = sobe/desce
+       - width = aumenta/diminui
+       - left = move horizontalmente
+    */
+
+    .mask-image {
+        position: absolute;
+
+        z-index: 20;
+
+        top: 6.5%;
+        left: 50%;
+
+        width: 32%;
+
+        height: auto;
+
+        transform:
+            translateX(-50%);
+
+        transform-origin:
+            center center;
+
+        object-fit: contain;
+
+        object-position: center;
+
+        pointer-events: none;
+
+        background: transparent;
+
+        filter:
+            drop-shadow(
+                0 5px 12px
+                rgba(120,0,0,.55)
+            );
+
+        transition:
+            transform .9s cubic-bezier(.22,1,.36,1),
+            opacity .9s ease,
+            filter .9s ease;
+    }
+
+
+    /*
+       BOTÃO
+
+       Fica logo abaixo da artista,
+       mas sem invadir o vestido.
+    */
+
+    .interaction {
+        position: relative;
+
+        z-index: 30;
+
+        margin-top: -12px;
+
+        padding:
+            0 18px
+            8px;
+
+        text-align: center;
+    }
+
+
+    .main-button {
+        width: 88%;
+
+        min-height: 66px;
+
+        padding:
+            14px
+            22px;
+
+        border: none;
+
+        border-radius: 999px;
+
+        background: #fff;
+
+        color: #070707;
+
+        font-size: clamp(
+            22px,
+            6vw,
+            29px
+        );
+
+        font-weight: 700;
+
+        line-height: 1;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 12px 34px
+            rgba(0,0,0,.65);
+    }
+
+
+    #ctaSubtitle {
+        margin:
+            14px auto
+            0;
+
+        max-width: 430px;
+
+        font-size:
+            13px;
+
+        line-height: 1.5;
+
+        color:
+            rgba(
+                255,
+                255,
+                255,
+                .72
+            );
+    }
+
+}
+
+
+/* =========================================================
+   IPHONES MENORES
+   ========================================================= */
+
+@media (max-width: 390px) {
+
+    .artist-stage {
+        width: 86%;
+        height: 79%;
+        bottom: -2%;
+    }
+
+
+    .mask-image {
+        top: 6%;
+        width: 31%;
+    }
+
+
+    .interaction {
+        margin-top: -8px;
+    }
+
+
+    .main-button {
+        width: 90%;
+        min-height: 62px;
+        font-size: 22px;
+    }
+
+}
+
+
+/* =========================================================
+   MÁSCARA — ENCAIXE FINAL NO ROSTO
+   ========================================================= */
+
+@media (max-width: 559px) {
+
+    .mask-image {
+        position: absolute;
+
+        z-index: 20;
+
+        /* desce levemente */
+        top: 7.7%;
+
+        /* permanece centralizada */
+        left: 50%;
+
+        /* um pouco maior */
+        width: 34.5%;
+
+        height: auto;
+
+        transform:
+            translateX(-50%);
+
+        transform-origin:
+            center center;
+
+        object-fit: contain;
+
+        object-position: center;
+
+        background: transparent;
+
+        pointer-events: none;
+
+        filter:
+            drop-shadow(
+                0 5px 13px
+                rgba(110, 0, 0, .58)
+            );
+    }
+
+}
+
+
+/* iPhones menores */
+@media (max-width: 390px) {
+
+    .mask-image {
+        top: 7.4%;
+        width: 34%;
+    }
+
+}
+
+
+/* ================================================
+   ENCAIXE DEFINITIVO DA MÁSCARA — MOBILE
+================================================ */
+
+@media (max-width: 559px) {
+
+    .mask-image {
+        top: 6.6% !important;
+        left: 50% !important;
+        width: 33% !important;
+
+        height: auto;
+
+        transform: translateX(-50%);
+
+        transform-origin: center center;
+
+        object-fit: contain;
+
+        background: transparent;
+
+        z-index: 20;
+
+        pointer-events: none;
+    }
+
+}
+
+@media (max-width: 390px) {
+
+    .mask-image {
+        top: 6.4% !important;
+        width: 32.5% !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   CAPAS INFERIORES — GPS DO AMOR + HALLOWEEN
+   Mais visíveis sem cobrir a artista
+========================================================= */
+
+@media (max-width: 559px) {
+
+    .cover-8,
+    .cover-9 {
+        width: 25.5vw !important;
+
+        min-width: 98px !important;
+        max-width: 128px !important;
+
+        top: 70.5% !important;
+
+        z-index: 3 !important;
+    }
+
+
+    /* GPS DO AMOR */
+    .cover-8 {
+        left: 0 !important;
+        right: auto !important;
+
+        transform: none !important;
+    }
+
+
+    /* HALLOWEEN */
+    .cover-9 {
+        right: 0 !important;
+        left: auto !important;
+
+        transform: none !important;
+    }
+
+}
+
+
+/* iPhones mais estreitos */
+@media (max-width: 390px) {
+
+    .cover-8,
+    .cover-9 {
+        width: 24.5vw !important;
+
+        min-width: 92px !important;
+
+        top: 70% !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   SUAS MARCAS FICARAM + LOUCOS NUM HOSPÍCIO
+   Mais visíveis nas laterais da artista
+========================================================= */
+
+@media (max-width: 559px) {
+
+    .cover-6,
+    .cover-7 {
+        width: 25.5vw !important;
+
+        min-width: 98px !important;
+        max-width: 128px !important;
+
+        top: 47% !important;
+
+        z-index: 3 !important;
+    }
+
+
+    /* SUAS MARCAS FICARAM */
+    .cover-6 {
+        left: 0 !important;
+        right: auto !important;
+
+        transform: none !important;
+    }
+
+
+    /* LOUCOS NUM HOSPÍCIO */
+    .cover-7 {
+        right: 0 !important;
+        left: auto !important;
+
+        transform: none !important;
+    }
+
+}
+
+
+/* iPhones menores */
+@media (max-width: 390px) {
+
+    .cover-6,
+    .cover-7 {
+        width: 24.5vw !important;
+
+        min-width: 92px !important;
+
+        top: 46.5% !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   ACABAMENTO FINAL DA HERO
+========================================================= */
+
+
+/*
+   1. SUAVIZA O CORTE DA FOTO NO FINAL DO VESTIDO
+   Em vez de terminar seco, a imagem dissolve no preto.
+*/
+
+.artist-photo {
+
+    -webkit-mask-image:
+        linear-gradient(
+            to bottom,
+            #000 0%,
+            #000 88%,
+            rgba(0,0,0,.98) 91%,
+            rgba(0,0,0,.78) 94%,
+            rgba(0,0,0,.35) 97%,
+            transparent 100%
+        );
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+            #000 0%,
+            #000 88%,
+            rgba(0,0,0,.98) 91%,
+            rgba(0,0,0,.78) 94%,
+            rgba(0,0,0,.35) 97%,
+            transparent 100%
+        );
+}
+
+
+/*
+   Pequena sombra preta por trás do botão.
+   Ajuda a esconder ainda mais o final da imagem.
+*/
+
+.interaction::before {
+
+    content: "";
+
+    position: absolute;
+
+    z-index: -1;
+
+    left: 50%;
+
+    top: -55px;
+
+    width: 120%;
+
+    height: 100px;
+
+    transform:
+        translateX(-50%);
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(0,0,0,.92) 0%,
+            rgba(0,0,0,.62) 48%,
+            transparent 75%
+        );
+
+    pointer-events: none;
+}
+
+
+
+/*
+   2. O BOTÃO SOBE UM POUCO
+   E cobre exatamente a região onde a foto termina.
+*/
+
+@media (max-width: 559px) {
+
+    .interaction {
+        margin-top: -27px !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   MINI MÁSCARA PRATEADA
+   Substitui visualmente o losango.
+========================================================= */
+
+.mini-mask {
+
+    position: relative !important;
+
+    width: 64px !important;
+    height: 36px !important;
+
+    margin:
+        26px auto
+        20px !important;
+
+    border: 0 !important;
+
+    transform: none !important;
+
+    background:
+        var(--mini-mask-image)
+        center
+        center
+        /
+        contain
+        no-repeat !important;
+
+    filter:
+        grayscale(1)
+        brightness(2.25)
+        contrast(1.08)
+        drop-shadow(
+            0 0 6px
+            rgba(255,255,255,.28)
+        );
+
+    opacity: .92;
+}
+
+
+/*
+   Remove qualquer desenho antigo criado
+   por ::before ou ::after.
+*/
+
+.mini-mask::before,
+.mini-mask::after {
+
+    content: none !important;
+
+    display: none !important;
+
+}
+
+
+/*
+   Linhas laterais elegantes em volta
+   da máscara prata.
+*/
+
+.ornament {
+
+    display: flex !important;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 18px;
+}
+
+
+.ornament::before,
+.ornament::after {
+
+    content: "";
+
+    display: block;
+
+    width: min(31vw, 150px);
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.4)
+        );
+}
+
+
+.ornament::after {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.4),
+            transparent
+        );
+}
+
+
+
+@media (max-width: 390px) {
+
+    .mini-mask {
+        width: 56px !important;
+        height: 32px !important;
+    }
+
+    .interaction {
+        margin-top: -24px !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   ORNAMENTO — MÁSCARA PRATA DEFINITIVA
+========================================================= */
+
+.ornament {
+
+    position: relative !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    gap: 20px !important;
+
+    width: min(86%, 520px) !important;
+
+    margin:
+        28px auto
+        24px !important;
+
+    height: 52px !important;
+
+    overflow: visible !important;
+}
+
+
+/* linhas laterais */
+
+.ornament::before,
+.ornament::after {
+
+    content: "" !important;
+
+    display: block !important;
+
+    flex: 1 1 auto !important;
+
+    width: auto !important;
+
+    max-width: 155px !important;
+
+    height: 1px !important;
+
+    position: static !important;
+
+    transform: none !important;
+
+    border: 0 !important;
+}
+
+
+.ornament::before {
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(210,210,210,.58)
+        ) !important;
+}
+
+
+.ornament::after {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(210,210,210,.58),
+            transparent
+        ) !important;
+}
+
+
+/*
+   máscara real convertida visualmente
+   para prata
+*/
+
+.silver-mask-icon {
+
+    display: block !important;
+
+    position: relative !important;
+
+    flex: 0 0 auto !important;
+
+    width: 72px !important;
+
+    height: 46px !important;
+
+    object-fit: contain !important;
+
+    object-position: center !important;
+
+    transform: none !important;
+
+    border: 0 !important;
+
+    background: transparent !important;
+
+    opacity: 1 !important;
+
+    filter:
+        grayscale(1)
+        saturate(0)
+        brightness(2.7)
+        contrast(.92)
+        drop-shadow(
+            0 0 3px
+            rgba(255,255,255,.75)
+        )
+        drop-shadow(
+            0 0 10px
+            rgba(190,190,190,.25)
+        ) !important;
+}
+
+
+/*
+   garante que qualquer regra antiga
+   da mini-mask não apareça
+*/
+
+.mini-mask {
+
+    display: none !important;
+
+}
+
+
+@media (max-width: 390px) {
+
+    .silver-mask-icon {
+
+        width: 65px !important;
+
+        height: 42px !important;
+
+    }
+
+    .ornament {
+
+        gap: 16px !important;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   VESTIDO — DISSOLUÇÃO CINEMATOGRÁFICA FINAL
+========================================================= */
+
+
+/*
+   Faz a própria foto começar a desaparecer
+   ANTES da borda física do arquivo.
+*/
+
+.artist-photo {
+
+    -webkit-mask-image:
+        linear-gradient(
+            to bottom,
+
+            #000 0%,
+            #000 78%,
+
+            rgba(0,0,0,.98) 82%,
+            rgba(0,0,0,.92) 85%,
+            rgba(0,0,0,.76) 88%,
+            rgba(0,0,0,.53) 91%,
+            rgba(0,0,0,.30) 94%,
+            rgba(0,0,0,.12) 97%,
+
+            transparent 100%
+        ) !important;
+
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+
+            #000 0%,
+            #000 78%,
+
+            rgba(0,0,0,.98) 82%,
+            rgba(0,0,0,.92) 85%,
+            rgba(0,0,0,.76) 88%,
+            rgba(0,0,0,.53) 91%,
+            rgba(0,0,0,.30) 94%,
+            rgba(0,0,0,.12) 97%,
+
+            transparent 100%
+        ) !important;
+}
+
+
+
+/*
+   Segunda camada:
+   uma névoa preta por cima da região
+   onde o arquivo termina.
+
+   É ela que elimina visualmente
+   qualquer linha horizontal restante.
+*/
+
+.artist-stage::after {
+
+    content: "";
+
+    position: absolute;
+
+    z-index: 8;
+
+    left: -12%;
+
+    bottom: -3%;
+
+    width: 124%;
+
+    height: 25%;
+
+    pointer-events: none;
+
+
+    background:
+        linear-gradient(
+            to bottom,
+
+            transparent 0%,
+
+            rgba(0,0,0,.05) 12%,
+
+            rgba(0,0,0,.18) 26%,
+
+            rgba(0,0,0,.42) 43%,
+
+            rgba(0,0,0,.68) 60%,
+
+            rgba(0,0,0,.88) 76%,
+
+            #000 94%,
+
+            #000 100%
+        );
+
+
+    filter:
+        blur(5px);
+
+    transform:
+        translateY(4px);
+}
+
+
+
+/*
+   Mantém a máscara do rosto
+   acima da nova camada.
+*/
+
+.mask-image {
+
+    z-index: 20 !important;
+
+}
+
+
+
+/*
+   No celular pequeno fazemos a
+   transição começar um pouco antes.
+*/
+
+@media (max-width: 390px) {
+
+    .artist-stage::after {
+
+        height: 27%;
+
+        bottom: -3%;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   AMOR & ÓDIO — ÁLBUM CAINDO
+========================================================= */
+
+.falling-album {
+
+    position: absolute;
+
+    z-index: 25;
+
+    /*
+       fica sobre a região inferior
+       do vestido
+    */
+    left: 61%;
+
+    bottom: -1%;
+
+    width: clamp(
+        112px,
+        29vw,
+        150px
+    );
+
+    aspect-ratio: 1 / 1;
+
+    transform:
+        translateX(-50%)
+        rotate(-11deg);
+
+    transform-origin:
+        center center;
+
+    pointer-events: none;
+
+    animation:
+        fallingAlbumFloat
+        3.8s
+        ease-in-out
+        infinite;
+}
+
+
+/* CAPA */
+
+.falling-sleeve {
+
+    position: absolute;
+
+    z-index: 5;
+
+    left: 0;
+
+    top: 0;
+
+    width: 78%;
+
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+
+    border-radius: 5px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #300006,
+            #090000 55%,
+            #000
+        );
+
+    border:
+        1px solid
+        rgba(255,255,255,.22);
+
+    box-shadow:
+        0 16px 30px
+        rgba(0,0,0,.78),
+        0 0 18px
+        rgba(150,0,20,.18);
+
+    transform:
+        perspective(500px)
+        rotateY(-5deg);
+}
+
+
+.falling-album-cover {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 4;
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    display: none;
+}
+
+
+/* placeholder enquanto não subir a capa */
+
+.falling-album-placeholder {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 2;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(150,0,15,.35),
+            transparent 55%
+        ),
+        linear-gradient(
+            145deg,
+            #3b0008,
+            #0c0001 58%,
+            #000
+        );
+
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    color: #fff;
+
+    font-weight: 700;
+
+    line-height: .78;
+
+    text-align: center;
+
+    text-shadow:
+        0 0 14px
+        rgba(255,0,20,.55);
+}
+
+
+.falling-album-placeholder span:nth-child(1),
+.falling-album-placeholder span:nth-child(3) {
+
+    font-size:
+        clamp(
+            17px,
+            5vw,
+            27px
+        );
+
+}
+
+
+.falling-album-placeholder span:nth-child(2) {
+
+    margin: 6px 0;
+
+    font-size: 13px;
+
+    color: #adadad;
+}
+
+
+/* =========================================================
+   CD SAINDO DA CAPA
+========================================================= */
+
+.falling-disc {
+
+    position: absolute;
+
+    z-index: 2;
+
+    right: -2%;
+
+    top: 9%;
+
+    width: 72%;
+
+    aspect-ratio: 1 / 1;
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(
+            circle at center,
+            transparent 0 9%,
+            rgba(0,0,0,.9) 10% 12%,
+            rgba(230,230,230,.9) 13% 18%,
+            transparent 19%
+        ),
+
+        conic-gradient(
+            from 0deg,
+            #bcbcbc,
+            #fafafa,
+            #757575,
+            #dddddd,
+            #3d3d3d,
+            #f4f4f4,
+            #989898,
+            #d9d9d9,
+            #bcbcbc
+        );
+
+    box-shadow:
+        0 12px 28px
+        rgba(0,0,0,.8),
+        0 0 10px
+        rgba(255,255,255,.18);
+
+    animation:
+        fallingDiscSpin
+        2.8s
+        linear
+        infinite;
+}
+
+
+.falling-disc::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 6%;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(255,255,255,.28);
+
+    box-shadow:
+        inset 0 0 10px
+        rgba(0,0,0,.45);
+}
+
+
+.disc-hole {
+
+    position: absolute;
+
+    z-index: 5;
+
+    left: 50%;
+
+    top: 50%;
+
+    width: 13%;
+
+    aspect-ratio: 1;
+
+    transform:
+        translate(-50%,-50%);
+
+    border-radius: 50%;
+
+    background: #050505;
+
+    border:
+        2px solid
+        rgba(255,255,255,.65);
+}
+
+
+/* =========================================================
+   MOVIMENTO
+========================================================= */
+
+@keyframes fallingDiscSpin {
+
+    from {
+        transform:
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+
+}
+
+
+@keyframes fallingAlbumFloat {
+
+    0% {
+
+        transform:
+            translateX(-50%)
+            translateY(-7px)
+            rotate(-13deg);
+
+    }
+
+    50% {
+
+        transform:
+            translateX(-50%)
+            translateY(9px)
+            rotate(-8deg);
+
+    }
+
+    100% {
+
+        transform:
+            translateX(-50%)
+            translateY(-7px)
+            rotate(-13deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE MENOR
+========================================================= */
+
+@media (max-width: 390px) {
+
+    .falling-album {
+
+        left: 62%;
+
+        bottom: -1%;
+
+        width: 116px;
+
+    }
+
+}
+
+
+/*
+   deixa o botão acima do álbum
+   e totalmente clicável
+*/
+
+.interaction {
+
+    z-index: 35 !important;
+
+}
+
+
+
+/* =========================================================
+   ÁLBUM PENDURADO NO FIM DO VESTIDO
+========================================================= */
+
+.artist-stage {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* aceita vários nomes possíveis do mockup */
+.falling-album-mockup,
+.album-falling-mockup,
+.album-mockup,
+[data-falling-album] {
+    position: absolute !important;
+    top: auto !important;
+    left: auto !important;
+
+    /* joga para o fim do vestido */
+    right: -2% !important;
+    bottom: 1.5% !important;
+
+    width: clamp(120px, 29vw, 178px) !important;
+    z-index: 28 !important;
+
+    transform: rotate(11deg) !important;
+    transform-origin: center center !important;
+
+    pointer-events: none !important;
+
+    filter: drop-shadow(0 14px 28px rgba(0,0,0,.48)) !important;
+}
+
+@media (max-width: 559px) {
+    .falling-album-mockup,
+    .album-falling-mockup,
+    .album-mockup,
+    [data-falling-album] {
+        right: -4% !important;
+        bottom: 2% !important;
+        width: clamp(122px, 31vw, 182px) !important;
+        transform: rotate(12deg) !important;
+    }
+}
+
+
+
+/* =========================================================
+   FIX REAL — ÁLBUM PENDURADO NO VESTIDO
+========================================================= */
+
+
+/*
+   RESTAURA a estrutura original da artista.
+   O patch anterior havia colocado relative.
+*/
+
+.artist-stage {
+
+    position: absolute !important;
+
+    overflow: visible !important;
+
+}
+
+
+/*
+   Agora o álbum realmente fica dentro
+   da artist-stage e acompanha o vestido.
+*/
+
+.artist-stage > .falling-album {
+
+    position: absolute !important;
+
+    z-index: 30 !important;
+
+    top: auto !important;
+
+    left: auto !important;
+
+    /*
+       canto inferior direito do vestido
+    */
+    right: -2% !important;
+
+    bottom: 0% !important;
+
+
+    /*
+       grande o suficiente para esconder
+       a borda reta da imagem
+    */
+    width: 38% !important;
+
+    min-width: 120px !important;
+
+    max-width: 172px !important;
+
+    height: auto !important;
+
+    aspect-ratio: 1 / 1 !important;
+
+
+    transform-origin:
+        45% 12% !important;
+
+
+    pointer-events:
+        none !important;
+
+
+    filter:
+        drop-shadow(
+            0 18px 22px
+            rgba(0,0,0,.72)
+        ) !important;
+
+
+    animation:
+        albumPendurado
+        3.6s
+        ease-in-out
+        infinite !important;
+
+}
+
+
+/*
+   Movimento pequeno.
+   Parece pendurado/balançando,
+   não flutuando lá embaixo.
+*/
+
+@keyframes albumPendurado {
+
+    0%,
+    100% {
+
+        transform:
+            translateY(-3px)
+            rotate(10deg);
+
+    }
+
+
+    50% {
+
+        transform:
+            translateY(6px)
+            rotate(7deg);
+
+    }
+
+}
+
+
+/*
+   CD continua girando normalmente.
+*/
+
+.artist-stage
+.falling-album
+.falling-disc {
+
+    animation:
+        fallingDiscSpin
+        2.8s
+        linear
+        infinite !important;
+
+}
+
+
+/* iPhone */
+
+@media (max-width: 390px) {
+
+    .artist-stage > .falling-album {
+
+        right: -4% !important;
+
+        bottom: -1% !important;
+
+        width: 40% !important;
+
+        min-width: 118px !important;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   CDS GIRANDO — MOSAICO AMOR & ÓDIO
+========================================================= */
+
+
+/*
+   NÃO altera position das capas.
+   Elas continuam absolutas no mosaico.
+*/
+
+.cover {
+
+    overflow: visible !important;
+
+}
+
+
+/*
+   A imagem da capa fica na frente do CD.
+*/
+
+.cover-image {
+
+    position: relative !important;
+
+    z-index: 3 !important;
+
+    border-radius: inherit;
+
+}
+
+
+/* =========================================================
+   DISCO
+========================================================= */
+
+.cover-disc {
+
+    position: absolute;
+
+    z-index: 1;
+
+    top: 50%;
+
+    width: 58%;
+
+    aspect-ratio: 1 / 1;
+
+    border-radius: 50%;
+
+    transform-origin: center;
+
+    pointer-events: none;
+
+    box-shadow:
+        0 8px 16px rgba(0,0,0,.7),
+        0 0 9px rgba(255,255,255,.16);
+
+    animation:
+        coverDiscSpin
+        var(--disc-speed, 6s)
+        linear
+        infinite;
+
+}
+
+
+/*
+   metade do CD saindo pela direita
+*/
+
+.cover-disc.disc-right {
+
+    right: -29%;
+
+}
+
+
+/*
+   metade do CD saindo pela esquerda
+*/
+
+.cover-disc.disc-left {
+
+    left: -29%;
+
+}
+
+
+/*
+   precisamos incorporar o translateY
+   na própria animação para não conflitar
+   com o rotate.
+*/
+
+@keyframes coverDiscSpin {
+
+    from {
+
+        transform:
+            translateY(-50%)
+            rotate(0deg);
+
+    }
+
+    to {
+
+        transform:
+            translateY(-50%)
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   FURO CENTRAL
+========================================================= */
+
+.cover-disc::before {
+
+    content: "";
+
+    position: absolute;
+
+    z-index: 5;
+
+    left: 50%;
+
+    top: 50%;
+
+    width: 15%;
+
+    aspect-ratio: 1;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #070707 0%,
+            #151515 45%,
+            #ededed 48%,
+            #858585 68%,
+            #111 72%
+        );
+
+}
+
+
+/* =========================================================
+   REFLEXO DO CD
+========================================================= */
+
+.cover-disc::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 5%;
+
+    border-radius: 50%;
+
+    background:
+        conic-gradient(
+            from 10deg,
+
+            transparent 0deg,
+
+            rgba(255,255,255,.55) 28deg,
+
+            transparent 68deg,
+
+            rgba(255,255,255,.10) 105deg,
+
+            transparent 155deg,
+
+            rgba(255,255,255,.45) 205deg,
+
+            transparent 255deg,
+
+            rgba(255,255,255,.16) 315deg,
+
+            transparent 360deg
+        );
+
+    mix-blend-mode:
+        screen;
+
+    opacity: .72;
+
+}
+
+
+/* =========================================================
+   PRATA
+========================================================= */
+
+.cover-disc.silver {
+
+    background:
+
+        radial-gradient(
+            circle at 35% 28%,
+            #ffffff 0%,
+            #e9edf1 15%,
+            #aab0b8 34%,
+            #60666d 54%,
+            #dedede 72%,
+            #777d84 87%,
+            #f8f8f8 100%
+        );
+
+}
+
+
+/* =========================================================
+   OURO
+========================================================= */
+
+.cover-disc.gold {
+
+    background:
+
+        radial-gradient(
+            circle at 35% 28%,
+            #fff9ce 0%,
+            #ffe699 14%,
+            #d8a72f 36%,
+            #8e5910 55%,
+            #f3c85d 73%,
+            #815211 88%,
+            #ffec9a 100%
+        );
+
+    box-shadow:
+        0 8px 18px rgba(0,0,0,.7),
+        0 0 12px rgba(224,170,52,.35);
+
+}
+
+
+/* =========================================================
+   VERMELHO
+========================================================= */
+
+.cover-disc.red {
+
+    background:
+
+        radial-gradient(
+            circle at 35% 28%,
+            #ffd0d0 0%,
+            #ff6565 14%,
+            #c91625 35%,
+            #600810 57%,
+            #e02c38 73%,
+            #5c0710 88%,
+            #ff8e95 100%
+        );
+
+    box-shadow:
+        0 8px 18px rgba(0,0,0,.7),
+        0 0 13px rgba(202,16,34,.36);
+
+}
+
+
+/* =========================================================
+   ROSÉ
+========================================================= */
+
+.cover-disc.rose {
+
+    background:
+
+        radial-gradient(
+            circle at 35% 28%,
+            #ffe8f0 0%,
+            #ef9eb9 15%,
+            #bb5778 37%,
+            #663044 57%,
+            #d983a0 73%,
+            #60283e 88%,
+            #ffd1df 100%
+        );
+
+}
+
+
+/* =========================================================
+   PRETO / GRAFITE
+========================================================= */
+
+.cover-disc.black {
+
+    background:
+
+        radial-gradient(
+            circle at 35% 28%,
+            #d9d9d9 0%,
+            #777 13%,
+            #313131 35%,
+            #080808 58%,
+            #4d4d4d 74%,
+            #111 88%,
+            #a0a0a0 100%
+        );
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 559px) {
+
+    .cover-disc {
+
+        width: 54%;
+
+    }
+
+
+    .cover-disc.disc-right {
+
+        right: -26%;
+
+    }
+
+
+    .cover-disc.disc-left {
+
+        left: -26%;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   REFINO FINAL — CDS DO MOSAICO
+========================================================= */
+
+
+/*
+   CDs menores:
+   apenas uma parte aparece atrás da capa
+*/
+
+@media (max-width: 559px) {
+
+    .cover-disc {
+
+        width: 34% !important;
+
+        box-shadow:
+            0 5px 12px rgba(0,0,0,.72),
+            0 0 5px rgba(255,255,255,.12) !important;
+
+    }
+
+
+    .cover-disc.disc-right {
+
+        right: -16% !important;
+
+    }
+
+
+    .cover-disc.disc-left {
+
+        left: -16% !important;
+
+    }
+
+
+    /*
+       Cada CD aparece em uma altura
+       ligeiramente diferente.
+       Fica menos artificial.
+    */
+
+    .cover-1 .cover-disc {
+        top: 58% !important;
+    }
+
+    .cover-2 .cover-disc {
+        top: 38% !important;
+    }
+
+    .cover-3 .cover-disc {
+        top: 56% !important;
+    }
+
+    .cover-4 .cover-disc {
+        top: 44% !important;
+    }
+
+    .cover-5 .cover-disc {
+        top: 61% !important;
+    }
+
+    .cover-6 .cover-disc {
+        top: 40% !important;
+    }
+
+    .cover-7 .cover-disc {
+        top: 57% !important;
+    }
+
+    .cover-8 .cover-disc {
+        top: 45% !important;
+    }
+
+    .cover-9 .cover-disc {
+        top: 55% !important;
+    }
+
+}
+
+
+/* =========================================================
+   ÁLBUM AMOR & ÓDIO
+   Continua cobrindo o corte do vestido,
+   mas sem invadir tanto o botão.
+========================================================= */
+
+@media (max-width: 559px) {
+
+    .artist-stage > .falling-album {
+
+        width: 31% !important;
+
+        min-width: 105px !important;
+
+        max-width: 142px !important;
+
+        right: 1% !important;
+
+        bottom: 3.5% !important;
+
+    }
+
+}
+
+
+@media (max-width: 390px) {
+
+    .artist-stage > .falling-album {
+
+        width: 32% !important;
+
+        min-width: 104px !important;
+
+        right: 0% !important;
+
+        bottom: 3% !important;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   CDS PROPORCIONAIS — VERSÃO DEFINITIVA
+========================================================= */
+
+
+/*
+   A camada fica acima da artista,
+   mas os discos são recortados para
+   mostrar somente a parte FORA da capa.
+*/
+
+.disc-overlay-layer {
+
+    position: absolute !important;
+
+    inset: 0 !important;
+
+    z-index: 16 !important;
+
+    overflow: visible !important;
+
+    pointer-events: none !important;
+
+}
+
+
+/*
+   Cada slot é medido automaticamente
+   pelo JavaScript.
+*/
+
+.cover-disc-slot {
+
+    position: absolute !important;
+
+    pointer-events: none !important;
+
+    overflow: hidden !important;
+
+}
+
+
+/*
+   Disco saindo pela parte superior.
+*/
+
+.cover-disc-slot.edge-top {
+
+    clip-path:
+        inset(
+            0
+            0
+            50%
+            0
+        );
+
+}
+
+
+/*
+   Disco saindo pela parte inferior.
+*/
+
+.cover-disc-slot.edge-bottom {
+
+    clip-path:
+        inset(
+            50%
+            0
+            0
+            0
+        );
+
+}
+
+
+/* =========================================================
+   DISCO REAL
+========================================================= */
+
+.cover-disc-metal {
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    border-radius: 50%;
+
+    transform-origin:
+        center center;
+
+    animation:
+        proportionalDiscSpin
+        var(--disc-speed, 7s)
+        linear
+        infinite;
+
+    box-shadow:
+        0 4px 9px
+        rgba(0,0,0,.58);
+
+}
+
+
+/*
+   círculo central
+*/
+
+.cover-disc-metal::before {
+
+    content: "";
+
+    position: absolute;
+
+    z-index: 4;
+
+    left: 50%;
+
+    top: 50%;
+
+    width: 17%;
+
+    aspect-ratio: 1;
+
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+
+            #050505 0%,
+
+            #111 38%,
+
+            #ededed 43%,
+
+            #777 65%,
+
+            #111 72%
+        );
+
+}
+
+
+/*
+   reflexo metálico
+*/
+
+.cover-disc-metal::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 5%;
+
+    border-radius: 50%;
+
+    background:
+        conic-gradient(
+
+            from 8deg,
+
+            transparent 0deg,
+
+            rgba(255,255,255,.62) 27deg,
+
+            transparent 58deg,
+
+            rgba(255,255,255,.10) 105deg,
+
+            transparent 151deg,
+
+            rgba(255,255,255,.48) 198deg,
+
+            transparent 245deg,
+
+            rgba(255,255,255,.18) 303deg,
+
+            transparent 360deg
+
+        );
+
+    mix-blend-mode:
+        screen;
+
+    opacity: .64;
+
+}
+
+
+@keyframes proportionalDiscSpin {
+
+    from {
+
+        transform:
+            rotate(0deg);
+
+    }
+
+    to {
+
+        transform:
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   OURO
+========================================================= */
+
+.cover-disc-metal.gold {
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+
+            #fffbd4 0%,
+
+            #f4da78 16%,
+
+            #c99a27 35%,
+
+            #76500f 54%,
+
+            #eac453 73%,
+
+            #8d671c 88%,
+
+            #fff0a6 100%
+        );
+
+}
+
+
+/* =========================================================
+   PRATA
+========================================================= */
+
+.cover-disc-metal.silver {
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+
+            #fff 0%,
+
+            #e6e9ed 16%,
+
+            #9ca3aa 35%,
+
+            #555c63 54%,
+
+            #d6d9dc 73%,
+
+            #71777e 88%,
+
+            #fafafa 100%
+        );
+
+}
+
+
+/* =========================================================
+   VERMELHO
+========================================================= */
+
+.cover-disc-metal.red {
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+
+            #ffd8d8 0%,
+
+            #ff636d 16%,
+
+            #c21628 36%,
+
+            #610812 57%,
+
+            #db2b39 73%,
+
+            #700d18 88%,
+
+            #ff999f 100%
+        );
+
+}
+
+
+/* =========================================================
+   ROSÉ
+========================================================= */
+
+.cover-disc-metal.rose {
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+
+            #ffe9ef 0%,
+
+            #eb9bb5 17%,
+
+            #b55172 37%,
+
+            #603043 57%,
+
+            #d37d99 73%,
+
+            #71374d 88%,
+
+            #ffd3df 100%
+        );
+
+}
+
+
+/* =========================================================
+   GRAFITE
+========================================================= */
+
+.cover-disc-metal.graphite {
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+
+            #d6d6d6 0%,
+
+            #777 15%,
+
+            #333 36%,
+
+            #080808 57%,
+
+            #4c4c4c 73%,
+
+            #151515 88%,
+
+            #aaa 100%
+        );
+
+}
+
+
+/* =========================================================
+   AMOR & ÓDIO — SOBE E DIMINUI
+========================================================= */
+
+@media (max-width: 559px) {
+
+    .artist-stage > .falling-album {
+
+        width: 29% !important;
+
+        min-width: 100px !important;
+
+        max-width: 136px !important;
+
+        right: -1% !important;
+
+        bottom: 8.5% !important;
+
+    }
+
+}
+
+
+@media (max-width: 390px) {
+
+    .artist-stage > .falling-album {
+
+        width: 30% !important;
+
+        min-width: 98px !important;
+
+        right: -1% !important;
+
+        bottom: 8% !important;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   CDS — TAMANHO VISUAL MAIOR
+========================================================= */
+
+
+/*
+   Antes aparecia exatamente metade.
+   Agora mostramos aproximadamente 60%,
+   mantendo a sensação de estar atrás da capa.
+*/
+
+.cover-disc-slot.edge-top {
+
+    clip-path:
+        inset(
+            0
+            0
+            40%
+            0
+        ) !important;
+
+}
+
+
+.cover-disc-slot.edge-bottom {
+
+    clip-path:
+        inset(
+            40%
+            0
+            0
+            0
+        ) !important;
+
+}
+
+
+/*
+   Reflexo um pouco mais discreto
+   para continuar parecendo CD,
+   não uma esfera.
+*/
+
+.cover-disc-metal::after {
+
+    opacity: .48 !important;
+
+}
+
+
+/*
+   Sombra menor e mais chapada.
+*/
+
+.cover-disc-metal {
+
+    box-shadow:
+        0 4px 8px
+        rgba(0,0,0,.58) !important;
+
+}
+
+
+/* =========================================================
+   PROTEÇÃO DO LAYOUT — CDS NÃO ALTERAM A ARTISTA
+========================================================= */
+
+.artist-stage {
+    position: absolute !important;
+    overflow: visible !important;
+}
+
+.hero {
+    position: relative !important;
+}
+
+
+
+/* =========================================================
+   MILA KADOSH — DESKTOP WIDE
+   SOMENTE TELAS GRANDES
+========================================================= */
+
+@media (min-width: 900px) {
+
+    /*
+       ABRE A ÁREA GERAL DO SITE NO COMPUTADOR
+    */
+
+    .experience {
+        width: 100% !important;
+        max-width: 1100px !important;
+
+        margin-left: auto !important;
+        margin-right: auto !important;
+
+        overflow: visible !important;
+    }
+
+
+    /*
+       HERO MAIS LARGA
+    */
+
+    .hero {
+        position: relative !important;
+
+        width: 100% !important;
+        max-width: 1100px !important;
+
+        height: 735px !important;
+
+        margin-left: auto !important;
+        margin-right: auto !important;
+
+        overflow: visible !important;
+    }
+
+
+    .covers {
+        position: absolute !important;
+
+        inset: 0 !important;
+
+        width: 100% !important;
+        height: 100% !important;
+
+        overflow: visible !important;
+    }
+
+
+    /*
+       ARTISTA
+
+       Continua aproximadamente no tamanho
+       que ela já tinha no layout mobile.
+
+       NÃO aumenta junto com o container.
+    */
+
+    .artist-stage {
+        position: absolute !important;
+
+        left: 50% !important;
+        right: auto !important;
+
+        bottom: -1% !important;
+
+        width: 460px !important;
+        max-width: 460px !important;
+
+        height: 79% !important;
+
+        transform:
+            translateX(-50%) !important;
+
+        z-index: 12 !important;
+
+        overflow: visible !important;
+    }
+
+
+
+    /*
+       =====================================================
+       LINHA 1
+       =====================================================
+    */
+
+    .cover-1 {
+        top: 1% !important;
+
+        left: 8% !important;
+        right: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-2 {
+        top: -1% !important;
+
+        left: 50% !important;
+        right: auto !important;
+
+        transform:
+            translateX(-50%) !important;
+    }
+
+
+    .cover-3 {
+        top: 1% !important;
+
+        right: 8% !important;
+        left: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /*
+       =====================================================
+       LINHA 2
+       =====================================================
+    */
+
+    .cover-4 {
+        top: 25% !important;
+
+        left: 18% !important;
+        right: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-5 {
+        top: 25% !important;
+
+        right: 18% !important;
+        left: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /*
+       =====================================================
+       LINHA 3
+       =====================================================
+    */
+
+    .cover-6 {
+        top: 49% !important;
+
+        left: 8% !important;
+        right: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-7 {
+        top: 49% !important;
+
+        right: 8% !important;
+        left: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /*
+       =====================================================
+       LINHA 4
+       =====================================================
+    */
+
+    .cover-8 {
+        top: 73% !important;
+
+        left: 18% !important;
+        right: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-9 {
+        top: 73% !important;
+
+        right: 18% !important;
+        left: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /*
+       CTA CONTINUA CENTRALIZADO
+    */
+
+    .interaction {
+        width: 560px !important;
+        max-width: 90% !important;
+
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   MILA KADOSH — DESKTOP WIDE
+   SOMENTE TELAS GRANDES
+========================================================= */
+
+@media (min-width: 900px) {
+
+    /*
+       ABRE A ÁREA GERAL DO SITE NO COMPUTADOR
+    */
+
+    .experience {
+        width: 100% !important;
+        max-width: 1100px !important;
+
+        margin-left: auto !important;
+        margin-right: auto !important;
+
+        overflow: visible !important;
+    }
+
+
+    /*
+       HERO MAIS LARGA
+    */
+
+    .hero {
+        position: relative !important;
+
+        width: 100% !important;
+        max-width: 1100px !important;
+
+        height: 735px !important;
+
+        margin-left: auto !important;
+        margin-right: auto !important;
+
+        overflow: visible !important;
+    }
+
+
+    .covers {
+        position: absolute !important;
+
+        inset: 0 !important;
+
+        width: 100% !important;
+        height: 100% !important;
+
+        overflow: visible !important;
+    }
+
+
+    /*
+       ARTISTA
+
+       Continua aproximadamente no tamanho
+       que ela já tinha no layout mobile.
+
+       NÃO aumenta junto com o container.
+    */
+
+    .artist-stage {
+        position: absolute !important;
+
+        left: 50% !important;
+        right: auto !important;
+
+        bottom: -1% !important;
+
+        width: 460px !important;
+        max-width: 460px !important;
+
+        height: 79% !important;
+
+        transform:
+            translateX(-50%) !important;
+
+        z-index: 12 !important;
+
+        overflow: visible !important;
+    }
+
+
+
+    /*
+       =====================================================
+       LINHA 1
+       =====================================================
+    */
+
+    .cover-1 {
+        top: 1% !important;
+
+        left: 8% !important;
+        right: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-2 {
+        top: -1% !important;
+
+        left: 50% !important;
+        right: auto !important;
+
+        transform:
+            translateX(-50%) !important;
+    }
+
+
+    .cover-3 {
+        top: 1% !important;
+
+        right: 8% !important;
+        left: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /*
+       =====================================================
+       LINHA 2
+       =====================================================
+    */
+
+    .cover-4 {
+        top: 25% !important;
+
+        left: 18% !important;
+        right: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-5 {
+        top: 25% !important;
+
+        right: 18% !important;
+        left: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /*
+       =====================================================
+       LINHA 3
+       =====================================================
+    */
+
+    .cover-6 {
+        top: 49% !important;
+
+        left: 8% !important;
+        right: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-7 {
+        top: 49% !important;
+
+        right: 8% !important;
+        left: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /*
+       =====================================================
+       LINHA 4
+       =====================================================
+    */
+
+    .cover-8 {
+        top: 73% !important;
+
+        left: 18% !important;
+        right: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-9 {
+        top: 73% !important;
+
+        right: 18% !important;
+        left: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /*
+       CTA CONTINUA CENTRALIZADO
+    */
+
+    .interaction {
+        width: 560px !important;
+        max-width: 90% !important;
+
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+}
+
+
+/* =========================================================
+   DESKTOP FINAL — MOSAICO MAIS ABERTO
+   SOMENTE COMPUTADOR
+========================================================= */
+@media (min-width: 900px) {
+
+    .hero,
+    .artist-stage,
+    .covers-mosaic,
+    .cover-grid {
+        overflow: visible !important;
+    }
+
+    .hero {
+        min-height: 1220px !important;
+    }
+
+    .artist-stage {
+        width: min(1120px, 94vw) !important;
+        margin: 0 auto !important;
+        position: relative !important;
+    }
+
+    /* as capas ficam acima dos CDs */
+    .cover-1, .cover-2, .cover-3,
+    .cover-4, .cover-5,
+    .cover-6, .cover-7,
+    .cover-8, .cover-9 {
+        z-index: 4 !important;
+        position: absolute !important;
+        transform-origin: center center !important;
+    }
+
+    /* topo */
+    .cover-1 {
+        transform: translate(-78px, -6px) scale(1.18) !important;
+    }
+
+    .cover-2 {
+        transform: translate(0px, -10px) scale(1.18) !important;
+    }
+
+    .cover-3 {
+        transform: translate(78px, -6px) scale(1.18) !important;
+    }
+
+    /* meio */
+    .cover-4 {
+        transform: translate(-92px, 16px) scale(1.16) !important;
+    }
+
+    .cover-5 {
+        transform: translate(92px, 16px) scale(1.16) !important;
+    }
+
+    /* terceira linha */
+    .cover-6 {
+        transform: translate(-104px, 28px) scale(1.16) !important;
+    }
+
+    .cover-7 {
+        transform: translate(104px, 28px) scale(1.16) !important;
+    }
+
+    /* linha de baixo — sobe e aparece mais */
+    .cover-8 {
+        transform: translate(-86px, -18px) scale(1.18) !important;
+    }
+
+    .cover-9 {
+        transform: translate(86px, -18px) scale(1.18) !important;
+    }
+
+    /* álbum principal continua na frente */
+    .falling-album,
+    .falling-album-mockup,
+    .album-falling-mockup,
+    .album-mockup,
+    [data-falling-album] {
+        z-index: 7 !important;
+    }
+}
+
+
+/* =========================================================
+   MOBILE — CDS ATRÁS DAS CAPAS
+   NÃO MUDA TAMANHO, POSIÇÃO OU DESKTOP
+========================================================= */
+
+@media (max-width: 899px) {
+
+    /*
+       Cria uma ordem de camadas previsível dentro da hero.
+    */
+    .hero {
+        isolation: isolate !important;
+    }
+
+    /*
+       CDs ficam atrás das capas.
+       Incluímos classes antigas também para evitar
+       algum elemento residual aparecer na frente.
+    */
+    .cover-disc-v8,
+    .cover-disc-v7,
+    .cover-disc-v6,
+    .cover-disc-v5,
+    .cover-disc {
+        z-index: 1 !important;
+        pointer-events: none !important;
+    }
+
+    /*
+       O conjunto das capas fica acima dos CDs.
+    */
+    .covers {
+        z-index: 3 !important;
+    }
+
+    /*
+       Cada capa fica efetivamente na frente do seu CD.
+       Não altera tamanho nem coordenadas.
+    */
+    .cover,
+    .cover-1,
+    .cover-2,
+    .cover-3,
+    .cover-4,
+    .cover-5,
+    .cover-6,
+    .cover-7,
+    .cover-8,
+    .cover-9 {
+        z-index: 4 !important;
+    }
+
+    /*
+       Garante que a própria arte da capa
+       não fique atrás de nenhum elemento interno.
+    */
+    .cover-image {
+        position: relative !important;
+        z-index: 5 !important;
+    }
+
+    /*
+       Artista continua na frente do mosaico.
+    */
+    .artist-stage {
+        z-index: 12 !important;
+    }
+
+    .mask-image {
+        z-index: 20 !important;
+    }
+}
+
+
+
+/* =========================================================
+   =========================================================
+   MILA KADOSH — LAYOUT FINAL RESPONSIVO
+   CELULAR + COMPUTADOR
+   =========================================================
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   ESTRUTURA DOS CDS
+
+   O CD pertence à própria capa.
+   A imagem da capa sempre fica NA FRENTE.
+--------------------------------------------------------- */
+
+.cover {
+    overflow: visible !important;
+}
+
+.cover .cover-image {
+    position: absolute !important;
+    inset: 0 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    z-index: 5 !important;
+
+    border-radius: inherit !important;
+
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+
+.mk-cover-disc-v7 {
+
+    position: absolute !important;
+
+    top: 50% !important;
+
+    aspect-ratio: 1 / 1 !important;
+
+    border-radius: 50% !important;
+
+    z-index: 1 !important;
+
+    pointer-events: none !important;
+
+    transform:
+        translateY(-50%)
+        rotate(0deg);
+
+    animation:
+        mkDiscSpinFinal 8s linear infinite !important;
+
+    box-shadow:
+        inset 8px 8px 24px rgba(255,255,255,.24),
+        inset -10px -10px 28px rgba(0,0,0,.32),
+        0 0 20px rgba(255,255,255,.10) !important;
+}
+
+
+/*
+   Reflexo metálico
+*/
+
+.mk-cover-disc-v7::before {
+
+    content: "" !important;
+
+    position: absolute !important;
+    inset: 0 !important;
+
+    border-radius: inherit !important;
+
+    background:
+        conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            rgba(255,255,255,.65) 26deg,
+            transparent 60deg,
+            rgba(255,255,255,.18) 105deg,
+            transparent 150deg,
+            rgba(255,255,255,.42) 205deg,
+            transparent 250deg,
+            rgba(255,255,255,.22) 310deg,
+            transparent 360deg
+        ) !important;
+
+    opacity: .6 !important;
+}
+
+
+/*
+   Furo do CD
+*/
+
+.mk-disc-hole {
+
+    position: absolute !important;
+
+    width: 13% !important;
+    aspect-ratio: 1 / 1 !important;
+
+    top: 50% !important;
+    left: 50% !important;
+
+    transform:
+        translate(-50%, -50%) !important;
+
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(
+            circle,
+            #080808 0 27%,
+            #f1f1f1 30% 52%,
+            #777 55% 68%,
+            #111 70% 100%
+        ) !important;
+
+    box-shadow:
+        0 0 5px rgba(0,0,0,.7) !important;
+}
+
+
+/* CORES */
+
+.mk-disc-gold {
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff5a8 0%,
+            #ffd64a 26%,
+            #c69b12 57%,
+            #775204 100%
+        ) !important;
+}
+
+.mk-disc-red {
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ff8a9a 0%,
+            #ff3158 29%,
+            #bd1036 60%,
+            #590018 100%
+        ) !important;
+}
+
+.mk-disc-silver {
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ffffff 0%,
+            #dcdcdc 31%,
+            #969696 61%,
+            #343434 100%
+        ) !important;
+}
+
+.mk-disc-rose {
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ffd1ea 0%,
+            #ec87bd 30%,
+            #b64e89 61%,
+            #5b183e 100%
+        ) !important;
+}
+
+
+@keyframes mkDiscSpinFinal {
+
+    from {
+        transform:
+            translateY(-50%)
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            translateY(-50%)
+            rotate(360deg);
+    }
+
+}
+
+
+
+/* =========================================================
+   CELULAR
+   NÃO MUDA AS POSIÇÕES DAS CAPAS
+   SÓ COLOCA OS CDS ATRÁS
+========================================================= */
+
+@media (max-width: 899px) {
+
+    /*
+       Mantém exatamente o mosaico mobile atual.
+    */
+
+    .mk-cover-disc-v7 {
+
+        width: 74% !important;
+
+        opacity: 1 !important;
+    }
+
+
+    /*
+       Aproximadamente 40% do CD fica aparecendo.
+    */
+
+    .mk-disc-left {
+        left: -31% !important;
+        right: auto !important;
+    }
+
+    .mk-disc-right {
+        right: -31% !important;
+        left: auto !important;
+    }
+
+
+    /*
+       A capa fica na frente do disco.
+    */
+
+    .cover {
+        z-index: 2 !important;
+    }
+
+    .cover .cover-image {
+        z-index: 5 !important;
+    }
+
+    .mk-cover-disc-v7 {
+        z-index: 1 !important;
+    }
+
+
+    /*
+       Artista continua sobre o mosaico.
+    */
+
+    .artist-stage {
+        z-index: 12 !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   COMPUTADOR
+   LAYOUT IGUAL À REFERÊNCIA
+========================================================= */
+
+@media (min-width: 900px) {
+
+    /*
+       Libera o site da coluna estreita do celular.
+    */
+
+    .experience {
+
+        width: 100% !important;
+        max-width: 1440px !important;
+
+        margin:
+            0 auto !important;
+
+        overflow: hidden !important;
+    }
+
+
+    /*
+       TÍTULO
+    */
+
+    .brand {
+
+        position: relative !important;
+
+        width: 100% !important;
+
+        padding:
+            34px 20px
+            4px !important;
+
+        z-index: 40 !important;
+    }
+
+
+    #brandName {
+
+        font-size:
+            clamp(48px, 4.5vw, 72px) !important;
+
+        line-height: .95 !important;
+
+        white-space: nowrap !important;
+
+        letter-spacing: .055em !important;
+    }
+
+
+    #brandSubtitle {
+
+        margin-top: 10px !important;
+
+        font-size:
+            clamp(15px, 1.4vw, 21px) !important;
+
+        letter-spacing: .06em !important;
+    }
+
+
+
+    /*
+       PALCO DESKTOP
+
+       Mais largo e respirado.
+    */
+
+    .hero {
+
+        position: relative !important;
+
+        width:
+            min(1180px, 94vw) !important;
+
+        height: 930px !important;
+
+        margin:
+            12px auto
+            0 !important;
+
+        overflow: visible !important;
+    }
+
+
+    .covers {
+
+        position: absolute !important;
+
+        inset: 0 !important;
+
+        width: 100% !important;
+        height: 100% !important;
+
+        overflow: visible !important;
+
+        z-index: 4 !important;
+    }
+
+
+
+    /*
+       TODAS AS CAPAS MAIORES
+    */
+
+    .cover {
+
+        width: 218px !important;
+
+        min-width: 218px !important;
+        max-width: 218px !important;
+
+        height: 218px !important;
+
+        aspect-ratio: 1 / 1 !important;
+
+        position: absolute !important;
+
+        margin: 0 !important;
+
+        transform: none !important;
+
+        border-radius: 10px !important;
+
+        overflow: visible !important;
+
+        z-index: 5 !important;
+    }
+
+
+
+    /*
+       LINHA 1
+    */
+
+    .cover-1 {
+
+        top: 28px !important;
+        left: 52px !important;
+
+        right: auto !important;
+        bottom: auto !important;
+    }
+
+
+    .cover-2 {
+
+        top: 10px !important;
+
+        left: 50% !important;
+
+        right: auto !important;
+        bottom: auto !important;
+
+        transform:
+            translateX(-50%) !important;
+    }
+
+
+    .cover-3 {
+
+        top: 28px !important;
+        right: 52px !important;
+
+        left: auto !important;
+        bottom: auto !important;
+    }
+
+
+
+    /*
+       LINHA 2
+    */
+
+    .cover-4 {
+
+        top: 300px !important;
+        left: 125px !important;
+
+        right: auto !important;
+        bottom: auto !important;
+    }
+
+
+    .cover-5 {
+
+        top: 300px !important;
+        right: 125px !important;
+
+        left: auto !important;
+        bottom: auto !important;
+    }
+
+
+
+    /*
+       LINHA 3
+    */
+
+    .cover-6 {
+
+        top: 548px !important;
+        left: 52px !important;
+
+        right: auto !important;
+        bottom: auto !important;
+    }
+
+
+    .cover-7 {
+
+        top: 548px !important;
+        right: 52px !important;
+
+        left: auto !important;
+        bottom: auto !important;
+    }
+
+
+
+    /*
+       GPS + HALLOWEEN
+
+       Sobem bastante e aparecem inteiros
+       nas áreas pretas laterais.
+    */
+
+    .cover-8 {
+
+        top: 704px !important;
+        left: 205px !important;
+
+        right: auto !important;
+        bottom: auto !important;
+    }
+
+
+    .cover-9 {
+
+        top: 704px !important;
+        right: 205px !important;
+
+        left: auto !important;
+        bottom: auto !important;
+    }
+
+
+
+    /*
+       CDS DO DESKTOP
+
+       Grande como no mockup,
+       porém nascendo de trás da capa.
+    */
+
+    .mk-cover-disc-v7 {
+
+        width: 76% !important;
+
+        z-index: 1 !important;
+
+        opacity: 1 !important;
+    }
+
+
+    .mk-disc-left {
+
+        left: -32% !important;
+        right: auto !important;
+    }
+
+
+    .mk-disc-right {
+
+        right: -32% !important;
+        left: auto !important;
+    }
+
+
+
+    /*
+       ARTISTA CENTRAL
+    */
+
+    .artist-stage {
+
+        position: absolute !important;
+
+        width: 570px !important;
+        height: 785px !important;
+
+        left: 50% !important;
+        bottom: -8px !important;
+
+        transform:
+            translateX(-50%) !important;
+
+        z-index: 15 !important;
+
+        overflow: visible !important;
+    }
+
+
+    .artist-photo {
+
+        width: 100% !important;
+        height: 100% !important;
+
+        object-fit: contain !important;
+        object-position:
+            center bottom !important;
+
+        z-index: 2 !important;
+    }
+
+
+
+    /*
+       ÁLBUM AMOR & ÓDIO
+       continua sobre o vestido.
+    */
+
+    .falling-album {
+
+        position: absolute !important;
+
+        width: 185px !important;
+
+        right: -15px !important;
+        left: auto !important;
+
+        bottom: 105px !important;
+        top: auto !important;
+
+        z-index: 30 !important;
+    }
+
+
+
+    /*
+       BOTÃO ABAIXO DO MOSAICO
+    */
+
+    .interaction {
+
+        position: relative !important;
+
+        width:
+            min(620px, 90%) !important;
+
+        margin:
+            -18px auto
+            0 !important;
+
+        z-index: 40 !important;
+    }
+
+
+    .main-button {
+
+        width: 100% !important;
+
+        min-height: 72px !important;
+
+        font-size: 28px !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   DESKTOP MENOR / NOTEBOOK
+========================================================= */
+
+@media (min-width: 900px) and (max-width: 1180px) {
+
+    .hero {
+
+        width: 940px !important;
+        height: 850px !important;
+
+        transform-origin:
+            top center !important;
+    }
+
+
+    .cover {
+
+        width: 182px !important;
+        min-width: 182px !important;
+        max-width: 182px !important;
+
+        height: 182px !important;
+    }
+
+
+    .cover-1 {
+        left: 25px !important;
+    }
+
+    .cover-3 {
+        right: 25px !important;
+    }
+
+
+    .cover-4 {
+        left: 78px !important;
+        top: 255px !important;
+    }
+
+    .cover-5 {
+        right: 78px !important;
+        top: 255px !important;
+    }
+
+
+    .cover-6 {
+        left: 25px !important;
+        top: 470px !important;
+    }
+
+    .cover-7 {
+        right: 25px !important;
+        top: 470px !important;
+    }
+
+
+    .cover-8 {
+        left: 125px !important;
+        top: 635px !important;
+    }
+
+    .cover-9 {
+        right: 125px !important;
+        top: 635px !important;
+    }
+
+
+    .artist-stage {
+
+        width: 500px !important;
+        height: 700px !important;
+    }
+
+
+    .falling-album {
+
+        width: 155px !important;
+
+        right: -5px !important;
+        bottom: 90px !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   DESKTOP — PÁGINA INTEIRA EM UMA ÚNICA TELA
+   NÃO ALTERA MOBILE
+========================================================= */
+
+@media (min-width: 900px) {
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        background: #000 !important;
+    }
+
+    /*
+       A experiência continua com o layout atual.
+       O JS apenas reduz proporcionalmente quando necessário.
+    */
+    .experience {
+        transform-origin: top center !important;
+        will-change: transform;
+    }
+
+}
+
+
+
+/* =========================================================
+   DESKTOP GRANDE — UMA ÚNICA TELA
+   NÃO ALTERA MOBILE
+========================================================= */
+
+@media (min-width: 900px) {
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden !important;
+        background: #000;
+    }
+
+
+    /* NÃO DIMINUI A PÁGINA INTEIRA */
+    .experience {
+        transform: none !important;
+        zoom: 1 !important;
+
+        width: min(96vw, 1280px) !important;
+        max-width: 1280px !important;
+
+        height: 100vh !important;
+        height: 100dvh !important;
+        min-height: 0 !important;
+
+        margin: 0 auto !important;
+        padding: 8px 0 5px !important;
+
+        overflow: hidden !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+
+    /* =====================================================
+       TÍTULO
+    ===================================================== */
+
+    .brand {
+        flex: 0 0 auto !important;
+
+        padding: 0 !important;
+        margin: 0 auto 4px !important;
+
+        position: relative !important;
+        z-index: 50 !important;
+    }
+
+    #brandName {
+        font-size: clamp(38px, 5.6vh, 58px) !important;
+        line-height: .92 !important;
+        margin: 0 !important;
+    }
+
+    #brandSubtitle {
+        font-size: clamp(12px, 1.8vh, 16px) !important;
+        line-height: 1.15 !important;
+        margin: 5px 0 0 !important;
+    }
+
+
+    /* =====================================================
+       HERO
+       OCUPA TODO O ESPAÇO CENTRAL DISPONÍVEL
+    ===================================================== */
+
+    .hero {
+        flex: 1 1 auto !important;
+
+        position: relative !important;
+
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+
+        margin: 0 !important;
+
+        overflow: visible !important;
+    }
+
+    .covers {
+        position: absolute !important;
+        inset: 0 !important;
+
+        width: 100% !important;
+        height: 100% !important;
+
+        overflow: visible !important;
+    }
+
+
+    /* =====================================================
+       CAPAS GRANDES
+    ===================================================== */
+
+    .cover {
+        width: clamp(145px, 24vh, 185px) !important;
+        min-width: 145px !important;
+        max-width: 185px !important;
+
+        aspect-ratio: 1 / 1 !important;
+
+        overflow: visible !important;
+    }
+
+
+    /* TOPO */
+
+    .cover-1 {
+        top: 1% !important;
+        left: 5% !important;
+        right: auto !important;
+        transform: none !important;
+    }
+
+    .cover-2 {
+        top: 0 !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+    }
+
+    .cover-3 {
+        top: 1% !important;
+        right: 5% !important;
+        left: auto !important;
+        transform: none !important;
+    }
+
+
+    /* MEIO */
+
+    .cover-4 {
+        top: 32% !important;
+        left: 9% !important;
+        right: auto !important;
+        transform: none !important;
+    }
+
+    .cover-5 {
+        top: 32% !important;
+        right: 9% !important;
+        left: auto !important;
+        transform: none !important;
+    }
+
+
+    /* MEIO INFERIOR */
+
+    .cover-6 {
+        top: 59% !important;
+        left: 4% !important;
+        right: auto !important;
+        transform: none !important;
+    }
+
+    .cover-7 {
+        top: 59% !important;
+        right: 4% !important;
+        left: auto !important;
+        transform: none !important;
+    }
+
+
+    /* GPS + HALLOWEEN
+       sobem para aparecer ao lado da artista
+    */
+
+    .cover-8 {
+        top: 70% !important;
+        left: 22% !important;
+        right: auto !important;
+        transform: none !important;
+    }
+
+    .cover-9 {
+        top: 70% !important;
+        right: 22% !important;
+        left: auto !important;
+        transform: none !important;
+    }
+
+
+    /* =====================================================
+       ARTISTA GRANDE NO CENTRO
+    ===================================================== */
+
+    .artist-stage {
+        position: absolute !important;
+
+        z-index: 20 !important;
+
+        left: 50% !important;
+        bottom: -1% !important;
+
+        width: min(44vw, 78vh, 560px) !important;
+        height: 94% !important;
+
+        transform: translateX(-50%) !important;
+
+        overflow: visible !important;
+        pointer-events: none !important;
+    }
+
+    .artist-photo {
+        position: absolute !important;
+
+        left: 0 !important;
+        bottom: 0 !important;
+
+        width: 100% !important;
+        height: 100% !important;
+
+        object-fit: contain !important;
+        object-position: bottom center !important;
+    }
+
+
+    /* =====================================================
+       BOTÃO
+       GRANDE, MAS SEM GASTAR ALTURA DEMAIS
+    ===================================================== */
+
+    .interaction {
+        flex: 0 0 auto !important;
+
+        position: relative !important;
+        z-index: 50 !important;
+
+        margin: -7px 0 0 !important;
+        padding: 0 16px 2px !important;
+
+        text-align: center !important;
+    }
+
+    .main-button {
+        width: min(52vw, 620px) !important;
+
+        min-height: clamp(48px, 7vh, 62px) !important;
+
+        padding: 7px 25px !important;
+
+        font-size: clamp(20px, 3.1vh, 29px) !important;
+        line-height: 1 !important;
+    }
+
+    #ctaSubtitle {
+        margin: 5px 0 1px !important;
+
+        font-size: clamp(11px, 1.7vh, 14px) !important;
+        line-height: 1.1 !important;
+    }
+
+
+    /* =====================================================
+       PARTE INFERIOR COMPACTA
+    ===================================================== */
+
+    .ornament {
+        margin: 1px auto !important;
+        min-height: 20px !important;
+        transform: scale(.80) !important;
+        transform-origin: center center !important;
+    }
+
+    .mini-mask {
+        transform: scale(.82) !important;
+        transform-origin: center center !important;
+    }
+
+    .subscribe {
+        margin: 1px auto !important;
+        padding: 0 !important;
+    }
+
+    .subscribe,
+    .subscribe * {
+        line-height: 1.05 !important;
+    }
+
+    .social {
+        margin-top: 4px !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+        gap: 8px !important;
+    }
+
+    .social a {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+    }
+
+}
+
+
+/* =========================================================
+   NOTEBOOKS COM TELA MAIS BAIXA
+   ainda mantém tudo grande
+========================================================= */
+
+@media (min-width: 900px) and (max-height: 720px) {
+
+    .cover {
+        width: clamp(138px, 22vh, 166px) !important;
+        min-width: 138px !important;
+    }
+
+    .artist-stage {
+        width: min(43vw, 76vh, 510px) !important;
+        height: 93% !important;
+    }
+
+    #brandName {
+        font-size: clamp(36px, 5.2vh, 50px) !important;
+    }
+
+    .main-button {
+        min-height: 46px !important;
+        font-size: clamp(19px, 3vh, 25px) !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   DESKTOP — TELA ÚNICA, MAS VISUAL MAIOR
+========================================================= */
+
+@media (min-width: 900px) {
+
+    html,
+    body {
+        height: 100vh !important;
+        min-height: 100vh !important;
+        overflow: hidden !important;
+    }
+
+
+    /*
+       Mantém a experiência ocupando a tela inteira.
+    */
+    .experience {
+        width: 100% !important;
+        max-width: none !important;
+
+        height: 100vh !important;
+        min-height: 100vh !important;
+
+        overflow: hidden !important;
+    }
+
+
+    /*
+       TÍTULO
+       Um pouco maior sem gastar muita altura.
+    */
+    .brand {
+        padding-top: 6px !important;
+        padding-bottom: 0 !important;
+        margin-bottom: -8px !important;
+    }
+
+    #brandName {
+        font-size: clamp(42px, 4.2vw, 62px) !important;
+        line-height: .92 !important;
+    }
+
+    #brandSubtitle {
+        font-size: clamp(13px, 1.15vw, 17px) !important;
+        margin-top: 5px !important;
+    }
+
+
+    /*
+       HERO
+
+       Reduzimos um pouco a altura lógica
+       e aumentamos visualmente o conteúdo.
+
+       Resultado:
+       capas/artista maiores,
+       mas sem aumentar o comprimento da página.
+    */
+    .hero {
+        height: calc(100vh - 245px) !important;
+        min-height: 0 !important;
+
+        width: min(88vw, 1240px) !important;
+
+        margin-left: auto !important;
+        margin-right: auto !important;
+
+        transform:
+            translateY(-4px)
+            scale(1.16) !important;
+
+        transform-origin: center 48% !important;
+
+        overflow: visible !important;
+    }
+
+
+    /*
+       Artista continua central.
+       Não altera a imagem original.
+    */
+    .artist-stage {
+        transform:
+            translateX(-50%)
+            scale(1.02) !important;
+
+        transform-origin: center bottom !important;
+    }
+
+
+    /*
+       BOTÃO
+
+       Mantém grande e legível,
+       porém mais próximo da composição.
+    */
+    .interaction {
+        position: relative !important;
+
+        margin-top: -22px !important;
+
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+
+        z-index: 50 !important;
+    }
+
+    .main-button {
+        width: min(620px, 46vw) !important;
+
+        min-height: 56px !important;
+
+        font-size: clamp(23px, 2vw, 30px) !important;
+
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+    }
+
+    #ctaSubtitle {
+        margin-top: 5px !important;
+
+        font-size: 13px !important;
+        line-height: 1.15 !important;
+    }
+
+
+    /*
+       Parte inferior compacta.
+    */
+    .ornament {
+        margin-top: 5px !important;
+        margin-bottom: 3px !important;
+    }
+
+    .subscribe {
+        margin-top: 2px !important;
+    }
+
+    .social {
+        margin-top: 4px !important;
+        margin-bottom: 5px !important;
+    }
+
+
+    /*
+       Evita qualquer scrollbar causada
+       apenas pela transformação visual.
+    */
+    body {
+        overscroll-behavior: none !important;
+    }
+}
+
+
+/*
+   NOTEBOOKS COM MENOS ALTURA
+
+   Diminui só um pouco o ganho,
+   para continuar cabendo em 1 tela.
+*/
+@media (min-width: 900px) and (max-height: 720px) {
+
+    .hero {
+        height: calc(100vh - 215px) !important;
+
+        transform:
+            translateY(-2px)
+            scale(1.11) !important;
+    }
+
+    #brandName {
+        font-size: 42px !important;
+    }
+
+    .main-button {
+        min-height: 50px !important;
+        font-size: 24px !important;
+    }
+
+    .interaction {
+        margin-top: -18px !important;
+    }
+}
+
+
+
+/* =========================================================
+   DESKTOP — GRANDE + 1 TELA + SEM SOBREPOSIÇÃO
+   NÃO ALTERA MOBILE
+========================================================= */
+
+@media (min-width: 900px) {
+
+    html,
+    body {
+        width: 100% !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+    }
+
+
+    /* ==========================================
+       CONTAINER GERAL
+    ========================================== */
+
+    .experience {
+        width: min(1180px, 96vw) !important;
+        max-width: 1180px !important;
+
+        height: 100vh !important;
+        min-height: 0 !important;
+
+        margin: 0 auto !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        overflow: hidden !important;
+    }
+
+
+    /* ==========================================
+       TÍTULO
+    ========================================== */
+
+    .brand {
+        flex: 0 0 auto !important;
+
+        padding-top: 10px !important;
+        padding-bottom: 2px !important;
+
+        position: relative !important;
+        z-index: 50 !important;
+    }
+
+    #brandName {
+        font-size: clamp(38px, 4vw, 58px) !important;
+        line-height: .92 !important;
+        margin: 0 !important;
+    }
+
+    #brandSubtitle {
+        font-size: clamp(12px, 1.25vw, 17px) !important;
+        margin-top: 5px !important;
+        margin-bottom: 0 !important;
+    }
+
+
+    /* ==========================================
+       HERO
+       OCUPA O ESPAÇO PRINCIPAL DA TELA
+    ========================================== */
+
+    .hero {
+        position: relative !important;
+
+        flex: 1 1 auto !important;
+
+        width: 100% !important;
+
+        height: auto !important;
+        min-height: 0 !important;
+
+        margin: 0 auto !important;
+
+        overflow: visible !important;
+    }
+
+
+    /* ==========================================
+       CAPAS
+    ========================================== */
+
+    .covers {
+        position: absolute !important;
+        inset: 0 !important;
+
+        width: 100% !important;
+        height: 100% !important;
+
+        z-index: 1 !important;
+
+        overflow: visible !important;
+    }
+
+
+    .cover {
+        width: clamp(145px, 13vw, 185px) !important;
+        aspect-ratio: 1 / 1 !important;
+
+        position: absolute !important;
+
+        overflow: visible !important;
+
+        transform: none !important;
+    }
+
+
+    /* ---------- LINHA DE CIMA ---------- */
+
+    .cover-1 {
+        left: 2% !important;
+        top: 3% !important;
+    }
+
+    .cover-2 {
+        left: 50% !important;
+        top: 1% !important;
+
+        transform: translateX(-50%) !important;
+    }
+
+    .cover-3 {
+        right: 2% !important;
+        top: 3% !important;
+    }
+
+
+    /* ---------- SEGUNDA LINHA ---------- */
+
+    .cover-4 {
+        left: 8% !important;
+        top: 31% !important;
+    }
+
+    .cover-5 {
+        right: 8% !important;
+        top: 31% !important;
+    }
+
+
+    /* ---------- TERCEIRA LINHA ---------- */
+
+    .cover-6 {
+        left: 2% !important;
+        top: 58% !important;
+    }
+
+    .cover-7 {
+        right: 2% !important;
+        top: 58% !important;
+    }
+
+
+    /* ---------- GPS + HALLOWEEN ---------- */
+
+    .cover-8 {
+        left: 18% !important;
+        top: auto !important;
+        bottom: 2% !important;
+    }
+
+    .cover-9 {
+        right: 18% !important;
+        top: auto !important;
+        bottom: 2% !important;
+    }
+
+
+    /* ==========================================
+       ARTISTA CENTRAL
+    ========================================== */
+
+    .artist-stage {
+        position: absolute !important;
+
+        left: 50% !important;
+        bottom: 0 !important;
+
+        width: min(43%, 500px) !important;
+        height: 88% !important;
+
+        transform: translateX(-50%) !important;
+
+        z-index: 12 !important;
+
+        overflow: visible !important;
+    }
+
+
+    .artist-photo {
+        position: absolute !important;
+
+        left: 0 !important;
+        bottom: 0 !important;
+
+        width: 100% !important;
+        height: 100% !important;
+
+        object-fit: contain !important;
+        object-position: bottom center !important;
+
+        z-index: 12 !important;
+    }
+
+
+    /* máscara continua acompanhando a artista */
+
+    .mask-image {
+        z-index: 25 !important;
+    }
+
+
+    /* ==========================================
+       CDS
+       SEMPRE ATRÁS DAS CAPAS
+    ========================================== */
+
+    .cover-disc,
+    .cover-disc-v4,
+    .cover-disc-v5,
+    .cover-disc-v6,
+    .disc,
+    .album-disc {
+        z-index: 0 !important;
+    }
+
+    .cover {
+        z-index: 3 !important;
+    }
+
+    .cover .cover-image {
+        position: relative !important;
+        z-index: 4 !important;
+    }
+
+
+    /* ==========================================
+       BOTÃO
+    ========================================== */
+
+    .interaction {
+        position: relative !important;
+
+        flex: 0 0 auto !important;
+
+        z-index: 50 !important;
+
+        margin-top: -8px !important;
+        padding: 0 18px 3px !important;
+
+        text-align: center !important;
+    }
+
+
+    .main-button {
+        width: min(470px, 42vw) !important;
+
+        min-height: 48px !important;
+
+        padding: 8px 24px !important;
+
+        font-size: clamp(18px, 1.7vw, 25px) !important;
+
+        margin: 0 auto !important;
+    }
+
+
+    #ctaSubtitle {
+        font-size: 12px !important;
+
+        margin-top: 5px !important;
+        margin-bottom: 2px !important;
+    }
+
+
+    /* ==========================================
+       ORNAMENTO
+    ========================================== */
+
+    .ornament {
+        flex: 0 0 auto !important;
+
+        margin-top: 1px !important;
+        margin-bottom: 1px !important;
+
+        transform: scale(.72) !important;
+        transform-origin: center !important;
+    }
+
+
+    /* ==========================================
+       RODAPÉ / REDES
+    ========================================== */
+
+    .subscribe {
+        flex: 0 0 auto !important;
+
+        margin-top: 0 !important;
+        margin-bottom: 2px !important;
+
+        font-size: 13px !important;
+        line-height: 1.1 !important;
+    }
+
+
+    .social {
+        flex: 0 0 auto !important;
+
+        margin-top: 2px !important;
+        margin-bottom: 8px !important;
+
+        gap: 7px !important;
+
+        transform: scale(.82) !important;
+        transform-origin: top center !important;
+    }
+
+}
+
+
+
+
+/* =========================================================
+   DESKTOP — DISTRIBUIÇÃO LIMPA DAS 9 CAPAS
+   NÃO MUDA TAMANHO
+   NÃO MUDA ARTISTA
+   NÃO MUDA CDS
+   NÃO MUDA MOBILE
+========================================================= */
+
+@media (min-width: 900px) {
+
+    /*
+       Mantém a hero como sistema de coordenadas.
+    */
+    .hero {
+        position: relative !important;
+        overflow: visible !important;
+    }
+
+    .covers {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: visible !important;
+    }
+
+
+    /*
+       IMPORTANTE:
+       NÃO alteramos width/height das capas.
+       Apenas posição.
+    */
+
+    .cover-1,
+    .cover-2,
+    .cover-3,
+    .cover-4,
+    .cover-5,
+    .cover-6,
+    .cover-7,
+    .cover-8,
+    .cover-9 {
+        position: absolute !important;
+        margin: 0 !important;
+    }
+
+
+    /* =====================================================
+       LINHA SUPERIOR
+       Tentando / Hater / Confusão
+    ===================================================== */
+
+    .cover-1 {
+        left: 5% !important;
+        right: auto !important;
+
+        top: 3% !important;
+        bottom: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-2 {
+        left: 50% !important;
+        right: auto !important;
+
+        top: 1% !important;
+        bottom: auto !important;
+
+        transform: translateX(-50%) !important;
+    }
+
+
+    .cover-3 {
+        right: 5% !important;
+        left: auto !important;
+
+        top: 3% !important;
+        bottom: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /* =====================================================
+       SEGUNDA LINHA
+       Inverno / Bela Cinderela
+    ===================================================== */
+
+    .cover-4 {
+        left: 12% !important;
+        right: auto !important;
+
+        top: 31% !important;
+        bottom: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-5 {
+        right: 12% !important;
+        left: auto !important;
+
+        top: 31% !important;
+        bottom: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /* =====================================================
+       TERCEIRA LINHA
+       Suas Marcas / Loucos num Hospício
+    ===================================================== */
+
+    .cover-6 {
+        left: 5% !important;
+        right: auto !important;
+
+        top: 57% !important;
+        bottom: auto !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-7 {
+        right: 5% !important;
+        left: auto !important;
+
+        top: 57% !important;
+        bottom: auto !important;
+
+        transform: none !important;
+    }
+
+
+
+    /* =====================================================
+       LINHA INFERIOR
+       GPS / Halloween
+
+       Ficam nas áreas pretas laterais,
+       sem entrar em cima da artista
+       e sem cair para baixo da tela.
+    ===================================================== */
+
+    .cover-8 {
+        left: 22% !important;
+        right: auto !important;
+
+        top: auto !important;
+        bottom: 3% !important;
+
+        transform: none !important;
+    }
+
+
+    .cover-9 {
+        right: 22% !important;
+        left: auto !important;
+
+        top: auto !important;
+        bottom: 3% !important;
+
+        transform: none !important;
+    }
+
+
+
+    /* =====================================================
+       GARANTE CAMADAS
+
+       CDs atrás das capas.
+       Capas atrás da artista.
+    ===================================================== */
+
+    .cover-disc,
+    .cover-disc-v4,
+    .cover-disc-v5,
+    .cover-disc-v6 {
+        z-index: 1 !important;
+    }
+
+    .cover {
+        z-index: 3 !important;
+    }
+
+    .cover-image {
+        position: relative !important;
+        z-index: 4 !important;
+    }
+
+    .artist-stage {
+        z-index: 12 !important;
+    }
+
+    .artist-photo {
+        z-index: 12 !important;
+    }
+
+    .mask-image {
+        z-index: 20 !important;
+    }
+
+}
+
+
+
+
+/* =========================================================
+   HATER DE MIM — ÁLBUM FÍSICO
+   SOMENTE DESKTOP
+
+   Continua sendo .cover-2 internamente para manter
+   compatibilidade com o editor já existente.
+========================================================= */
+
+@media (min-width: 900px) {
+
+    /*
+       A capa inteira gira como uma peça física.
+
+       Usamos a propriedade "rotate" separada de "transform".
+       Assim o editor pode continuar usando transform para:
+       - mover horizontalmente
+       - mover verticalmente
+       - aumentar/diminuir
+
+       sem perder esta inclinação.
+    */
+    .cover-2 {
+        rotate: -7deg !important;
+
+        transform-origin: 50% 12% !important;
+
+        overflow: visible !important;
+
+        isolation: isolate !important;
+
+        filter:
+            drop-shadow(0 18px 18px rgba(0,0,0,.42))
+            drop-shadow(0 4px 6px rgba(0,0,0,.35)) !important;
+    }
+
+
+    /*
+       A arte fica com aparência de capa física.
+    */
+    .cover-2 .cover-image {
+        border-radius: 7px !important;
+
+        box-shadow:
+            inset 0 0 0 1px rgba(255,255,255,.12),
+            -7px 7px 0 rgba(36,8,14,.72),
+            -11px 11px 22px rgba(0,0,0,.38) !important;
+
+        position: relative !important;
+
+        z-index: 3 !important;
+    }
+
+
+    /*
+       Garante que qualquer CD que pertença à Capa 2
+       continue atrás do álbum.
+
+       Pegamos vários nomes possíveis usados nas versões
+       anteriores do script dos CDs.
+    */
+    .cover-2 .disc,
+    .cover-2 .cover-disc,
+    .cover-2 .album-disc,
+    .cover-2 [class*="disc"],
+    .cover-2 [class*="cd"] {
+        z-index: 1 !important;
+    }
+
+
+    /*
+       Pequena sensação de "álbum pendurado/flutuando".
+       Não interfere no arraste.
+    */
+    .cover-2::after {
+        content: "" !important;
+
+        position: absolute !important;
+
+        left: 50% !important;
+        top: -18px !important;
+
+        width: 1px !important;
+        height: 22px !important;
+
+        background:
+            linear-gradient(
+                to bottom,
+                rgba(255,255,255,.08),
+                rgba(255,255,255,.30),
+                rgba(255,255,255,.06)
+            ) !important;
+
+        transform: translateX(-50%) !important;
+
+        pointer-events: none !important;
+
+        z-index: -1 !important;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   NÃO ALTERAMOS NADA
+========================================================= */
+
+
+
+/* =========================================================
+   DESKTOP — TODAS AS CAPAS ROTACIONADAS
+   + INVERNO E VERÃO POR CIMA
+   NÃO ALTERA MOBILE
+========================================================= */
+
+@media (min-width: 900px) {
+
+  /* todas as capas com a mesma linguagem visual
+     do "Hater de Mim" */
+  .cover-1,
+  .cover-2,
+  .cover-3,
+  .cover-4,
+  .cover-5,
+  .cover-6,
+  .cover-7,
+  .cover-8,
+  .cover-9 {
+    rotate: -7deg !important;
+    transform-origin: center center !important;
+  }
+
+  /* garante que a capa fique visualmente na frente do CD */
+  .cover-1,
+  .cover-2,
+  .cover-3,
+  .cover-4,
+  .cover-5,
+  .cover-6,
+  .cover-7,
+  .cover-8,
+  .cover-9 {
+    position: absolute !important;
+  }
+
+  .cover-1 .disc,
+  .cover-2 .disc,
+  .cover-3 .disc,
+  .cover-4 .disc,
+  .cover-5 .disc,
+  .cover-6 .disc,
+  .cover-7 .disc,
+  .cover-8 .disc,
+  .cover-9 .disc,
+  .cover-1 .cover-disc,
+  .cover-2 .cover-disc,
+  .cover-3 .cover-disc,
+  .cover-4 .cover-disc,
+  .cover-5 .cover-disc,
+  .cover-6 .cover-disc,
+  .cover-7 .cover-disc,
+  .cover-8 .cover-disc,
+  .cover-9 .cover-disc,
+  .cover-1 .album-disc,
+  .cover-2 .album-disc,
+  .cover-3 .album-disc,
+  .cover-4 .album-disc,
+  .cover-5 .album-disc,
+  .cover-6 .album-disc,
+  .cover-7 .album-disc,
+  .cover-8 .album-disc,
+  .cover-9 .album-disc {
+    z-index: 1 !important;
+  }
+
+  .cover-1 img,
+  .cover-2 img,
+  .cover-3 img,
+  .cover-4 img,
+  .cover-5 img,
+  .cover-6 img,
+  .cover-7 img,
+  .cover-8 img,
+  .cover-9 img {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  /* INVERNO E VERÃO por cima das outras */
+  .cover-4 {
+    z-index: 120 !important;
+  }
+
+}

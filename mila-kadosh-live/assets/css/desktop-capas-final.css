@@ -1,0 +1,149 @@
+
+/* =========================================================
+   MILA KADOSH
+   AJUSTE FINAL DAS CAPAS — SOMENTE DESKTOP
+========================================================= */
+
+@media (min-width: 900px) {
+
+    /*
+      IMPORTANTE:
+      tira o mosaico do stacking-context antigo.
+      Assim uma capa individual pode ficar na frente
+      da artista sem trazer TODAS as outras junto.
+    */
+    .covers {
+        z-index: auto !important;
+        overflow: visible !important;
+    }
+
+
+    /* =====================================================
+       CAMADAS
+       capas normais ficam atrás da artista
+    ===================================================== */
+
+    .cover {
+        z-index: 5 !important;
+        overflow: visible !important;
+    }
+
+    .artist-stage {
+        z-index: 12 !important;
+    }
+
+
+    /* =====================================================
+       INVERNO OU VERÃO
+       COVER 4 = ACIMA DA ARTISTA E DAS OUTRAS CAPAS
+       mas continua abaixo do título e do botão
+    ===================================================== */
+
+    .cover-4 {
+        z-index: 25 !important;
+    }
+
+
+    /* =====================================================
+       TODAS AS CAPAS COM INCLINAÇÃO VISUAL
+       
+       A rotação vai NA IMAGEM da capa,
+       não no elemento que o editor movimenta.
+
+       Assim:
+       - editor continua movendo X/Y
+       - editor continua alterando tamanho
+       - rotação não é apagada pelo editor
+    ===================================================== */
+
+    .cover-1 .cover-image,
+    .cover-3 .cover-image,
+    .cover-4 .cover-image,
+    .cover-5 .cover-image,
+    .cover-6 .cover-image,
+    .cover-7 .cover-image,
+    .cover-8 .cover-image,
+    .cover-9 .cover-image {
+        transform: rotate(-7deg) !important;
+        transform-origin: 50% 50% !important;
+    }
+
+
+    /*
+       Hater de Mim já tem sua própria construção
+       de álbum físico. Não duplicamos a rotação dele.
+    */
+    .cover-2 {
+        z-index: 15 !important;
+    }
+
+
+    /* deixa CDs continuarem escapando por trás */
+    .cover,
+    .cover-image,
+    .covers {
+        overflow: visible !important;
+    }
+
+}
+
+
+/* =========================================================
+   CORREÇÃO — CAPAS VISÍVEIS + SEM MOLDURA QUADRADA
+   SOMENTE DESKTOP
+========================================================= */
+
+@media (min-width: 900px) {
+
+    /*
+       IMPORTANTE:
+       NÃO mexemos no background de .cover-image.
+       É ali que as artes das capas aparecem.
+    */
+
+    .cover {
+        background: transparent !important;
+        border: 0 !important;
+        outline: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+
+    /*
+       Remove apenas as molduras decorativas quadradas
+       criadas atrás das capas.
+    */
+    .cover::before,
+    .cover::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /*
+       Restaura completamente a área que contém a arte.
+       Não sobrescreve background-image.
+    */
+    .cover-image {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+
+        border: 0 !important;
+        outline: 0 !important;
+
+        position: relative !important;
+        z-index: 3 !important;
+    }
+
+    /*
+       CDs continuam atrás das capas.
+    */
+    .cover .disc,
+    .cover .cover-disc,
+    .cover .album-disc,
+    .cover [class*="disc"],
+    .cover [class*="cd"] {
+        z-index: 1 !important;
+    }
+}
+

@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta name="theme-color" content="#080000">
+
+<title>Mila Kadosh — Painel</title>
+
+<style>
+
+:root {
+    --bg: #050505;
+    --card: #111;
+    --border: rgba(255,255,255,.1);
+    --text: #fff;
+    --muted: #999;
+    --red: #b31919;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(130,0,0,.28),
+            transparent 35%
+        ),
+        var(--bg);
+
+    color: var(--text);
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        Arial,
+        sans-serif;
+}
+
+header {
+    padding:
+        38px 20px
+        26px;
+
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-weight: 400;
+
+    letter-spacing: .08em;
+
+    font-size: 34px;
+}
+
+header p {
+    margin: 9px 0 0;
+
+    color: var(--muted);
+}
+
+main {
+    width: min(
+        100% - 28px,
+        900px
+    );
+
+    margin: 0 auto;
+
+    padding-bottom: 80px;
+}
+
+.notice {
+    padding: 16px;
+
+    margin-bottom: 22px;
+
+    border:
+        1px solid
+        rgba(180,30,30,.3);
+
+    border-radius: 16px;
+
+    background:
+        rgba(100,0,0,.12);
+
+    color: #ddd;
+
+    line-height: 1.5;
+}
+
+.grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(250px, 1fr)
+        );
+
+    gap: 14px;
+}
+
+.card {
+    background:
+        rgba(15,15,15,.92);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+.preview {
+    position: relative;
+
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    background:
+        linear-gradient(
+            135deg,
+            #171717,
+            #070707
+        );
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+.preview img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: none;
+}
+
+.preview span {
+    color: #555;
+
+    font-size: 12px;
+
+    letter-spacing: .12em;
+
+    text-transform: uppercase;
+}
+
+.content {
+    padding: 16px;
+}
+
+.content h2 {
+    margin:
+        0 0 6px;
+
+    font-size: 17px;
+}
+
+.content p {
+    min-height: 34px;
+
+    margin:
+        0 0 14px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.4;
+}
+
+input[type=file] {
+    display: none;
+}
+
+.upload-button {
+    width: 100%;
+
+    min-height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 0;
+
+    border-radius: 999px;
+
+    background: #fff;
+
+    color: #050505;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.upload-button.uploading {
+    opacity: .5;
+    pointer-events: none;
+}
+
+.status {
+    min-height: 18px;
+
+    margin-top: 10px;
+
+    text-align: center;
+
+    font-size: 12px;
+
+    color: var(--muted);
+}
+
+.status.success {
+    color: #70d990;
+}
+
+.status.error {
+    color: #ff6b6b;
+}
+
+.site-link {
+    display: block;
+
+    margin: 24px auto 0;
+
+    width: fit-content;
+
+    color: white;
+
+    text-decoration: none;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.35);
+
+    padding-bottom: 4px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>MILA KADOSH</h1>
+
+<p>Painel da experiência Amor & Ódio</p>
+
+</header>
+
+<main>
+
+<div class="notice">
+Aqui você controla as imagens da primeira página.
+A foto da artista deve ser enviada sem a máscara.
+A máscara deve preferencialmente ser PNG com fundo transparente.
+</div>
+
+<div id="grid" class="grid"></div>
+
+<a
+    class="site-link"
+    href="/"
+    target="_blank"
+>
+    visualizar site ↗
+</a>
+
+</main>
+
+<script>
+
+const slots = [
+
+    {
+        id: "artist",
+        title: "Foto principal",
+        description:
+            "Foto da artista sem máscara."
+    },
+
+    {
+        id: "mask",
+        title: "Máscara",
+        description:
+            "PNG transparente que ficará sobre o rosto."
+    },
+
+    {
+        id: "cover-1",
+        title: "Capa 01",
+        description:
+            "Primeira capa do mosaico."
+    },
+
+    {
+        id: "cover-2",
+        title: "Capa 02",
+        description:
+            "Segunda capa do mosaico."
+    },
+
+    {
+        id: "cover-3",
+        title: "Capa 03",
+        description:
+            "Terceira capa do mosaico."
+    },
+
+    {
+        id: "cover-4",
+        title: "Capa 04",
+        description:
+            "Quarta capa do mosaico."
+    },
+
+    {
+        id: "cover-5",
+        title: "Capa 05",
+        description:
+            "Quinta capa do mosaico."
+    },
+
+    {
+        id: "cover-6",
+        title: "Capa 06",
+        description:
+            "Sexta capa do mosaico."
+    },
+
+    {
+        id: "cover-7",
+        title: "Capa 07",
+        description:
+            "Sétima capa do mosaico."
+    },
+
+    {
+        id: "cover-8",
+        title: "Capa 08",
+        description:
+            "Oitava capa do mosaico."
+    },
+
+    {
+        id: "cover-9",
+        title: "Capa 09 — Halloween",
+        description:
+            "Última capa do mosaico."
+    }
+
+];
+
+
+const grid =
+    document.getElementById("grid");
+
+
+function createCards() {
+
+    slots.forEach(slot => {
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "card";
+
+
+        card.innerHTML = `
+
+            <div class="preview">
+
+                <img
+                    id="preview-${slot.id}"
+                    alt=""
+                >
+
+                <span
+                    id="empty-${slot.id}"
+                >
+                    sem imagem
+                </span>
+
+            </div>
+
+
+            <div class="content">
+
+                <h2>
+                    ${slot.title}
+                </h2>
+
+                <p>
+                    ${slot.description}
+                </p>
+
+                <input
+                    type="file"
+                    id="file-${slot.id}"
+                    accept="image/png,image/jpeg,image/webp"
+                >
+
+                <label
+                    class="upload-button"
+                    id="button-${slot.id}"
+                    for="file-${slot.id}"
+                >
+                    escolher imagem
+                </label>
+
+                <div
+                    class="status"
+                    id="status-${slot.id}"
+                ></div>
+
+            </div>
+        `;
+
+
+        grid.appendChild(card);
+
+
+        document
+            .getElementById(
+                `file-${slot.id}`
+            )
+            .addEventListener(
+                "change",
+                event => {
+
+                    const file =
+                        event.target.files[0];
+
+                    if (file) {
+
+                        upload(
+                            slot.id,
+                            file
+                        );
+
+                    }
+
+                }
+            );
+
+    });
+
+}
+
+
+function getImageFromConfig(
+    config,
+    slot
+) {
+
+    if (slot === "artist") {
+
+        return (
+            config.hero &&
+            config.hero.artistImage
+        ) || "";
+
+    }
+
+
+    if (slot === "mask") {
+
+        return (
+            config.hero &&
+            config.hero.maskImage
+        ) || "";
+
+    }
+
+
+    if (
+        slot.startsWith(
+            "cover-"
+        )
+    ) {
+
+        const index =
+            Number(
+                slot.replace(
+                    "cover-",
+                    ""
+                )
+            ) - 1;
+
+
+        return (
+            config.covers &&
+            config.covers[index] &&
+            config.covers[index].image
+        ) || "";
+
+    }
+
+
+    return "";
+
+}
+
+
+function updatePreview(
+    slot,
+    url
+) {
+
+    const preview =
+        document.getElementById(
+            `preview-${slot}`
+        );
+
+
+    const empty =
+        document.getElementById(
+            `empty-${slot}`
+        );
+
+
+    if (!url) {
+
+        preview.style.display =
+            "none";
+
+        empty.style.display =
+            "block";
+
+        return;
+
+    }
+
+
+    preview.src =
+        `${url}?v=${Date.now()}`;
+
+    preview.style.display =
+        "block";
+
+    empty.style.display =
+        "none";
+
+}
+
+
+async function loadCurrentImages() {
+
+    try {
+
+        const response =
+            await fetch(
+                `/data/site.json?v=${Date.now()}`,
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        const config =
+            await response.json();
+
+
+        slots.forEach(slot => {
+
+            const image =
+                getImageFromConfig(
+                    config,
+                    slot.id
+                );
+
+
+            updatePreview(
+                slot.id,
+                image
+            );
+
+        });
+
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+async function upload(
+    slot,
+    file
+) {
+
+    const button =
+        document.getElementById(
+            `button-${slot}`
+        );
+
+
+    const status =
+        document.getElementById(
+            `status-${slot}`
+        );
+
+
+    button.classList.add(
+        "uploading"
+    );
+
+
+    button.textContent =
+        "enviando...";
+
+
+    status.className =
+        "status";
+
+
+    status.textContent =
+        "processando imagem";
+
+
+    try {
+
+        const form =
+            new FormData();
+
+
+        form.append(
+            "slot",
+            slot
+        );
+
+
+        form.append(
+            "file",
+            file
+        );
+
+
+        const response =
+            await fetch(
+                "/api/upload",
+                {
+                    method: "POST",
+                    body: form
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.error ||
+                "Erro no upload"
+            );
+
+        }
+
+
+        updatePreview(
+            slot,
+            result.url
+        );
+
+
+        status.className =
+            "status success";
+
+
+        status.textContent =
+            "imagem atualizada";
+
+
+    } catch (error) {
+
+        status.className =
+            "status error";
+
+
+        status.textContent =
+            error.message;
+
+    } finally {
+
+        button.classList.remove(
+            "uploading"
+        );
+
+
+        button.textContent =
+            "trocar imagem";
+
+    }
+
+}
+
+
+createCards();
+
+loadCurrentImages();
+
+</script>
+
+
+
+<!-- MASK EDITOR ENTRY -->
+<style>
+.mask-editor-entry {
+    position: fixed;
+    right: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 54px;
+
+    padding: 0 20px;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #67000b,
+            #bd1524
+        );
+
+    color: #fff;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    box-shadow:
+        0 10px 32px
+        rgba(150,0,15,.35);
+}
+</style>
+
+<a
+    class="mask-editor-entry"
+    href="/admin/mask-editor.html"
+>
+    ajustar máscara
+</a>
+
+
+
+<a
+    href="/admin/layout.html"
+    style="
+        position:fixed;
+        right:18px;
+        bottom:18px;
+        z-index:99999;
+
+        padding:14px 18px;
+
+        border-radius:999px;
+
+        background:#fff;
+        color:#000;
+
+        font-family:Arial,sans-serif;
+        font-size:14px;
+        font-weight:800;
+
+        text-decoration:none;
+
+        box-shadow:
+            0 8px 30px rgba(0,0,0,.4);
+    "
+>
+    ✥ EDITAR POSIÇÕES
+</a>
+
+
+</body>
+</html>

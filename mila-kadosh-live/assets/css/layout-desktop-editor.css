@@ -1,0 +1,49 @@
+/* =========================================================
+   MILA KADOSH
+   DESKTOP = TELA INTEIRA
+   MOBILE PERMANECE COMO ESTÁ
+========================================================= */
+
+@media (min-width: 900px) {
+
+    html,
+    body {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+    }
+
+    body {
+        overflow: hidden !important;
+    }
+
+    .experience {
+        width: 100vw !important;
+        max-width: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        overflow: visible !important;
+    }
+
+    .brand {
+        width: 100vw !important;
+        max-width: none !important;
+    }
+
+    .hero {
+        width: 100vw !important;
+        max-width: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        overflow: visible !important;
+    }
+
+    .covers {
+        width: 100vw !important;
+        max-width: none !important;
+        left: 0 !important;
+        right: auto !important;
+        overflow: visible !important;
+    }
+
+}

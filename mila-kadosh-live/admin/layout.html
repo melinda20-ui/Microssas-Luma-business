@@ -1,0 +1,1216 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="utf-8">
+
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+>
+
+<title>Editor de Layout — Mila Kadosh</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #050505;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#preview {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    border: 0;
+    background: #000;
+}
+
+.panel {
+    position: fixed;
+    z-index: 999999;
+    top: 18px;
+    left: 18px;
+
+    width: 280px;
+    max-height: calc(100vh - 36px);
+
+    padding: 16px;
+
+    overflow-y: auto;
+
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 18px;
+
+    background: rgba(10,10,10,.91);
+    color: white;
+
+    backdrop-filter: blur(18px);
+
+    box-shadow:
+        0 12px 50px rgba(0,0,0,.6);
+}
+
+.panel h1 {
+    margin: 0 0 4px;
+    font-size: 20px;
+}
+
+.panel p {
+    margin: 0 0 14px;
+    color: #aaa;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.item {
+    border: 1px solid #333;
+    border-radius: 10px;
+
+    padding: 9px 6px;
+
+    background: #171717;
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 12px;
+}
+
+.item.active {
+    border-color: #ff3b8d;
+    background: #401126;
+}
+
+.section {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #292929;
+}
+
+label {
+    display: block;
+    margin: 8px 0 4px;
+
+    font-size: 11px;
+    color: #aaa;
+}
+
+input[type="number"] {
+    width: 100%;
+
+    padding: 9px 10px;
+
+    border: 1px solid #333;
+    border-radius: 9px;
+
+    background: #111;
+    color: white;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-top: 14px;
+}
+
+.action {
+    border: 0;
+    border-radius: 10px;
+
+    padding: 11px 8px;
+
+    cursor: pointer;
+
+    font-weight: 700;
+}
+
+.save {
+    background: white;
+    color: black;
+}
+
+.reset {
+    background: #301019;
+    color: #ffb4cb;
+}
+
+.back {
+    display: block;
+    margin-top: 10px;
+
+    text-align: center;
+
+    color: #bbb;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.status {
+    margin-top: 10px;
+
+    font-size: 11px;
+    color: #77e89e;
+}
+
+.tip {
+    margin-top: 12px;
+    padding: 9px;
+
+    background: #101010;
+    border-radius: 10px;
+
+    font-size: 11px !important;
+    color: #ccc !important;
+}
+
+</style>
+</head>
+
+<body>
+
+<iframe
+    id="preview"
+    src="/?layout-editor=1"
+></iframe>
+
+<aside class="panel">
+
+    <h1>Posicionar elementos</h1>
+
+    <p>
+        Escolha um item e arraste diretamente na página.
+        Alterações deste painel afetam apenas o computador.
+    </p>
+
+    <div class="items">
+
+        <button class="item" data-key="cover1">Capa 1</button>
+        <button class="item" data-key="cover2">Hater de Mim — Álbum</button>
+
+        <button class="item" data-key="cover3">Capa 3</button>
+        <button class="item" data-key="cover4">Capa 4</button>
+
+        <button class="item" data-key="cover5">Capa 5</button>
+        <button class="item" data-key="cover6">Capa 6</button>
+
+        <button class="item" data-key="cover7">Capa 7</button>
+        <button class="item" data-key="cover8">Capa 8</button>
+
+        <button class="item" data-key="cover9">Capa 9</button>
+
+        <button class="item" data-key="artist">Eu / artista</button>
+
+        <button class="item" data-key="mask">Máscara</button>
+
+        <button class="item" data-key="album">Amor & Ódio</button>
+
+        <button class="item" data-key="cta">Botão</button>
+
+    </div>
+
+    <div class="section">
+
+        <div class="row">
+
+            <div>
+                <label>Horizontal</label>
+                <input
+                    id="x"
+                    type="number"
+                    step="0.2"
+                >
+            </div>
+
+            <div>
+                <label>Vertical</label>
+                <input
+                    id="y"
+                    type="number"
+                    step="0.2"
+                >
+            </div>
+
+        </div>
+
+        <label>
+            Tamanho:
+            <span id="scaleValue">100%</span>
+        </label>
+
+        <input
+            id="scale"
+            type="range"
+            min="0.40"
+            max="1.80"
+            step="0.01"
+            value="1"
+        >
+
+    </div>
+
+    <div class="actions">
+
+        <button
+            id="save"
+            class="action save"
+        >
+            SALVAR
+        </button>
+
+        <button
+            id="reset"
+            class="action reset"
+        >
+            RESETAR ITEM
+        </button>
+
+    </div>
+
+    <p class="tip">
+        Você pode arrastar a capa com o mouse.
+        Os CDs acompanham as próprias capas.
+    </p>
+
+    <div
+        id="status"
+        class="status"
+    ></div>
+
+    <a
+        class="back"
+        href="/admin/"
+    >
+        ← voltar ao painel
+    </a>
+
+</aside>
+
+
+<script>
+
+const TARGETS = {
+
+    cover1: [".cover-1"],
+    cover2: [".cover-2"],
+    cover3: [".cover-3"],
+    cover4: [".cover-4"],
+    cover5: [".cover-5"],
+    cover6: [".cover-6"],
+    cover7: [".cover-7"],
+    cover8: [".cover-8"],
+    cover9: [".cover-9"],
+
+    artist: [".artist-stage"],
+
+    mask: [
+        "#maskImage",
+        ".mask-image"
+    ],
+
+    cta: [
+        ".interaction"
+    ],
+
+    album: [
+        ".falling-album",
+        ".album-falling-mockup",
+        ".falling-album-mockup",
+        ".album-mockup",
+        "[data-falling-album]"
+    ]
+
+};
+
+let layout = {
+    desktop: {}
+};
+
+let selectedKey = "cover1";
+
+let drag = null;
+
+const iframe =
+    document.getElementById("preview");
+
+const xInput =
+    document.getElementById("x");
+
+const yInput =
+    document.getElementById("y");
+
+const scaleInput =
+    document.getElementById("scale");
+
+const scaleValue =
+    document.getElementById("scaleValue");
+
+const status =
+    document.getElementById("status");
+
+
+function defaultItem() {
+
+    return {
+        x: 0,
+        y: 0,
+        scale: 1
+    };
+
+}
+
+
+function getItem(key) {
+
+    if (!layout.desktop[key]) {
+        layout.desktop[key] = defaultItem();
+    }
+
+    return layout.desktop[key];
+
+}
+
+
+function getDoc() {
+
+    try {
+        return iframe.contentDocument;
+    } catch {
+        return null;
+    }
+
+}
+
+
+function findElement(key) {
+
+    const doc = getDoc();
+
+    if (!doc) return null;
+
+    const selectors = TARGETS[key] || [];
+
+    for (const selector of selectors) {
+
+        const el = doc.querySelector(selector);
+
+        if (el) return el;
+
+    }
+
+    return null;
+
+}
+
+
+function clearEditorStyles() {
+
+    const doc = getDoc();
+
+    if (!doc) return;
+
+    Object.keys(TARGETS).forEach(key => {
+
+        const el = findElement(key);
+
+        if (!el) return;
+
+        el.style.removeProperty("outline");
+        el.style.removeProperty("outline-offset");
+        el.style.removeProperty("cursor");
+
+        el.style.removeProperty(
+            "--layout-editor-z"
+        );
+
+    });
+
+}
+
+
+function applyItem(key) {
+
+    const item = getItem(key);
+
+    const el = findElement(key);
+
+    if (!el) return;
+
+    el.style.setProperty(
+        "translate",
+        `${item.x}vw ${item.y}vh`,
+        "important"
+    );
+
+    el.style.setProperty(
+        "scale",
+        `${item.scale}`,
+        "important"
+    );
+
+}
+
+
+function applyAll() {
+
+    Object.keys(TARGETS).forEach(
+        applyItem
+    );
+
+}
+
+
+function updateControls() {
+
+    const item = getItem(selectedKey);
+
+    xInput.value =
+        Number(item.x).toFixed(2);
+
+    yInput.value =
+        Number(item.y).toFixed(2);
+
+    scaleInput.value =
+        item.scale;
+
+    scaleValue.textContent =
+        Math.round(item.scale * 100) + "%";
+
+    document
+        .querySelectorAll(".item")
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.key === selectedKey
+            );
+
+        });
+
+}
+
+
+function select(key) {
+
+    selectedKey = key;
+
+    clearEditorStyles();
+
+    const el = findElement(key);
+
+    if (el) {
+
+        el.style.setProperty(
+            "outline",
+            "3px solid #ff3b8d",
+            "important"
+        );
+
+        el.style.setProperty(
+            "outline-offset",
+            "4px",
+            "important"
+        );
+
+        el.style.setProperty(
+            "cursor",
+            "move",
+            "important"
+        );
+
+    }
+
+    updateControls();
+
+}
+
+
+function bindDrag() {
+
+    const win =
+        iframe.contentWindow;
+
+    const doc =
+        iframe.contentDocument;
+
+    if (!win || !doc) return;
+
+    doc.addEventListener(
+        "pointerdown",
+        event => {
+
+            const el =
+                findElement(selectedKey);
+
+            if (!el) return;
+
+            if (
+                event.target !== el &&
+                !el.contains(event.target)
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const item =
+                getItem(selectedKey);
+
+            drag = {
+
+                startX:
+                    event.clientX,
+
+                startY:
+                    event.clientY,
+
+                x:
+                    Number(item.x || 0),
+
+                y:
+                    Number(item.y || 0)
+
+            };
+
+        },
+        true
+    );
+
+
+    doc.addEventListener(
+        "pointermove",
+        event => {
+
+            if (!drag) return;
+
+            event.preventDefault();
+
+            const item =
+                getItem(selectedKey);
+
+            const dx =
+                (
+                    (event.clientX - drag.startX)
+                    / win.innerWidth
+                ) * 100;
+
+            const dy =
+                (
+                    (event.clientY - drag.startY)
+                    / win.innerHeight
+                ) * 100;
+
+            item.x =
+                drag.x + dx;
+
+            item.y =
+                drag.y + dy;
+
+            applyItem(selectedKey);
+
+            updateControls();
+
+        },
+        true
+    );
+
+
+    const finish = () => {
+        drag = null;
+    };
+
+    doc.addEventListener(
+        "pointerup",
+        finish,
+        true
+    );
+
+    doc.addEventListener(
+        "pointercancel",
+        finish,
+        true
+    );
+
+}
+
+
+async function loadLayout() {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/layout?v=${Date.now()}`,
+                {
+                    cache: "no-store"
+                }
+            );
+
+        if (response.ok) {
+
+            layout =
+                await response.json();
+
+        }
+
+    } catch {}
+
+    if (!layout.desktop) {
+        layout.desktop = {};
+    }
+
+    applyAll();
+    select(selectedKey);
+
+}
+
+
+async function saveLayout() {
+
+    status.textContent =
+        "salvando...";
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/layout",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(layout)
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error();
+        }
+
+        status.textContent =
+            "SALVO ✓";
+
+    } catch {
+
+        status.textContent =
+            "erro ao salvar";
+
+    }
+
+}
+
+
+document
+    .querySelectorAll(".item")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+                select(
+                    button.dataset.key
+                );
+            }
+        );
+
+    });
+
+
+xInput.addEventListener(
+    "input",
+    () => {
+
+        getItem(selectedKey).x =
+            Number(xInput.value || 0);
+
+        applyItem(selectedKey);
+
+    }
+);
+
+
+yInput.addEventListener(
+    "input",
+    () => {
+
+        getItem(selectedKey).y =
+            Number(yInput.value || 0);
+
+        applyItem(selectedKey);
+
+    }
+);
+
+
+scaleInput.addEventListener(
+    "input",
+    () => {
+
+        getItem(selectedKey).scale =
+            Number(scaleInput.value);
+
+        scaleValue.textContent =
+            Math.round(
+                Number(scaleInput.value) * 100
+            ) + "%";
+
+        applyItem(selectedKey);
+
+    }
+);
+
+
+document
+    .getElementById("save")
+    .addEventListener(
+        "click",
+        saveLayout
+    );
+
+
+document
+    .getElementById("reset")
+    .addEventListener(
+        "click",
+        () => {
+
+            layout.desktop[selectedKey] =
+                defaultItem();
+
+            applyItem(selectedKey);
+            updateControls();
+
+        }
+    );
+
+
+iframe.addEventListener(
+    "load",
+    () => {
+
+        /*
+          Libera elementos que normalmente
+          têm pointer-events:none.
+        */
+
+        const doc =
+            iframe.contentDocument;
+
+        if (doc) {
+
+            const style =
+                doc.createElement("style");
+
+            style.textContent = `
+                @media (min-width:900px) {
+                    .covers,
+                    .cover,
+                    .artist-stage,
+                    .artist-photo,
+                    .mask-image,
+                    .interaction,
+                    .falling-album,
+                    [data-falling-album] {
+                        pointer-events:auto !important;
+                    }
+                }
+            `;
+
+            doc.head.appendChild(style);
+
+        }
+
+        bindDrag();
+
+        setTimeout(
+            loadLayout,
+            500
+        );
+
+        setTimeout(
+            () => select(selectedKey),
+            1200
+        );
+
+    }
+);
+
+</script>
+
+
+<style>
+/* =========================================================
+   MILA_EDITOR_PANEL_DRAGGABLE_V1
+   PAINEL DE EDIÇÃO FLUTUANTE / ARRASTÁVEL
+========================================================= */
+
+@media (min-width: 900px){
+
+    .mila-editor-floating-panel{
+        position:fixed !important;
+        left:18px;
+        top:90px;
+        z-index:999999 !important;
+
+        max-height:calc(100vh - 115px) !important;
+        overflow-y:auto !important;
+        overflow-x:hidden !important;
+
+        box-sizing:border-box !important;
+
+        box-shadow:
+            0 18px 60px rgba(0,0,0,.45),
+            0 0 0 1px rgba(255,255,255,.05) !important;
+
+        backdrop-filter:blur(18px);
+        -webkit-backdrop-filter:blur(18px);
+    }
+
+    .mila-editor-drag-handle{
+        cursor:grab !important;
+        user-select:none !important;
+        -webkit-user-select:none !important;
+        touch-action:none !important;
+
+        position:relative !important;
+    }
+
+    .mila-editor-drag-handle:active{
+        cursor:grabbing !important;
+    }
+
+    .mila-editor-drag-handle::after{
+        content:"arraste";
+        display:inline-block;
+        margin-left:10px;
+
+        font-family:Arial,sans-serif;
+        font-size:10px;
+        font-weight:700;
+        letter-spacing:.08em;
+        text-transform:uppercase;
+
+        opacity:.48;
+        vertical-align:middle;
+    }
+
+    .mila-editor-floating-panel.mila-is-dragging{
+        transition:none !important;
+        box-shadow:
+            0 25px 80px rgba(0,0,0,.65),
+            0 0 0 2px rgba(238,73,190,.45) !important;
+    }
+
+    .mila-editor-reset-position{
+        width:100%;
+        margin-top:8px;
+        min-height:30px;
+        border-radius:9px;
+        border:1px solid rgba(255,255,255,.16);
+        background:rgba(255,255,255,.055);
+        color:rgba(255,255,255,.72);
+        font:700 10px/1 Arial,sans-serif;
+        letter-spacing:.06em;
+        text-transform:uppercase;
+        cursor:pointer;
+    }
+
+    .mila-editor-reset-position:hover{
+        background:rgba(255,255,255,.10);
+        color:white;
+    }
+}
+</style>
+
+<script>
+(() => {
+
+    const STORAGE_KEY = "milaLayoutEditorPanelPositionV1";
+
+    function initFloatingEditor(){
+
+        if (window.innerWidth < 900) return;
+
+        /*
+         * Localiza o título "Posicionar elementos"
+         * sem depender de classe específica.
+         */
+        const headings = [
+            ...document.querySelectorAll("h1,h2,h3,h4,strong")
+        ];
+
+        const heading = headings.find(el =>
+            (el.textContent || "")
+                .trim()
+                .toLowerCase()
+                .includes("posicionar elementos")
+        );
+
+        if (!heading){
+            console.warn("Painel de posicionamento não encontrado.");
+            return;
+        }
+
+        /*
+         * Procura o container principal do painel.
+         */
+        let panel = heading.parentElement;
+
+        while (
+            panel &&
+            panel !== document.body &&
+            (
+                panel.offsetWidth < 180 ||
+                panel.offsetHeight < 250
+            )
+        ){
+            panel = panel.parentElement;
+        }
+
+        if (!panel || panel === document.body){
+            console.warn("Container do painel não encontrado.");
+            return;
+        }
+
+        panel.classList.add("mila-editor-floating-panel");
+        heading.classList.add("mila-editor-drag-handle");
+
+        heading.title = "Segure e arraste para mover o painel";
+
+        /*
+         * Restaura última posição.
+         */
+        try{
+            const saved = JSON.parse(
+                localStorage.getItem(STORAGE_KEY) || "null"
+            );
+
+            if (
+                saved &&
+                Number.isFinite(saved.left) &&
+                Number.isFinite(saved.top)
+            ){
+                panel.style.left = saved.left + "px";
+                panel.style.top  = saved.top  + "px";
+            }
+        }catch(e){}
+
+        function clampPanel(){
+
+            const rect = panel.getBoundingClientRect();
+
+            let left = rect.left;
+            let top  = rect.top;
+
+            const maxLeft =
+                Math.max(8, window.innerWidth - rect.width - 8);
+
+            const maxTop =
+                Math.max(8, window.innerHeight - 55);
+
+            left = Math.max(8, Math.min(left, maxLeft));
+            top  = Math.max(8, Math.min(top, maxTop));
+
+            panel.style.left = left + "px";
+            panel.style.top  = top  + "px";
+        }
+
+        clampPanel();
+
+        let dragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        heading.addEventListener("pointerdown", e => {
+
+            /*
+             * Evita iniciar arraste caso exista
+             * algum botão/link dentro do título.
+             */
+            if (
+                e.target.closest("button,a,input,select,textarea")
+            ){
+                return;
+            }
+
+            dragging = true;
+
+            const rect = panel.getBoundingClientRect();
+
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+
+            panel.classList.add("mila-is-dragging");
+
+            try{
+                heading.setPointerCapture(e.pointerId);
+            }catch(err){}
+
+            e.preventDefault();
+        });
+
+        heading.addEventListener("pointermove", e => {
+
+            if (!dragging) return;
+
+            const rect = panel.getBoundingClientRect();
+
+            let left = e.clientX - offsetX;
+            let top  = e.clientY - offsetY;
+
+            const maxLeft =
+                Math.max(8, window.innerWidth - rect.width - 8);
+
+            const maxTop =
+                Math.max(8, window.innerHeight - 50);
+
+            left = Math.max(8, Math.min(left, maxLeft));
+            top  = Math.max(8, Math.min(top, maxTop));
+
+            panel.style.left = left + "px";
+            panel.style.top  = top  + "px";
+        });
+
+        function finishDrag(e){
+
+            if (!dragging) return;
+
+            dragging = false;
+
+            panel.classList.remove("mila-is-dragging");
+
+            const rect = panel.getBoundingClientRect();
+
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify({
+                    left: rect.left,
+                    top: rect.top
+                })
+            );
+
+            try{
+                heading.releasePointerCapture(e.pointerId);
+            }catch(err){}
+        }
+
+        heading.addEventListener("pointerup", finishDrag);
+        heading.addEventListener("pointercancel", finishDrag);
+
+        /*
+         * Botão para recuperar o painel se quiser.
+         */
+        if (!panel.querySelector(".mila-editor-reset-position")){
+
+            const reset = document.createElement("button");
+
+            reset.type = "button";
+            reset.className = "mila-editor-reset-position";
+            reset.textContent = "reposicionar painel";
+
+            reset.addEventListener("click", () => {
+
+                panel.style.left = "18px";
+                panel.style.top = "90px";
+
+                localStorage.removeItem(STORAGE_KEY);
+
+                clampPanel();
+            });
+
+            panel.appendChild(reset);
+        }
+
+        window.addEventListener("resize", clampPanel);
+    }
+
+    if (document.readyState === "loading"){
+        document.addEventListener(
+            "DOMContentLoaded",
+            initFloatingEditor
+        );
+    }else{
+        initFloatingEditor();
+    }
+
+})();
+</script>
+
+
+
+<!-- MILA_HATER_ALBUM_EDITOR_V1 -->
+<style>
+/*
+   Botão do Hater um pouco diferente no painel
+   para mostrar que ele agora é uma peça especial.
+*/
+button[data-item="cover2"],
+button[data-key="cover2"],
+[data-layout-item="cover2"]{
+    border-color: rgba(255,65,145,.75) !important;
+}
+</style>
+
+<script>
+(() => {
+    /*
+      Segurança extra:
+      caso o botão seja criado pelo JavaScript depois
+      que a página carrega, renomeamos também por JS.
+    */
+    function renomearHater(){
+        document.querySelectorAll("button").forEach(btn => {
+            const txt = (btn.textContent || "").trim();
+
+            if(txt === "Capa 2"){
+                btn.textContent = "Hater de Mim — Álbum";
+            }
+        });
+    }
+
+    renomearHater();
+
+    const observer = new MutationObserver(renomearHater);
+
+    observer.observe(document.body,{
+        childList:true,
+        subtree:true
+    });
+})();
+</script>
+
+
+</body>
+</html>
